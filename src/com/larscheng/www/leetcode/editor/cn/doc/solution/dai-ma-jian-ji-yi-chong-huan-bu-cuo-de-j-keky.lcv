@@ -1,0 +1,33 @@
+[详细刷题视频合集](https://xiaochen1024.com/series/6196129fc1553b002e57bef5/6196208ec1553b002e57bef6)      
+[刷题笔记](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18)
+找出字符串中的特殊字符的第一个和第二个位置，遍历字符串，如果没有第二个，则剩下的都取与第一个的绝对位置。如果有且index在第一个之前，取first - i，在第一个和第二个中间则取最小值，等于第二个时，取0并且往后挪位置。
+
+* 
+
+```
+const shortestToChar = (S, C) => {
+    const len = S.length
+    let res = new Array(len)
+    let first = S.indexOf(C)
+    let second = S.indexOf(C, first+1)
+    for(let i = 0;i<len;i++) {
+        if(second===-1) {
+            res[i] = Math.abs(first - i)
+        }else {
+            if(first>=i) {
+                res[i] = first-i
+            }else if(second>i) {
+                res[i] = Math.min(i-first,second-i)
+            }else{
+                first = second
+                second = S.indexOf(C, first+1)
+                res[i] = 0
+            }
+        }
+        
+    }
+    return res
+}
+
+```
+

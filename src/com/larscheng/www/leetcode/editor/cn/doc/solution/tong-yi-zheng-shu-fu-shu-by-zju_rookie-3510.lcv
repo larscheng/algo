@@ -1,0 +1,24 @@
+负数第一位肯定有个1，不为0
+
+正数会从第一组非0开始加进ans
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    string dir = "0123456789abcdef";
+    string toHex(int num) {
+        if(num==0) return "0";
+        string ans;
+        for(**int i=7**;i>=0;i--){ //从开头开始遍历！！！32=8*4
+            int val=**(num>>(i*4))&0xf; //四位一组**
+            if(**ans.size()>0 or val>0**){
+                ans+=dir[val];
+            }
+        }
+        return ans;
+    }
+};
+```
+

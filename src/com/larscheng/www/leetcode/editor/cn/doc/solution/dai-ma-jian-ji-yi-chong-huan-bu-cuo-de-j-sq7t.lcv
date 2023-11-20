@@ -1,0 +1,26 @@
+[详细刷题视频合集](https://xiaochen1024.com/series/6196129fc1553b002e57bef5/6196208ec1553b002e57bef6)      
+[刷题笔记](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18)
+从两边一起推进
+
+* 
+
+```
+var numIdenticalPairs = function(nums) {
+    let end = nums.length-1
+    let start = 0
+    let total = 0
+    while(start!=nums.length-1){
+        if(nums[start]===nums[end]){
+            total++
+        }
+        end--
+        if(end==start){
+            end=nums.length-1
+            start++
+        }
+    }
+    return total
+};
+
+```
+

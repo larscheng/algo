@@ -1,0 +1,52 @@
+> Problem: [面试题 16.01. 交换数字](https://leetcode.cn/problems/swap-numbers-lcci/description/)
+
+[TOC]
+
+# 思路
+
+> 如果有一个为0，就直接赋值就可以，如果都不为0，可以用乘法和除法模拟解决。
+
+# 解题方法
+
+> 乘积是sum 那 numbers[0]就是sum/numbers[1] numbers[1]就是sum/numbers[1];
+
+# Code
+
+* []
+
+```TypeScript
+
+function swapNumbers(numbers: number[]): number[] {
+	if (numbers[0] === 0) {
+		numbers[0] = numbers[1];
+		numbers[1] = 0;
+		return numbers;
+	} else if (numbers[1] === 0) {
+		numbers[1] = numbers[0];
+		numbers[0] = 0;
+		return numbers;
+	}
+    //此时0是乘积
+	numbers[0] = numbers[0] * numbers[1];
+    //1的值是乘积除去1
+	numbers[1] = numbers[0] / numbers [1];
+    //此时1已经变成0，除0就得1
+	numbers[0] = numbers[0] / numbers[1];
+	return numbers
+}
+
+```
+
+当然上面是傻孩子的做法，正确的做法还得是异或。
+
+* []
+
+```TypeScript
+function swapNumbers(numbers: number[]): number[] {
+    numbers[0] ^= numbers[1];
+    numbers[1] ^= numbers[0];
+    numbers[0] ^= numbers[1];
+    return numbers;
+}
+```
+

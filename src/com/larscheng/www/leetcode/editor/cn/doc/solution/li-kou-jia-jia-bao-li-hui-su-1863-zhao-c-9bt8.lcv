@@ -1,0 +1,8 @@
+* py
+
+```py
+class Solution:
+    def subsetXORSum(self, nums: List[int]) -> int:
+        return sum([sum(map(lambda combination: reduce(lambda x, y: x ^ y, combination), combinations(nums, i + 1))) for i in range(len(nums))])
+```
+

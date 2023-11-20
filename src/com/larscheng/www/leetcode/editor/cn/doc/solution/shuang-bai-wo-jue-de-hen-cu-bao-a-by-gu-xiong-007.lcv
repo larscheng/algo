@@ -1,0 +1,17 @@
+![image.png](https://pic.leetcode-cn.com/ed377f62605fc30c35b289f64e562f797c684ebc2e20d31f3eb108bcf0fb22cb-image.png)
+
+* 
+
+```
+class Solution {
+    public int getDecimalValue(ListNode head) {
+        int sum = 0;
+        while(head!=null){
+            sum = sum*2 + head.val;
+            head = head.next;
+        }
+        return sum;
+    }
+}
+```
+

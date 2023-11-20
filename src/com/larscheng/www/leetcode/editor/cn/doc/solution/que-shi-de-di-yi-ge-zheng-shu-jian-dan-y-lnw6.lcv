@@ -1,0 +1,54 @@
+### 解题思路
+
+看完这题我第一想法是先排序然后二分查找，但是不符合题目要求的O(n)的时间复杂度，
+然后又想到了哈希表，但是发现又不符合常数级别的空间复杂度，所以这个方法也行不通。
+
+所以想到了在原数组表上进行操作，将每一个数字对号入座：
+也就是说，如果这个数字为2，那么就应该放在数组中索引为1的位置上，如果这个数字为5，那么就应该放在数组中索引为4的位置上，同理，**数字 x 应该放在数组中索引为 x-1 的位置上**。经过这样一番处理，数组就得到了我们想要的样子，然后再遍历一遍数组，找出不符合我们要求的那个就是答案，如果说遍历了一遍都没有返回值，那么就是直接返回 nums.length + 1 就可以了。
+
+### 代码
+
+* []
+
+```java
+class Solution {
+    public int firstMissingPositive(int[] nums) {
+        for (int i = 0; i < nums.length; i++) {
+            while (nums[i] >= 1 && nums[i] <= nums.length && nums[i] != nums[nums[i] - 1]) { // 因为可能不止一次操作，所以此处不用 if ，而改用while
+                check(nums, i, nums[i] - 1);
+            }
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != i + 1) return i + 1;
+        }
+        return nums.length + 1;
+    }
+
+    public void check(int[] nums, int index1, int index2) {
+        // 互换位置
+        int temp = nums[index1];
+        nums[index1] = nums[index2];
+        nums[index2] = temp;
+    }
+}
+```
+
+* []
+
+```python
+class Solution:
+    def firstMissingPositive(self, nums: List[int]) -> int:
+        for i in range(len(nums)):
+            while 1 <= nums[i] <= len(nums) and nums[i] != nums[nums[i] - 1]:
+                self.check(nums, i, nums[i] - 1)
+        for i in range(len(nums)):
+            if nums[i] != i + 1:return i + 1
+        return len(nums) + 1
+
+    def check(self,nums,index1,index2):
+        temp = nums[index1]
+        nums[index1] = nums[index2]
+        nums[index2] = temp
+
+```
+

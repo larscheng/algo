@@ -1,0 +1,93 @@
+**思路分析：**
+因为题目给的数据量也不是太大所以可以枚举每一个三角形，计算面积并找出最大的面积值。根据三角形的三个顶点计算出面积的方法有很多种：
+- [【鞋带公式】](https://blog.csdn.net/wangerxiao121223/article/details/104991297)，用于计算任意多边形的面积，可用于计算三角形的面积；
+- [【海伦公式】](https://baike.baidu.com/item/%E6%B5%B7%E4%BC%A6%E5%85%AC%E5%BC%8F/106956?fr=aladdin)，用三个顶点得到三边长，并使用海伦公式计算出面积；
+- [【三角形面积公式】](https://baike.baidu.com/item/%E4%B8%89%E8%A7%92%E5%BD%A2%E9%9D%A2%E7%A7%AF%E5%85%AC%E5%BC%8F)， S = 1/2 * a * b * sin(C)，首先得到两边的长度，通过叉积算出夹角的正弦值，并使用公式计算出面积；
+
+**【公式】**
+![B55A7665-CD28-4794-BE9D-28F039D8BB8F_1_201_a.jpeg](https://pic.leetcode-cn.com/1652539682-uFrXhO-B55A7665-CD28-4794-BE9D-28F039D8BB8F_1_201_a.jpeg)
+
+**具体代码如下：**
+**方法1:【鞋带公式】**
+
+* []
+
+```C++
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>> &points) {
+        double ans = 0.0;
+        int n = points.size();
+        sort(points.begin(),points.end());
+        for(int i = 0; i < n; i ++)
+            for(int j = i+1; j < n; j ++)
+                for(int k = j+1; k < n; k ++)
+                    ans = max(ans,Triang(points[i],points[j],points[k]));
+        return ans;
+    }
+    double Triang(vector<int>& P,vector<int>& Q,vector<int>& R){
+        double k = ((P[1] - R[1])*1.0) / (P[0] - R[0]) ;
+        return 0.5 * abs(P[0] - R[0]) * abs(k * (Q[0] - P[0]) + P[1] - Q[1]);
+    }
+};
+    
+```
+
+**方法2:【海伦公式】**
+
+* []
+
+```C++
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        double maxs = 0.0;
+        int n = points.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = i+1; j < n; j++) {
+                for (int s = j+1; s < n; s++) {
+                    double a = sqrt(pow(abs(points[j][0] - points[i][0]),2)+pow(abs(points[j][1] - points[i][1]),2));
+                    double b = sqrt(pow(abs(points[s][0] - points[j][0]),2)+pow(abs(points[s][1] - points[j][1]),2));
+                    double c = sqrt(pow(abs(points[i][0] - points[s][0]),2)+pow(abs(points[i][1] - points[s][1]),2));
+                    double l = (a+b+c)*0.5;
+                    maxs = max(maxs,sqrt(l*(l-a)*(l-b)*(l-c)));
+                }
+            }
+        }
+        return maxs;
+    }
+};
+```
+
+**方法3:【三角形面积公式】**
+
+* []
+
+```C++
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        double ans = 0.0;
+        int n = points.size();
+         for(int i = 0; i < n; i ++)
+            for(int j = i+1; j < n; j ++)
+                for(int k = j+1; k < n; k ++)
+                ans = max(ans, Triang(points[i], points[j], points[k]));
+        return ans;
+    }
+    double Triang(vector<int>& P,vector<int>& Q,vector<int>& R){ 
+        double a = abs(sqrt(pow((P[0]-Q[0]), 2) + pow((P[1]-Q[1]), 2)));
+        double b = abs(sqrt(pow((P[0]-R[0]), 2) + pow((P[1]-R[1]), 2)));
+        double c = abs(sqrt(pow((R[0]-Q[0]), 2) + pow((R[1]-Q[1]), 2)));
+        double cosC = (a*a + b*b - c*c)/(2*a*b);
+        double sinC = sqrt(double(1)-cosC*cosC);
+        return 0.5 * a * b * abs(sinC);
+    }
+};
+
+```
+
+**复杂度分析:**
+- 时间复杂度：$O(n^3)$，其中 n 是数组 points 的长度；
+- 空间复杂度：O(1)。
+

@@ -1,0 +1,26 @@
+### 解题思路
+
+定义一个计数器，先进行双层遍历，小于输入的值n；判断对开方后的值是否小于n并且满足平方和后是否相等，符合的进行自增，返回满足条件三元组的数目
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int countTriples(int n) {
+        int res = 0;//定义计算满足平方和三元数组的数目
+        for (int a = 1; a <= n;a++){
+            for(int b = 1; b <= n;b++){
+                int cs = a*a + b*b;
+                int c = (int)Math.sqrt(cs);
+                if(c <= n && c*c == cs){
+                    res++;
+                }
+            }
+        }
+        return res;
+    }
+}
+```
+

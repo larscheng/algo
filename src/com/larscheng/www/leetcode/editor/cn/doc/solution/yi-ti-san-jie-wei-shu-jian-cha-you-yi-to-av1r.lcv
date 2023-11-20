@@ -1,0 +1,153 @@
+## 「位数检查」解法
+
+一个朴素的做法是，对 `int` 的每一位进行检查，并统计 $1$ 的个数。
+
+![image.png](https://pic.leetcode-cn.com/1616375441-WGCssd-image.png)
+
+代码：
+
+* []
+
+```Java
+public class Solution {
+    public int hammingWeight(int n) {
+        int ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans += ((n >> i) & 1);
+        }
+        return ans;
+    }
+}
+```
+
+* 时间复杂度：$O(k)$，$k$ 为 `int` 的位数，固定为 $32$ 位
+* 空间复杂度：$O(1)$
+
+---
+
+## 「右移统计」解法
+
+对于方法一，即使 $n$ 的高位均为是 $0$，我们也会对此进行循环检查。
+
+因此另外一个做法是：通过 `n & 1` 来统计当前 $n$ 的最低位是否为 $1$，同时每次直接对 $n$ 进行右移并高位补 0。
+
+当 $n = 0$ 代表，我们已经将所有的 $1$ 统计完成。
+
+这样的做法，可以确保只会循环到最高位的 $1$。
+
+![image.png](https://pic.leetcode-cn.com/1616375636-fXCFNF-image.png)
+
+代码：
+
+* []
+
+```Java
+public class Solution {
+    public int hammingWeight(int n) {
+        int ans = 0;
+        while (n != 0) {
+            ans += (n & 1);
+            n >>>= 1;
+        }
+        return ans;
+    }
+}
+```
+
+* 时间复杂度：$O(k)$，$k$ 为 `int` 的位数，固定为 $32$ 位，最坏情况 $n$ 的二进制表示全是 $1$
+* 空间复杂度：$O(1)$
+
+---
+
+## 「lowbit」解法
+
+对于方法二，如果最高位 $1$ 和 最低位 $1$ 之间全是 $0$，我们仍然会诸次右移，直到处理到最高位的 $1$ 为止。
+
+那么是否有办法，只对位数为 $1$ 的二进制位进行处理呢？
+
+使用 `lowbit` 即可做到，`lowbit` 会在 $O(1)$ 复杂度内返回二进制表示中最低位 $1$ 所表示的数值。
+
+例如 $(0000...111100)_2$ 传入 `lowbit` 返回 $(0000...000100)_2$；$(0000...00011)_2$ 传入 `lowbit` 返回 $(0000...00001)_2$ ...
+
+![image.png](https://pic.leetcode-cn.com/1616375636-fXCFNF-image.png)
+
+代码：
+
+* []
+
+```Java
+public class Solution {
+    public int hammingWeight(int n) {
+        int ans = 0;
+        for (int i = n; i != 0; i -= lowbit(i)) ans++;
+        return ans;
+    }
+    int lowbit(int x) {
+        return x & -x;
+    }
+}
+```
+
+* 时间复杂度：$O(k)$，$k$ 为 `int` 的位数，固定为 $32$ 位，最坏情况 $n$ 的二进制表示全是 $1$
+* 空间复杂度：$O(1)$
+
+---
+
+## 「分组统计」解法
+
+以上三种解法都是 $O(k)$ 的，事实上我们可以通过分组统计的方式，做到比 $O(k)$ 更低的复杂度。
+
+![image.png](https://pic.leetcode-cn.com/1616378128-yBWadF-image.png)
+
+代码：
+
+* []
+
+```Java
+public class Solution {
+    public int hammingWeight(int n) {
+        n = (n & 0x55555555) + ((n >>> 1)  & 0x55555555);
+        n = (n & 0x33333333) + ((n >>> 2)  & 0x33333333);
+        n = (n & 0x0f0f0f0f) + ((n >>> 4)  & 0x0f0f0f0f);
+        n = (n & 0x00ff00ff) + ((n >>> 8)  & 0x00ff00ff);
+        n = (n & 0x0000ffff) + ((n >>> 16) & 0x0000ffff);
+        return n;
+    }
+}
+```
+
+* 时间复杂度：$O(\log{k})$，$k$ 为 `int` 的位数，固定为 $32$ 位
+* 空间复杂度：$O(1)$
+
+PS. 对于该解法，如果大家学有余力的话，还是建议大家在纸上模拟一下这个过程。如果不想深入，也可以当成模板背过（写法非常固定），但通常如果不是写底层框架，你几乎不会遇到需要一个 $O(\log{k})$ 解法的情况。
+
+而且这个做法的最大作用，不是处理 `int`，而是处理更大位数的情况，在长度只有 $32$ 位的 `int` 的情况下，该做法不一定就比循环要快（该做法会产生多个的中间结果，导致赋值发生多次，而且由于指令之间存在对 $n$ 数值依赖，可能不会被优化为并行指令），这个道理和对于排序元素少的情况下，我们会选择「选择排序」而不是「归并排序」是一样的。
+
+---
+
+### 其他「位运算」相关内容
+
+| 题目                                                         | 题解                                                         | 难度 | 推荐指数 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- | -------- |
+| [137. 只出现一次的数字 II](https://leetcode-cn.com/problems/single-number-ii/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/single-number-ii/solution/gong-shui-san-xie-yi-ti-san-jie-ha-xi-bi-fku8/) | 中等 | 🤩🤩🤩      |
+| [190. 颠倒二进制位](https://leetcode-cn.com/problems/reverse-bits/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/reverse-bits/solution/yi-ti-san-jie-dui-cheng-wei-zhu-wei-fen-ub1hi/) | 简单 | 🤩🤩🤩      |
+| [191. 位1的个数](https://leetcode-cn.com/problems/number-of-1-bits/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/number-of-1-bits/solution/yi-ti-san-jie-wei-shu-jian-cha-you-yi-to-av1r/) | 简单 | 🤩🤩🤩      |
+| [231. 2 的幂](https://leetcode-cn.com/problems/power-of-two/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/power-of-two/solution/gong-shui-san-xie-2-de-mi-by-ac_oier-qm6e/) | 简单 | 🤩🤩🤩      |
+| [338. 比特位计数](https://leetcode-cn.com/problems/counting-bits/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/counting-bits/solution/po-su-jie-fa-dong-tai-gui-hua-jie-fa-by-vvail/) | 简单 | 🤩🤩🤩      |
+| [342. 4的幂](https://leetcode-cn.com/problems/power-of-four/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/power-of-four/solution/gong-shui-san-xie-zhuan-hua-wei-2-de-mi-y21lq/) | 简单 | 🤩🤩🤩      |
+| [461. 汉明距离](https://leetcode-cn.com/problems/hamming-distance/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/hamming-distance/solution/gong-shui-san-xie-tong-ji-liang-shu-er-j-987a/) | 简单 | 🤩🤩🤩🤩     |
+| [477. 汉明距离总和](https://leetcode-cn.com/problems/total-hamming-distance/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/total-hamming-distance/solution/gong-shui-san-xie-ying-yong-cheng-fa-yua-g21t/) | 简单 | 🤩🤩🤩🤩     |
+| [1178. 猜字谜](https://leetcode-cn.com/problems/number-of-valid-words-for-each-puzzle/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/number-of-valid-words-for-each-puzzle/solution/xiang-jin-zhu-shi-xiang-jie-po-su-wei-yu-3cr2/) | 困难 | 🤩🤩🤩🤩     |
+| [剑指 Offer 15. 二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/) | [LeetCode 题解链接](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/solution/gong-shui-san-xie-yi-ti-si-jie-wei-shu-j-g9w6/) | 简单 | 🤩🤩🤩      |
+
+**注：以上目录整理来自 [wiki](https://github.com/SharingSource/LogicStack-LeetCode/wiki/位运算)，任何形式的转载引用请保留出处。**
+
+---
+
+## 最后
+
+**如果有帮助到你，请给题解点个赞和收藏，让更多的人看到 ~ ("▔□▔)/**
+
+也欢迎你 [关注我](https://oscimg.oschina.net/oscnet/up-19688dc1af05cf8bdea43b2a863038ab9e5.png) 和 加入我们的[「组队打卡」](https://leetcode-cn.com/u/ac_oier/)小群 ，提供写「证明」&「思路」的高质量题解。
+
+所有题解已经加入 [刷题指南](https://github.com/SharingSource/LogicStack-LeetCode/wiki)，欢迎 star 哦 ~

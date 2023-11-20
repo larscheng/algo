@@ -1,0 +1,24 @@
+* 
+
+```
+class Solution {
+   
+    public int countDigits(int num) {
+        int N[] = new int[10];
+        int sum = 0;
+        int temp = num;
+        while (num > 0) {
+            int a = num % 10;
+            N[a]++;
+            num /= 10;
+        }
+        for (int i = 1; i < N.length; i++) {
+            if (temp % i == 0 && N[i]>0) {//数组计数
+                sum += N[i];
+            }
+        }
+        return sum;
+    }
+}
+```
+

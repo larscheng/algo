@@ -1,0 +1,30 @@
+> Problem: [2678. 老人的数目](https://leetcode.cn/problems/number-of-senior-citizens/description/)
+
+[TOC]
+
+# 思路
+
+> 循环数组 截取年龄 转换为数字
+> 输出答案
+
+执行：0ms  内存：39.59MB
+
+# Code
+
+* []
+
+```Java
+
+class Solution {
+    public int countSeniors(String[] details) {
+        int result =0;
+        for (String detail : details) {
+            if (Integer.parseInt(detail.substring(11,13))>60){
+                result++;
+            }
+        }
+        return result;
+    }
+}
+```
+

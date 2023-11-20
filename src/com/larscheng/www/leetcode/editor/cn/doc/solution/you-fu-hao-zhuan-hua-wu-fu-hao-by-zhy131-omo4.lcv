@@ -1,0 +1,40 @@
+> Problem: [405. 数字转换为十六进制数](https://leetcode.cn/problems/convert-a-number-to-hexadecimal/description/)
+
+[TOC]
+
+# 思路
+
+> 计算机存储32位有符号整数，是通过补码的形式存储的
+> 而第一位是符号位  
+> 正数是其本身  
+> 负数是其补码
+
+# 解题过程
+
+> 将有符号整数看成无符号整数  
+> 32位无符号可以表示最大数为4294967295补码，与-1的补码相同  
+> 所以在处理负数时，可以将负数加4294967296，转化为正数来处理
+
+# Code
+
+* []
+
+```Python
+
+class Solution:
+    def toHex(self, num: int) -> str:
+        o="0123456789abcdef"
+        s=""
+        l=[]
+        if num<0:
+            num=num+4294967296
+        while num>=16:
+            l.append(o[num%16])
+            num=num//16
+        l.append(o[num])
+        l.reverse()
+        return "".join(l)
+        
+
+```
+

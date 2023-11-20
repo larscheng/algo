@@ -1,0 +1,63 @@
+## 题解：
+
+我觉得难点在子集的划分，有了划分，就可以求异或和了。
+
+数组数目为2，4个子集
+数组数目为3，8个子集
+
+|数组元素个数|数组子集数个数|
+|----------|------------|
+|2|4|
+|3|8|
+
+![1863_1.png](https://pic.leetcode-cn.com/1654952149-zUYNRr-1863_1.png)
+![1863_2.png](https://pic.leetcode-cn.com/1654962120-RfqYAC-1863_2.png)
+
+* 
+
+```
+class Solution {
+public:
+    int subsetXORSum(vector<int>& nums) {
+        int result = 0;
+        n = nums.size();
+        // 这个flagArray保存了是否将当前数组元素放入
+        // 当前子集的标识
+        bool* flagArray = new bool[n];
+        // 要把nums[0]加入当前子集吗？
+        // 包含当前元素nums[0]的所有子集的异或和
+        flagArray[0] = true;
+        int sumWithCurrent    = dfs(nums, 0, flagArray, true );
+        // 不包含当前元素nums[0]的所有子集的异或和
+        flagArray[0] = false;
+        int sumWithOutCurrent = dfs(nums, 0, flagArray, false);
+        result = sumWithCurrent + sumWithOutCurrent;
+        return result;
+    }
+    int dfs( const vector<int>& nums, int index,
+             bool* flagArray, bool withCurrent ) {
+                 int sum = 0;
+                 // 递归触底，一个子集出来了, 描述在flagArray中
+                 // 确认一个子集，求解一个子集的异或和
+                 if ( index == n - 1 ) {
+                     for ( int i = 0; i < n; ++i ) {
+                         if ( flagArray[i] ) {
+                             sum = sum ^ nums[i];
+                         }
+                     }
+                 } else {
+                     // 包含当前元素nums[index+1]的所有子集的异或和
+                     flagArray[index+1] = true;
+                     int sumWithCurrent    = dfs( nums, index + 1, flagArray, true );
+                     // 不包含当前元素nums[index+1]的所有子集的异或和
+                     flagArray[index+1] = false;
+                     int sumWithOutCurrent = dfs( nums, index + 1, flagArray, false );
+                     sum = sumWithCurrent + sumWithOutCurrent;
+                 }
+                 return sum;
+             }
+private:
+    int n;
+};
+```
+

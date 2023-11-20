@@ -1,0 +1,36 @@
+### 解题思路
+
+存在三种情况
+
+- 1.未遇到C时，右指针右移；
+- 2.当右指针遇到C时，左指针的值即为与右指针之间的距离和当前值的最小项
+- 3.当右指针遇到C后，右指针右移，且右指针所在值为前一值加1
+
+### 代码
+
+* python3
+
+```python
+class Solution:
+    def shortestToChar(self, s: str, c: str) -> List[int]:
+        l = r = 0
+        n = len(s)
+        res = [n] * n
+        flag = False  # 判断是否遇到过C
+        while r <= n - 1:
+            if s[r] == c:
+                res[r] = 0
+                while l <= r:
+                    res[l] = min(res[l], r - l)
+                    l += 1
+                r += 1
+                flag = True
+            else:
+                if flag:
+                    res[r] = res[r-1] + 1
+                r += 1
+        return res
+
+
+```
+

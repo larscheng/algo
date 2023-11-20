@@ -1,0 +1,49 @@
+### 解题思路
+
+1、先用map统计各数字出现次数。
+2、遍历map使用排列组合计数。
+
+### 执行结果
+
+![捕获.PNG](https://pic.leetcode-cn.com/1655258580-paXjVy-%E6%8D%95%E8%8E%B7.PNG)
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        int totalCnt = 0;
+        // 构造map，统计各数字出现次数
+		map<int, int> numCntMap;
+		for (int num : nums)
+		{
+			if (numCntMap.count(num) == 0)
+			{
+				numCntMap[num] = 1;
+			}
+			else
+			{
+				numCntMap[num] += 1;
+			}
+		}
+
+        // 遍历map，根据出现次数计算组合数
+		for (auto it : numCntMap)
+		{
+			int numCnt = it.second;
+			if (numCnt > 1)
+			{
+                // 2个数一组匹配
+                numCnt--;
+                // 统计
+				totalCnt += (numCnt + 1) * numCnt / 2;
+			}
+		}
+		return totalCnt;
+    }
+};
+```
+

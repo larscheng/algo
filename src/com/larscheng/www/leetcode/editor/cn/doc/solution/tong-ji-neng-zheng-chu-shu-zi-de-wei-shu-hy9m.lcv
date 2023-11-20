@@ -1,0 +1,128 @@
+#### 方法一：模拟
+
+**思路**
+
+根据题目要求，从低位到高位，依次判断除 $\textit{nums}$ 的余数是否为 $0$。统计所有余数为 $0$ 的次数后返回。
+
+**代码**
+
+* [sol1-Python3]
+
+```Python
+class Solution:
+    def countDigits(self, num: int) -> int:
+        t = num
+        res = 0
+        while t:
+            if num % (t % 10) == 0:
+                res += 1
+            t //= 10
+        return res
+```
+
+* [sol1-Java]
+
+```Java
+class Solution {
+    public int countDigits(int num) {
+        int t = num;
+        int res = 0;
+        while (t != 0) {
+            if (num % (t % 10) == 0) {
+                res++;
+            }
+            t /= 10;
+        }
+        return res;
+    }
+}
+```
+
+* [sol1-C#]
+
+```C#
+public class Solution {
+    public int CountDigits(int num) {
+        int t = num;
+        int res = 0;
+        while (t != 0) {
+            if (num % (t % 10) == 0) {
+                res++;
+            }
+            t /= 10;
+        }
+        return res;
+    }
+}
+```
+
+* [sol1-C++]
+
+```C++
+class Solution {
+public:
+    int countDigits(int num) {
+        int t = num, res = 0;
+        while (t) {
+            if (num % (t % 10) == 0) {
+                res += 1;
+            }
+            t /= 10;
+        }
+        return res;
+    }
+};
+```
+
+* [sol1-C]
+
+```C
+int countDigits(int num) {
+    int t = num, res = 0;
+    while (t) {
+        if (num % (t % 10) == 0) {
+            res += 1;
+        }
+        t /= 10;
+    }
+    return res;
+}
+```
+
+* [sol1-Go]
+
+```Go
+func countDigits(num int) int {
+    t, res := num, 0
+    for t != 0 {
+        if num % (t % 10) == 0 {
+            res += 1
+        }
+        t /= 10
+    }
+    return res
+}
+```
+
+* [sol1-JavaScript]
+
+```JavaScript
+var countDigits = function(num) {
+    let t = num;
+    let res = 0;
+    while (t) {
+        if (num % (t % 10) == 0) {
+            res += 1;
+        }
+        t = Math.floor(t / 10);
+    }
+    return res;
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(\log \textit{nums})$，$\textit{nums}$ 的位数为 $O(\log \textit{nums})$。
+
+- 空间复杂度：$O(1)$。
+

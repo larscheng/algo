@@ -1,0 +1,64 @@
+## 解题思路
+
+1. 将输入的字符串转换为字符数组。
+2. 使用哈希映射统计每个字符在字符串中出现的频次。
+3. 创建一个优先队列（最大堆），依据字符出现的频次对字符进行排序。
+4. 插入每个字符到优先队列中。
+5. 初始化一个StringBuilder对象以构建结果字符串。
+6. 当优先队列非空时，执行以下操作：
+   a. 从优先队列中取出字符，获取其在原始字符串中出现的频次。
+   b. 将此字符添加到StringBuilder对象中，重复添加该字符频次的次数
+7. 返回StringBuilder对象转换的字符串。
+
+## 代码
+
+* java
+
+```java
+class Solution {
+    public String frequencySort(String s) {
+        char []nums = s.toCharArray();
+        HashMap<Character,Integer> map = new HashMap<>();
+        for (int i = 0;i<nums.length;i++){
+            if (map.containsKey(nums[i])){
+                map.put(nums[i], map.get(nums[i]) + 1);
+            }
+            else{
+                map.put(nums[i],1);
+            }
+        }
+        PriorityQueue<Character> maxheap = new PriorityQueue<>((n1, n2) -> map.get(n2) - map.get(n1));
+        for (char i:map.keySet()){
+            maxheap.add(i);
+        }
+       StringBuilder sb = new StringBuilder();
+        while(!maxheap.isEmpty()){
+            char delete = maxheap.poll();
+            int count = map.get(delete);
+            for (int j = 0;j<count;j++){
+                sb.append(delete); 
+            }
+        }
+          
+        return sb.toString();    
+    }
+}
+```
+
+## 时间和空间复杂度
+
+- 时间复杂度：
+
+1. 遍历字符数组并构建哈希映射：O(n)，其中n是输入字符串的长度。
+2. 将哈希映射元素添加至优先队列（最大堆）：O(u * log u)，其中u是字符串中不重复字符的数量。
+3. 构建结果字符串：在最坏情况下，我们为每个输入字符迭代一次（总计n次迭代）。每次迭代涉及优先队列的一个删除操作（O(log u)）；因此，这部分的时间复杂度为O(n * log u)。
+
+总时间复杂度：O(n) + O(u * log u) + O(n * log u)。其中1 <= u <= n。
+
+- 空间复杂度：
+
+1. 哈希映射：O(u)，其中u是输入字符串中唯一字符的数量。
+2. 优先队列：O(u)，最多存储u个不同字符。
+3. StringBuilder：O(n)，最大容量与输入字符串长度相同。
+
+总空间复杂度：O(u) + O(u) + O(n) ≈ O(n + u)。请注意，当输入字符串中的唯一字符数量接近输入字符串的长度时，空间复杂度将接近线性。

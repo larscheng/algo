@@ -1,0 +1,31 @@
+### 解题思路
+
+耗内存仅6.9
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+    auto p1=begin(nums),p2=end(nums);    
+    sort(p1,p2);
+    int i=0,j=-1,e=0,l=p2-p1;
+    while(i<l-1){
+        if(nums[i]!=nums[i+1]){
+            int a=i-j;
+            int b=(a*a-a)/2;
+            e+=b;
+            j=i;
+        }
+        ++i;
+    }
+    int c=i-j;
+    e=e+((c*c-c)/2);
+    return(e);    
+    }
+};
+```
+

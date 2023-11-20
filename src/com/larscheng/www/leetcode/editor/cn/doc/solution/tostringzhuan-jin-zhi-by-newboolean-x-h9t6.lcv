@@ -1,0 +1,43 @@
+> Problem: [1837. K 进制表示下的各位数字总和](https://leetcode.cn/problems/sum-of-digits-in-base-k/description/)
+
+[TOC]
+
+# 思路
+
+> 讲述看到这一题的思路
+
+# 解题方法
+
+> toString转为要求的进制，然后在累加
+
+# 复杂度
+
+- 时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+- 空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```JavaScript
+
+/**
+ * @param {number} n
+ * @param {number} k
+ * @return {number}
+ */
+var sumBase = function (n, k) {
+    const newN = n.toString(k)
+    let result = 0
+    for (let i of newN) {
+        result += parseInt(i)
+    }
+    return result
+};
+```
+

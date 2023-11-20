@@ -1,0 +1,57 @@
+> Problem: [1512. 好数对的数目](https://leetcode.cn/problems/number-of-good-pairs/description/)
+> ![image.png](https://pic.leetcode.cn/1689735606-OQjfcG-image.png)
+
+[TOC]
+
+# 思路
+
+计数问题，既然是来提升的，肯定不能用暴力法嵌套两层循环去做
+时间复杂度是O（n^2）
+这里思想是寻找相同的数组元素并且用全排列公式去做
+全排列公式是n * (n-1)/2
+
+---
+
+# 解题方法
+
+首先用哈希表去遍历整个数组元素，并且把元素出现次数存到值里
+然后遍历哈希表的值Values()
+把值根据全排列公式求和
+最后返回res即可
+
+---
+
+# 复杂度
+
+- 时间复杂度:
+
+> 时间复杂度,  $O(n)$
+
+- 空间复杂度:
+
+> 空间复杂度,  $O(n)$ 最糟糕的情况定义n个k->v键值对
+
+---
+
+# Code
+
+* []
+
+```Java
+
+class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        Map<Integer,Integer> map = new HashMap<>();
+        for (int num : nums) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+        }
+        int res = 0;
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            int value = entry.getValue();
+            res += value * (value - 1) / 2;
+        }
+        return res;
+    }
+}
+```
+

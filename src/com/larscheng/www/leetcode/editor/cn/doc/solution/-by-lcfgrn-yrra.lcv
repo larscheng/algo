@@ -1,0 +1,41 @@
+### 解题思路
+
+根据题目给出的例子2
+
+* 
+
+```
+输入：nums = [1,1,1,1]
+输出：6
+解释：数组中的每组数字都是好数对
+```
+
+我们可以知道找出好数对其实就是在4个中取出2个做组合，即等于（4*3）/ 2。
+那我们的解题思路也就有了：
+1. 找出nums中每个值的个数，并计入数组cnt;
+2. 遍历cnt，`cnt[i] > 1`的即为满足条件的，可以做组合处理（从cnt[i]中取2个）；
+3. 遍历时，将组合数目相加，得到ans并返回。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        int[] cnt = new int[101];
+        for (int num : nums) {
+            ++cnt[num];
+        }
+        int ans = 0;
+        for (int i = 0; i < 101; i++) {
+            if (cnt[i] > 1) {
+                ans += cnt[i] * (cnt[i] - 1) / 2;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+![image.png](https://pic.leetcode-cn.com/1649253844-PUJmjG-image.png)

@@ -1,0 +1,27 @@
+### 解题思路
+
+![Snipaste_2020-06-26_20-19-34.png](https://pic.leetcode-cn.com/f9b30bc200cfe39084aa3a5878f3ef746e79530ec7e7ea893cc7844e3a33a1c9-Snipaste_2020-06-26_20-19-34.png)
+思路：每次左移1位
+1.`res = (res << 1) + head->val;`
+2.`res = (res << 1) ^ head->val;`
+3.`res = (res << 1) | head->val;`
+4.以上4句话都是可以的
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int getDecimalValue(ListNode* head) {
+        int res = 0;
+        while(head) {
+            res = (res << 1) + head->val;
+            head = head->next;
+        }
+        return res;
+    }
+};
+```
+

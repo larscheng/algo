@@ -1,0 +1,141 @@
+# 思路
+
+两层for循环暴力查找，时间复杂度明显为O(n^2)。
+
+那么我们来看一下如何优化。
+
+首先要找小于当前数字的数字，那么从小到大排序之后，该数字之前的数字就都是比它小的了。
+
+所以可以定义一个新数组，将数组排个序。
+
+**排序之后，其实每一个数值的下标就代表这前面有几个比它小的了**。
+
+代码如下：
+
+* 
+
+```
+vector<int> vec = nums;
+sort(vec.begin(), vec.end()); // 从小到大排序之后，元素下标就是小于当前数字的数字
+```
+
+用一个哈希表hash（本题可以就用一个数组）来做数值和下标的映射。这样就可以通过数值快速知道下标（也就是前面有几个比它小的）。
+
+此时有一个情况，就是数值相同怎么办？
+
+例如，数组：1 2 3 4 4 4 ，第一个数值4的下标是3，第二个数值4的下标是4了。
+
+这里就需要一个技巧了，**在构造数组hash的时候，从后向前遍历，这样hash里存放的就是相同元素最左面的数值和下标了**。
+代码如下：
+
+* CPP
+
+```CPP
+int hash[101];
+for (int i = vec.size() - 1; i >= 0; i--) { // 从后向前，记录 vec[i] 对应的下标
+    hash[vec[i]] = i;
+}
+```
+
+最后在遍历原数组nums，用hash快速找到每一个数值 对应的 小于这个数值的个数。存放在将结果存放在另一个数组中。
+
+代码如下：
+
+* CPP
+
+```CPP
+// 此时hash里保存的每一个元素数值 对应的 小于这个数值的个数
+for (int i = 0; i < nums.size(); i++) {
+    vec[i] = hash[nums[i]];
+}
+```
+
+流程如图：
+
+![1365.有多少小于当前数字的数字.png](https://pic.leetcode-cn.com/1603690579-XxkRax-1365.%E6%9C%89%E5%A4%9A%E5%B0%91%E5%B0%8F%E4%BA%8E%E5%BD%93%E5%89%8D%E6%95%B0%E5%AD%97%E7%9A%84%E6%95%B0%E5%AD%97.png)
+
+关键地方讲完了，整体C++代码如下：
+
+* CPP
+
+```CPP
+class Solution {
+public:
+    vector<int> smallerNumbersThanCurrent(vector<int>& nums) {
+        vector<int> vec = nums;
+        sort(vec.begin(), vec.end()); // 从小到大排序之后，元素下标就是小于当前数字的数字
+        int hash[101];
+        for (int i = vec.size() - 1; i >= 0; i--) { // 从后向前，记录 vec[i] 对应的下标
+            hash[vec[i]] = i;
+        }
+        // 此时hash里保存的每一个元素数值 对应的 小于这个数值的个数
+        for (int i = 0; i < nums.size(); i++) {
+            vec[i] = hash[nums[i]];
+        }
+        return vec;
+    }
+};
+```
+
+可以排序之后加哈希，时间复杂度为O(nlogn)
+
+# 其他语言版本
+
+Java：
+
+* Java
+
+```Java
+public int[] smallerNumbersThanCurrent(int[] nums) {
+        Map<Integer, Integer> map = new HashMap<>(); // 记录数字 nums[i] 有多少个比它小的数字
+        int[] res = Arrays.copyOf(nums, nums.length);
+        Arrays.sort(res);
+        for (int i = 0; i < res.length; i++) {
+            if (!map.containsKey(res[i])) { // 遇到了相同的数字，那么不需要更新该 number 的情况
+                map.put(res[i], i);
+            }
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            res[i] = map.get(nums[i]);
+        }
+
+        return res;
+    }
+```
+
+Python：
+
+* python
+
+```python
+class Solution:
+    def smallerNumbersThanCurrent(self, nums: List[int]) -> List[int]:
+        res = nums[:]
+        hash = dict()
+        res.sort() # 从小到大排序之后，元素下标就是小于当前数字的数字
+        for i, num in enumerate(res):
+            if num  not in hash.keys(): # 遇到了相同的数字，那么不需要更新该 number 的情况
+                hash[num] = i       
+        for i, num in enumerate(nums):
+            res[i] = hash[num]
+        return res
+```
+
+# 数组力扣题目总结
+
+按照如下顺序刷力扣上的题目，相信会帮你快速掌握各类数组题目。以下每道题目在力扣题解区都有「代码随想录」的题解。
+
+1. [数组过于简单，但你该了解这些！](https://programmercarl.com/数组理论基础.html)
+2. [704.二分查找](https://programmercarl.com/0704.二分查找.html)
+3. [27.移除元素.md](https://programmercarl.com/0027.移除元素.html)
+4. [977.有序数组的平方](https://programmercarl.com/0977.有序数组的平方.html)
+5. [209.长度最小的子数组](https://programmercarl.com/0209.长度最小的子数组.html)
+6. [59.螺旋矩阵II](https://programmercarl.com/0059.螺旋矩阵II.html)
+7. [数组总结篇](https://programmercarl.com/数组总结篇.html)
+
+-----------
+
+**大家好，我是程序员Carl，点击[我的头像](https://programmercarl.com)**，查看力扣详细刷题攻略，你会发现相见恨晚！
+
+**如果感觉题解对你有帮助，不要吝啬给一个👍吧！**

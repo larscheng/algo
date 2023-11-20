@@ -1,0 +1,95 @@
+> Problem: [1365. 有多少小于当前数字的数字](https://leetcode.cn/problems/how-many-numbers-are-smaller-than-the-current-number/description/)
+
+[TOC]
+
+# 思路
+
+> 方法一：二分查找法
+> 方法二：前缀和
+
+# 解题方法
+
+> - 方法一：
+
+> 1.对数组进行复制，拷贝一个一模一样的数组
+
+> 2.对拷贝后的数组进行排序
+
+> 3.利用二分查找法计算该元素在数组中出现的第一个下标
+
+> 寻找第一次出现的下标，就是要让左侧全为小于该数的元素，而右侧全为大于等于该数的元素（利用左闭右开区间的二分查找法）
+
+> - 方法二：
+
+> 1.创建一个哈希表并初始化为0
+
+> 2.对数组中元素个数进行统计
+
+> 3.计算前缀和
+
+# Code
+
+* []
+
+```C
+//方法一
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int find(int *temp, int num,int n) {
+    int left = 0,right = n-1;
+    while(left < right) {
+      int mid = (right - left)/2 + left;
+      if(temp[mid] >= num) {
+        right = mid;
+      }
+      else{
+        left = mid + 1;
+      }
+    }
+    return left;
+}
+int cmp(const void*a, const void*b) {
+  return *(int*)a - *(int*)b;
+}
+int* smallerNumbersThanCurrent(int* nums, int numsSize, int* returnSize){
+    int *ret = (int*) malloc (sizeof(int)*numsSize);
+    int temp[numsSize];
+    for(int i = 0; i < numsSize; i++) {
+      temp[i] = nums[i];
+    }
+    qsort(temp,numsSize,sizeof(int),cmp);
+    for(int i = 0; i < numsSize; i++) {
+      ret[i] = find(temp,nums[i],numsSize);
+    }
+    *returnSize = numsSize;
+    return ret;
+}
+```
+
+* []
+
+```C
+//方法二
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+int* smallerNumbersThanCurrent(int* nums, int numsSize, int* returnSize){
+    int *ret = (int*) malloc (sizeof(int)*numsSize);
+    int count[101];
+    memset(count,0,sizeof(count));
+    for(int i = 0; i < numsSize; i++) {
+      count[nums[i]]++;
+    }
+    for(int i = 1; i < 101; i++) {
+      count[i] += count[i - 1];
+    }
+    for(int i = 0; i < numsSize; i++) {
+      ret[i] = (nums[i] == 0) ? 0 : count[nums[i] - 1];
+    }
+    *returnSize = numsSize;
+    return ret;
+}
+```
+

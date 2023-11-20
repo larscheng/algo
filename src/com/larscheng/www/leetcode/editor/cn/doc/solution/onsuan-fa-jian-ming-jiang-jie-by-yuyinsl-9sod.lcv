@@ -1,0 +1,17 @@
+![捕获.PNG](https://pic.leetcode-cn.com/1621163470-ibTKtj-%E6%8D%95%E8%8E%B7.PNG)
+
+* 
+
+```
+//AC代码
+int subsetXORSum(int* nums, int numsSize) {
+    int ans = 0;
+    for(int i=0; i<numsSize; i++)
+    {
+        ans |= nums[i];
+    }
+    return ans << (numsSize - 1);
+}
+```
+
+如果感觉对你有用，烦请点个赞！

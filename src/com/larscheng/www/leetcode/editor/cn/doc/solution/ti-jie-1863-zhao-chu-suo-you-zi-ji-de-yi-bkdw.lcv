@@ -1,0 +1,47 @@
+> Problem: [1863. 找出所有子集的异或总和再求和](https://leetcode.cn/problems/sum-of-all-subset-xor-totals/description/)
+
+[TOC]
+
+# 思路
+
+> 讲述看到这一题的思路
+
+# 解题方法
+
+> 描述你的解题方法
+
+# 复杂度
+
+- 时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+- 空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```JavaScript
+
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var subsetXORSum = function(nums) {
+    const { length } = nums;
+    const maximum = 2 ** length;
+    let sum = 0;
+    for (let i = 0; i < maximum; i++) {
+      let subset = 0;
+      for (let j = 0; j < length; j++) {
+        if (i & (1 << j)) subset ^= nums[j];
+      }
+      sum += subset;
+    }
+    return sum;
+};
+```
+

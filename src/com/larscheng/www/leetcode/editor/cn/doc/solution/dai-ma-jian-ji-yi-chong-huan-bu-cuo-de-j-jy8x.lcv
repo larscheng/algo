@@ -1,0 +1,21 @@
+[详细刷题视频合集](https://xiaochen1024.com/series/6196129fc1553b002e57bef5/6196208ec1553b002e57bef6)      
+[刷题笔记](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18)
+将数组的每一位数字转为字符串，获取字符串的长度，再判断是否为偶数
+
+* 
+
+```
+var findNumbers = function(nums) {
+    var count=0
+    for(let i=0;i<nums.length;i++){
+        var num_string=nums[i].toString()
+        var num_length=num_string.length
+        if(num_length%2===0){
+            count++
+        }
+    }
+    return count
+};
+
+```
+

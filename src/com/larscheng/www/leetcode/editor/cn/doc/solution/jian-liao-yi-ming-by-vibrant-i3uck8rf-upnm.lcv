@@ -1,0 +1,27 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        int all=0;
+        for(auto p=nums.begin();p<nums.end();p++)
+        {
+            for(auto pe=p+1;pe<nums.end();pe++)
+            {
+                if(*p==*pe)
+                    all++;
+            }
+
+        }
+    return all;
+    }
+};
+```
+

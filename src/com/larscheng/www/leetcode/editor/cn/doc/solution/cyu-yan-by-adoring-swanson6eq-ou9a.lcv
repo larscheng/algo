@@ -1,0 +1,46 @@
+> Problem: [1929. 数组串联](https://leetcode.cn/problems/concatenation-of-array/description/)
+
+[TOC]
+
+# 思路
+
+> 讲述看到这一题的思路
+
+# 解题方法
+
+> 描述你的解题方法
+
+# 复杂度
+
+- 时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+- 空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```C
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* getConcatenation(int* nums, int numsSize, int* returnSize){
+  int* connect=malloc(sizeof(int)*numsSize*2);
+  int p=0;
+  for(int i=0;i<2;i++)
+  {
+    for(int j=0;j<numsSize;j++)
+    {
+      connect[p++]=nums[j];
+    }
+  }
+  * returnSize=numsSize*2;
+  return connect;
+}
+```
+

@@ -1,0 +1,59 @@
+**海伦公式**
+- 应该小学二年级都学过吧
+
+$$
+p=\frac{a+b+c}{2}\\
+S_{\Delta ABC}=\sqrt{p(p-a)(p-b)(p-c)}\\
+$$
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        auto length=[&](vector<int>&A,vector<int>&B){
+            return sqrt(pow(B[0]-A[0],2)+pow(B[1]-A[1],2));
+        };
+        auto area=[&](vector<int>&A,vector<int>&B,vector<int>&C){
+            double a=length(B,C), b=length(C,A), c=length(A,B), p=(a+b+c)*0.5;
+            return sqrt(p*(p-a)*(p-b)*(p-c));
+        };
+        double s=0.0;
+        for(auto&A:points)
+        for(auto&B:points)
+        for(auto&C:points)
+            s=max(s,area(A,B,C));
+        return s;
+    }
+};
+```
+
+**当然，也不是不可用叉积**
+
+$$
+S=|\frac{1}{2}\cdot\vec{a}\times\vec{b}|=|\frac{1}{2}\cdot\vec{b}\times\vec{c}|=|\frac{1}{2}\cdot\vec{c}\times\vec{a}|\\
+S=|\frac{1}{2}\cdot\vec{a}\times\vec{c}|=\frac{1}{2}\cdot|(B-C)\times(A-B)|
+$$
+
+- 这样常数小很多，贴个以前的代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        double ans=0.0;
+        for(int i=0;i<points.size();i++)
+            for(int j=i+1;j<points.size();j++)
+                for(int k=j+1;k<points.size();k++){
+                    int a=points[i][0]-points[j][0],b=points[i][1]-points[j][1];
+                    int c=points[k][0]-points[j][0],d=points[k][1]-points[j][1];
+                    ans=max(ans,fabs(a*d-b*c)*0.5);
+                }
+        return ans;
+    }
+};
+```
+

@@ -1,0 +1,41 @@
+### 解题思路
+
+利用行列式的定义计算三角形面积,循环遍历每一个三角形面积,找出其中的最大值.
+![微信图片_20210930133957.jpg](https://pic.leetcode-cn.com/1632980420-WJeOpn-%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210930133957.jpg)
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution
+{
+public:
+	double getArea(const vector<int>& p0, const vector<int>& p1, const vector<int>& p2) const
+	{
+		double a0 = p0[0], b0 = p0[1], a1 = p1[0], b1 = p1[1], a2 = p2[0], b2 = p2[1];
+		double val= ((a1 - a0) * (b2 - b0) - (a2 - a0) * (b1 - b0)) / 2;
+		return val > 0 ? val : -val;
+	}
+	double largestTriangleArea(vector<vector<int>>& points)
+	{
+		if (points.size() < 3) return 0;
+		double maxArea = 0;
+		int size = points.size();
+		for (int i = 0; i < size - 2; ++i)
+		{
+			for (int j = i + 1; j < size - 1; ++j)
+			{
+				for (int k = j + 1; k < size; ++k)
+				{
+					maxArea = max(maxArea, getArea(points[i], points[j], points[k]));
+				}
+			}
+		}
+		return maxArea;
+	}
+};
+
+
+```
+

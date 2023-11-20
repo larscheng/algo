@@ -1,0 +1,51 @@
+### 解题思路
+
+#### 提示一
+
+因为`3 <= points.length <= 50`且不存在重复的点，所以可以采用暴力枚举的方式解题。
+
+#### 提示二
+
+三角形求面积，已知3个点的坐标(x1,y1)、(x2,y2)、(x3,y3)，可以采用鞋带公式：
+$S = \frac {1} {2} \ast |x_1 * y_2 + x_2 * y_3 + x_3 * y_1 - x_2 * y_1 - x_3 * y_2 - x_1 * y_3|$
+
+在[RayarsonLee的题解](https://leetcode.cn/problems/largest-triangle-area/solution/li-yong-xing-lie-shi-de-yi-yi-qiu-jie-sa-pvrq/)中找到一个对鞋带公式很好的一个解释
+![image.png](https://pic.leetcode-cn.com/1652550509-wMOQgB-image.png)
+
+$(x_2 - x_1) * (y_3 - y_1) - (x_3 - x_1) * (y_2 - y_1) 
+\\= x_2 * y_3 - x_2 * y_1 - x_1 * y_3 + x_1 * y_1 - ( x_3 * y_2 - x_3 * y_1 - x_1 * y_2 + x_1 * y_1)\\
+= x_2 * y_3 - x_2 * y_1 - x_1 * y_3  - ( x_3 * y_2 - x_3 * y_1 - x_1 * y_2)\\
+= x_2 * y_3 + x_3 * y_1 + x_1 * y_2 - x_2 * y_1 - x_1 * y_3  - x_3 * y_2$
+即得到鞋带公式。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public double largestTriangleArea(int[][] points) {
+        int n = points.length;
+        double ans = 0.0;
+        for (int i = 0; i < n - 2; i++) {
+            int x1 = points[i][0];
+            int y1 = points[i][1];
+            for (int j = i + 1; j < n - 1; j++) {
+                int x2 = points[j][0];
+                int y2 = points[j][1];
+                for (int k = j + 1; k < n; k++) {
+                    int x3 = points[k][0];
+                    int y3 = points[k][1];
+                    double area = 0.5 * Math.abs(x1 * y2 + x2 * y3 + x3 * y1 - x2 * y1 - x3 * y2 - x1 * y3);
+                    if (area > ans) {
+                        ans = area;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+}
+```
+
+![image.png](https://pic.leetcode-cn.com/1652550362-OMitVZ-image.png)

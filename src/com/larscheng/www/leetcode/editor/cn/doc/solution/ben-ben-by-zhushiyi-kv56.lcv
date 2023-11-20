@@ -1,0 +1,60 @@
+大佬们的双指针可太牛了，贴一下我的双指针法
+看到这道题我和我的倔强就决定打死只要一次遍历，所以临时量会比较多一点
+其实我第一时间想到的是中间扩散法，结果一次遍历的时间也没快多少 :<
+
+### 方法一 滑动窗口
+
+* java
+
+```java
+public int[] shortestToChar(String s, char c) {
+    int[] ans = new int[s.length()];
+    int prev = 0, next = 0;
+    ans[0] = s.charAt(0) == c ? 0 : -1;
+
+    while (next < s.length() && prev < s.length()){
+        while (next < s.length() && s.charAt(next) != c) 
+            next ++;
+        
+        int cur = prev;
+        int temp  = ans[prev] == 0     ? prev : s.length() * 2;
+        int ntemp = next != s.length() ? next : s.length() * 2;
+        while (cur != next) {
+            ans[cur] = Math.min(Math.abs(ntemp - cur), Math.abs(cur - temp));
+            cur++;
+        }
+
+        prev = next++;
+    }
+
+    return ans;
+}
+```
+
+### 方法二 中心扩散
+
+![截屏2022-04-19 11.48.49.png](https://pic.leetcode-cn.com/1650340133-NuFgNh-%E6%88%AA%E5%B1%8F2022-04-19%2011.48.49.png)
+
+* java
+
+```java
+public int[] shortestToChar(String s, char c) {
+    int[] ans = new int[s.length()];
+    char[] charArray = s.toCharArray();
+
+    for (int i = 0; i < s.length(); i++){
+        int pre = i, next = i;
+        if (charArray[i] == c) {
+            ans[i] = 0;
+            continue;
+        }
+        while (pre >= 0          && charArray[pre] != c)  pre--;
+        while (next < s.length() && charArray[next] != c) next++;
+
+        ans[i] = Math.min(Math.abs(i - (pre >= 0 ? pre : s.length() * 2))
+                        , Math.abs(i - (next < s.length() ? next : s.length() * 2)));
+    }
+    return ans;
+}
+```
+

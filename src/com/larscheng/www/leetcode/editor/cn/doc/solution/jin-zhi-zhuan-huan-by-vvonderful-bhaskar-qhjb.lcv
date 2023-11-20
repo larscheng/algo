@@ -1,0 +1,29 @@
+### 解题思路
+
+二进制转换为十进制的两种方式：第一种是从后往前按权展开，第二种是从高位开始每次*2再加后一项，这样高位相当于一次一次被乘，权重还是一样的
+
+### 代码
+
+* c
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+int getDecimalValue(struct ListNode* head){
+    int ans=0;
+    while(head)
+    {
+        ans=ans*2+head->val;
+        head=head->next;
+    }
+    return ans;
+}
+```
+

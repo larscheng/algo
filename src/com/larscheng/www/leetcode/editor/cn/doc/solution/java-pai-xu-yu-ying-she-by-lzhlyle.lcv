@@ -1,0 +1,131 @@
+### 方法一：暴力法
+
+- 时间复杂度 $O(n^2)$，空间复杂度 $O(n)$
+
+* java
+
+```java
+public int[] smallerNumbersThanCurrent(int[] nums) {
+    int len = nums.length;
+    int[] res = new int[len];
+    for (int i = 0; i < len; i++) { // 枚举所有元素
+        for (int j = 0; j < len; j++) { // 枚举其他元素
+            if (i == j) continue;
+            if (nums[i] > nums[j]) res[i]++;
+        }
+    }
+    return res;
+}
+```
+
+### 方法二：排序 + 映射
+
+- 时间复杂度 $O(nlog(n))$，空间复杂度 $O(n)$
+- **你的索引是多少，就有多少个数字小于你**
+  - 严格说应该是 小于等于你
+
+* java
+
+```java
+public int[] smallerNumbersThanCurrent(int[] nums) { // 8, 1, 2, 2, 3
+    int len = nums.length;
+    Map<Integer, Set<Integer>> valueIndex = new HashMap<>(len); // 预存每个值与索引对应
+    for (int i = 0; i < len; i++) {
+        if (!valueIndex.containsKey(nums[i])) valueIndex.put(nums[i], new HashSet<>());
+        valueIndex.get(nums[i]).add(i);
+    }
+    int[] sortedArr = Arrays.copyOf(nums, len), res = new int[len];
+    Arrays.sort(sortedArr); // 1, 2, 2, 3, 8
+    for (int si = len - 1; si >= 0; si--) { // 倒序，方便处理同值的情况
+        // 此行为补充优化：前面还有同值的，那就跳过这次，等下次再一并赋值
+        if (si - 1 >= 0 && sortedArr[si] == sortedArr[si - 1]) continue;
+
+        for (int i : valueIndex.get(sortedArr[si])) res[i] = si; // 同值的所有索引都更新
+    }
+    return res;
+}
+```
+
+- 对最后两层 `for` 的时间复杂度分析，及代码优化
+  - 感谢 [@Letty](/u/letty-2/) 在评论区的留言 -> [跳到评论](https://leetcode-cn.com/problems/how-many-numbers-are-smaller-than-the-current-number/solution/java-pai-xu-yu-ying-she-by-lzhlyle/385413/)
+  - 最好时间复杂度 $O(n)$，所有元素值都不相同，则内层每次 `valueIndex.get(sortedArr[si])` 只有 `1` 个元素
+  - 最坏时间复杂度 $O(n^2)$，所有元素都相同，则内层每次 `valueIndex.get(sortedArr[si])` 会有 `n` 个元素
+  - 更准确的时间复杂度可描述为 $O((n - ab) + ab^2)$，其中有 $a$ 组相同，每组 $b$ 个元素
+    - 举例分析，考虑数组如 `[1, 2, 3, 3, 3, 4, 4, 5, 6]`，结合上述最好、最坏时间复杂度的理解后可知，此数组最后两层 `for` 的执行次数为：
+      - 非重复的 + 重复的
+      - 非重复的：`[1, 2, 5, 6]` 共 `4` 次
+      - 重复的：`[3, 3, 3]` 共 `3*3 = 9` 次 + `[4, 4]` 共 `2*2 = 4` 次
+      - 共 `4 + 3*3 + 2*2` 次
+    - 归纳抽象，假设每个数字出现的概率相同，设共有 $a$ 组相同元素（上例中的 全3 和 全4 共 `2` 组），每组内共 $b$ 个元素
+      - 非重复的：$n - a * b$
+      - 重复的：$a$ 组 $b * b$，即 $ab^2$
+      - 最终的时间复杂度为 $O((n - ab) + ab^2)$
+    - 考虑原题中的数据范围：`nums.length <= 500`，`nums[i] <= 100`
+      - 根据 [鸽巢原理/抽屉原理](https://zh.wikipedia.org/wiki/%E9%B4%BF%E5%B7%A2%E5%8E%9F%E7%90%86) 可知，当元素个数 > 元素种类 时，必会出现重复的情况。在最大数据范围的情况下，出现重复的期望为 `500/100 = 5`，即「有 `100` 组元素重复，每组 `5` 个元素」
+      - 代入 $O((n - ab) + ab^2)$ 得 $500 - 100 * 5 + 100 * 5^2 = 2500$，可见远小于 $O(n^2)$ 的 $500^2 = 250000$
+      - 分析到此笔者认为已足够，不必再深入纠结与 $O(n)$ 或 $O(nlog(n))$ 的关系，因为具体要看重复的情况。不如花更多精力看看能否优化成 $O(n)$
+  - 代码优化两层 `for` 为 $O(n)$
+    - 回到代码可知，在倒序过程中遇到重复时，有多少个重复，就会在内层执行多少次
+
+    * java
+
+    ```java
+    // 1, 2, 2, 3, 8
+    for (int si = len - 1; si >= 0; si--) {
+        for (int i : valueIndex.get(sortedArr[si])) res[i] = si;
+    }
+    ```
+
+    - 而内层循环的目的是：**把所有相同值的 原数组索引对应位置都更新为 `si`**
+    - **一次性更新** 就好了呀，如此一来，只会执行 `n` 次 `res[i] = si;` 的赋值操作
+
+    * java
+
+    ```java
+    // 1, 2, 2, 3, 8
+    for (int si = len - 1; si >= 0; si--) {
+        // 前面还有同值的，那就跳过这次，等最后一次再一并赋值
+        if (si - 1 >= 0 && sortedArr[si] == sortedArr[si - 1]) continue;
+    
+        for (int i : valueIndex.get(sortedArr[si])) res[i] = si;
+    }
+    ```
+
+### 方法三：计数排序
+
+- 时间复杂度 $O(n)$，空间复杂度 $O(1)$
+  - 空间复杂度 `int[] freq` 因题意限制 `0 <= nums[i] <= 100` 而定，不随数据量大小而改变
+
+* java
+
+```java
+public int[] smallerNumbersThanCurrent(int[] nums) {
+    // 统计出现频率 frequency
+    int[] freq = new int[101]; // 索引即数值
+    for (int num : nums) freq[num]++;
+
+    // 对频率(而非对原数组nums)从前到后累加
+    for (int i = 1; i < freq.length; i++) {
+        freq[i] = freq[i] + freq[i - 1];
+    }
+
+    // 输出结果
+    int[] res = new int[nums.length];
+    for (int i = 0; i < res.length; i++) {
+        if (nums[i] > 0) res[i] = freq[nums[i] - 1];
+    }
+    return res;
+}
+```
+
+### 思考扩展
+
+- 思考这样一个问题：全国高考考生(大量元素)按成绩(0-750)排名问题
+  - 如何排序，可参考计数排序——特殊的桶排序
+  - [计数排序](https://zh.wikipedia.org/wiki/%E8%AE%A1%E6%95%B0%E6%8E%92%E5%BA%8F)
+  - 大体思想：扫描一遍所有人，按分数分到不同给的桶里，桶内无需再排序，仅需统计各桶内数量
+  - 适用性：数据量大、数据范围不大的情况
+- 假设数据已排序如 `[748, 748, 747, ..., 730, 730, ..., 730, 729, ...]`
+  - 问：有多少人在 729 前面？（同分同名次，如 `747` 是第三名，没有第二名）
+  - 答：即 第一个 `729` 的索引
+

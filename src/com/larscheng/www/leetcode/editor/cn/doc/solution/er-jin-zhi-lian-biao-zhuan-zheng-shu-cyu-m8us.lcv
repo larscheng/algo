@@ -1,0 +1,39 @@
+## 解题思路
+
+【生哥刷题】【单片机工程师】
+----这里道题目用C语言来做的思路。
+
+## 模拟法
+
+关键点：
+1：通过申请一个`nodeIt`，来对输入的`head`链表进行遍历
+2：通过申请一个`sum`,来记录`nodeIt`的二进制结果
+3：维护`sum`结果，`sum   += nodeIt->val`
+4: 执行`nodeIt = nodeIt->next`,指向下一个节点
+5：如果`nodeIt != NULL`，则进行`sum`更新`sum <<= 1`
+时间复杂度:`O(n)`
+空间复杂度:`O(1)`
+
+## 点个赞收藏，我们一起变强，这里是只会C也要学算法的生哥
+
+## 代码
+
+* c
+
+```c
+int getDecimalValue(struct ListNode* head)
+{
+    struct ListNode* nodeIt = head;
+    int sum = 0;
+    while (nodeIt != NULL)
+    {
+        sum   += nodeIt->val;
+        nodeIt = nodeIt->next;
+        if(nodeIt != NULL)
+            sum <<= 1;
+    }
+    return sum;
+}
+
+```
+

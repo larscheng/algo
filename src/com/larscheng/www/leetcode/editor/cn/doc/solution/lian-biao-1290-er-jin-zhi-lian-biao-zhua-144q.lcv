@@ -1,0 +1,29 @@
+* 
+
+```
+class Solution {
+    // 链表
+    public int getDecimalValue(ListNode head) {
+        // 用一个数组存储链表元素
+        List<Integer> list = new ArrayList<Integer>();
+        ListNode cur = head;
+        // 遍历链表
+        while (cur != null) {
+            // 把每个链表节点加入到数组中
+            list.add(cur.val);
+            // 移到下一个链表节点
+            cur = cur.next;
+        }
+        // 2的几次方
+        int n = 0;
+        // 最终10进制结果
+        int result = 0;
+        for (int i = list.size() - 1 ; i >= 0 ; i--) {
+            result += list.get(i) * Math.pow(2 , n);
+            n++;
+        }
+        return result;
+    }
+}
+```
+
