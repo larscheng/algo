@@ -1,0 +1,35 @@
+### 解题思路
+
+因为这题的k范围远大于链表节点数，所以我们可以先遍历链表并且记录链表长度，遍历完链表之后把链表首尾相连成环。然后从头节点开始，遍历`len-k%len-1`次就能找到答案链表的头节点的前继节点，先把答案头节点用`newHead`记住，然后断掉前继节点，这样就形成了答案链表。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+        if(head == null || k == 0)
+            return head;
+        ListNode l1 = head;
+        int len = 1;
+        while(l1.next != null) {
+            l1 = l1.next;
+            len++;
+        }
+        l1.next = head;
+        ListNode l2 = head;
+        for(int i = 1; i < len - k % len; i++) 
+            l2 = l2.next;
+        ListNode newHead = l2.next;
+        l2.next = null;
+        return newHead;
+    }
+}
+```
+
+### 复杂度分析
+
+- 时间复杂度：$O(n)$,n为链表长度
+- 空间复杂度：$O(1)$
+

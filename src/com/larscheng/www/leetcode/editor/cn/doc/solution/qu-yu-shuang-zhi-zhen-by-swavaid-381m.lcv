@@ -1,0 +1,55 @@
+### 解题思路
+
+1.因为k取值范围较大，由题例可以发现，当链表中含有3个元素时，k=1与k=4时的链表旋转结果相同，因此可以发现取余的规律。
+2.通过双指针找到旋转后链表的新尾和新头。
+![lc1.png](https://pic.leetcode-cn.com/1621750151-OHYJNE-lc1.png)
+
+### 代码
+
+* c
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+struct ListNode* rotateRight(struct ListNode* head, int k){
+    if(!head){
+        return NULL;
+    }
+    else if(!head->next){
+        return head;
+    }
+    else{
+        int i=1;
+        struct ListNode* r=head;
+        while(r->next){
+            r=r->next;
+            i++;
+        }
+        int m=k%i;
+        struct ListNode* p=head;
+        struct ListNode* q=head;
+        while(m>0){
+            q=q->next;
+            m--;
+        }
+        while(q->next){
+            p=p->next;
+            q=q->next;
+        }
+        r->next=head;
+        head=p->next;
+        p->next=NULL;
+        return head;
+    }
+    
+
+}
+```
+
