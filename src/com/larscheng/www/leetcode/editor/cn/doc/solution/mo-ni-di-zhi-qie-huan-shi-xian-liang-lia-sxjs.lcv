@@ -1,0 +1,49 @@
+> Problem: [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/description/)
+
+[TOC]
+
+# 思路
+
+初见这题，我的第一个想法是建一个数组赋值，但由于后面题目明确指出：
+
+> 你必须在不修改节点内部的值的情况下完成本题（即，只能进行节点交换）。
+
+于是我就想到直接更换链表的“链”，改变地址的方法。
+
+# 解题方法
+
+由样例 “1 2 3 4” 执行后为 “2 1 4 3” 可知，本题是针对相邻元素进行两两交换。对于 “1 2” 这一组元素来说，交换需要改变的 “链” 关系为 2 到 3 的 链改为 1 到 3 的链，1 到 2 的链改为 2 到 1 的链。而对于 “3 4” 这一组元素来说，交换需要改变的 “链” 关系为 1 到 3 的 链改为 1 到 4 的链，3 到 4 的链改为 4 到 3 的链。即假设我们当前处于已经处理好的链表末端（假设为 a 节点），下一个元素是即将两两交换的第一个元素（假设为 b 节点），下下一个元素是两两交换的第二个元素（假设为 c 节点），那么我们需要先保留 b 节点，将 a 节点指向 c 节点，让 b 节点指向 c 节点的后续节点，然后 c 节点指向 b 节点，由此完成一个交换。
+由于头节点没有前置节点，与其他情况相异，因此我们在头节点之前添加一个空节点，让它指向头节点，由此简化处理。
+
+> 例如，当在处理 “1 2” 关系时，当前的链表状态为 “0-1-2-3-4” ，其中我们需要改变方向的“链”就是 “0-1”，“1-2”，“2-3” 这三组。
+
+# 复杂度
+
+- 时间复杂度: $O(n)$
+
+- 空间复杂度: $O(1)$
+  ![image.png](https://pic.leetcode.cn/1698458098-XuNscO-image.png)
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode node=new ListNode(0,null);
+        node.next=head;
+        ListNode p=node;
+        while(p!=null&&p.next!=null&&p.next.next!=null){
+            ListNode nxt=p.next;
+            p.next=p.next.next;
+            p=p.next;
+            nxt.next=p.next;
+            p.next=nxt;
+            p=p.next;
+        }
+        return node.next;
+    }
+}
+```
+

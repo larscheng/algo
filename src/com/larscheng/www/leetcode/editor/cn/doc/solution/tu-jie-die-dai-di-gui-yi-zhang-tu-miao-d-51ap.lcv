@@ -1,0 +1,250 @@
+## 方法一：迭代
+
+### 前置知识
+
+[认识链表 & 哨兵技巧【基础算法精讲 06】](https://www.bilibili.com/video/BV1sd4y1x7KN/)
+
+![lc24-c.png](https://pic.leetcode.cn/1691121590-SWAYuj-lc24-c.png)
+
+* [sol-Python3]
+
+```py
+class Solution:
+    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        node0 = dummy = ListNode(next=head)  # 用哨兵节点简化代码逻辑
+        node1 = head
+        while node1 and node1.next:  # 至少有两个节点
+            node2 = node1.next
+            node3 = node2.next
+
+            node0.next = node2  # 0 -> 2
+            node2.next = node1  # 2 -> 1
+            node1.next = node3  # 1 -> 3
+
+            node0 = node1  # 下一轮交换，0 是 1
+            node1 = node3  # 下一轮交换，1 是 3
+        return dummy.next  # 返回新链表的头节点
+```
+
+* [sol-Java]
+
+```java
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode dummy = new ListNode(0, head); // 用哨兵节点简化代码逻辑
+        ListNode node0 = dummy;
+        ListNode node1 = head;
+        while (node1 != null && node1.next != null) { // 至少有两个节点
+            ListNode node2 = node1.next;
+            ListNode node3 = node2.next;
+
+            node0.next = node2; // 0 -> 2
+            node2.next = node1; // 2 -> 1
+            node1.next = node3; // 1 -> 3
+
+            node0 = node1; // 下一轮交换，0 是 1
+            node1 = node3; // 下一轮交换，1 是 3
+        }
+        return dummy.next; // 返回新链表的头节点
+    }
+}
+```
+
+* [sol-C++]
+
+```cpp
+class Solution {
+public:
+    ListNode *swapPairs(ListNode *head) {
+        auto dummy = new ListNode(0, head); // 用哨兵节点简化代码逻辑
+        auto node0 = dummy;
+        auto node1 = head;
+        while (node1 && node1->next) { // 至少有两个节点
+            auto node2 = node1->next;
+            auto node3 = node2->next;
+
+            node0->next = node2; // 0 -> 2
+            node2->next = node1; // 2 -> 1
+            node1->next = node3; // 1 -> 3
+
+            node0 = node1; // 下一轮交换，0 是 1
+            node1 = node3; // 下一轮交换，1 是 3
+        }
+        return dummy->next; // 返回新链表的头节点
+    }
+};
+```
+
+* [sol-Go]
+
+```go
+func swapPairs(head *ListNode) *ListNode {
+    dummy := &ListNode{Next: head} // 用哨兵节点简化代码逻辑
+    node0 := dummy
+    node1 := head
+    for node1 != nil && node1.Next != nil { // 至少有两个节点
+        node2 := node1.Next
+        node3 := node2.Next
+
+        node0.Next = node2 // 0 -> 2
+        node2.Next = node1 // 2 -> 1
+        node1.Next = node3 // 1 -> 3
+
+        node0 = node1 // 下一轮交换，0 是 1
+        node1 = node3 // 下一轮交换，1 是 3
+    }
+    return dummy.Next // 返回新链表的头节点
+}
+```
+
+* [sol-JavaScript]
+
+```js
+var swapPairs = function (head) {
+    let dummy = new ListNode(0, head); // 用哨兵节点简化代码逻辑
+    let node0 = dummy;
+    let node1 = head;
+    while (node1 && node1.next) { // 至少有两个节点
+        let node2 = node1.next;
+        let node3 = node2.next;
+
+        node0.next = node2; // 0 -> 2
+        node2.next = node1; // 2 -> 1
+        node1.next = node3; // 1 -> 3
+
+        node0 = node1; // 下一轮交换，0 是 1
+        node1 = node3; // 下一轮交换，1 是 3
+    }
+    return dummy.next; // 返回新链表的头节点
+};
+```
+
+#### 复杂度分析
+
+- 时间复杂度：$\mathcal{O}(n)$，其中 $n$ 为链表长度。
+- 空间复杂度：$\mathcal{O}(1)$。仅用到若干额外变量。
+
+## 方法二：递归
+
+### 前置知识
+
+[一看递归就晕？带你理解递归的本质！【基础算法精讲 09】](https://www.bilibili.com/video/BV1UD4y1Y769/)
+
+### 思路
+
+和方法一类似。这里直接用 `swapPairs` 当作递归函数：
+
+- 递归边界：如果 $\textit{head}$ 或者 $\textit{head}.\textit{next}$ 为空，说明剩余节点不足两个，无需交换，返回 $\textit{head}$。
+- 先交换以 $\textit{node}_3$ 为头节点的链表，即递归调用 `swapPairs(node3)`。
+- 把 $\textit{node}_1$ 指向递归返回的链表头。
+- 把 $\textit{node}_2$ 指向 $\textit{node}_1$。
+- 返回 $\textit{node}_2$，作为交换后的链表头节点。
+
+* [sol-Python3]
+
+```py
+class Solution:
+    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if head is None or head.next is None:  # 递归边界
+            return head  # 不足两个节点，无需交换
+
+        node1 = head
+        node2 = head.next
+        node3 = node2.next
+
+        node1.next = self.swapPairs(node3)  # 1 指向递归返回的链表头
+        node2.next = node1  # 2 指向 1
+
+        return node2  # 返回交换后的链表头节点
+```
+
+* [sol-Java]
+
+```java
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+
+        ListNode node1 = head;
+        ListNode node2 = head.next;
+        ListNode node3 = node2.next;
+
+        node1.next = swapPairs(node3); // 1 指向递归返回的链表头
+        node2.next = node1; // 2 指向 1
+
+        return node2; // 返回交换后的链表头节点
+    }
+}
+```
+
+* [sol-C++]
+
+```cpp
+class Solution {
+public:
+    ListNode *swapPairs(ListNode *head) {
+        if (head == nullptr || head->next == nullptr)
+            return head;
+
+        auto node1 = head;
+        auto node2 = head->next;
+        auto node3 = node2->next;
+
+        node1->next = swapPairs(node3); // 1 指向递归返回的链表头
+        node2->next = node1; // 2 指向 1
+
+        return node2; // 返回交换后的链表头节点
+    }
+};
+```
+
+* [sol-Go]
+
+```go
+func swapPairs(head *ListNode) *ListNode {
+    if head == nil || head.Next == nil {
+        return head
+    }
+
+    node1 := head
+    node2 := head.Next
+    node3 := node2.Next
+
+    node1.Next = swapPairs(node3) // 1 指向递归返回的链表头
+    node2.Next = node1            // 2 指向 1
+
+    return node2 // 返回交换后的链表头节点
+}
+```
+
+* [sol-JavaScript]
+
+```js
+var swapPairs = function (head) {
+    if (head === null || head.next === null)
+        return head;
+
+    let node1 = head;
+    let node2 = head.next;
+    let node3 = node2.next;
+
+    node1.next = swapPairs(node3); // 1 指向递归返回的链表头
+    node2.next = node1; // 2 指向 1
+
+    return node2; // 返回交换后的链表头节点
+};
+```
+
+#### 复杂度分析
+
+- 时间复杂度：$\mathcal{O}(n)$，其中 $n$ 为链表长度。
+- 空间复杂度：$\mathcal{O}(n)$。递归需要 $\mathcal{O}(n)$ 的栈空间。
+
+## 思考题
+
+如果改成每 $k$ 个节点一组反转链表呢？
+
+这题是 [25. K 个一组翻转链表](https://leetcode.cn/problems/reverse-nodes-in-k-group/)，请看 [视频讲解](https://www.bilibili.com/video/BV1sd4y1x7KN/)。
+
+[往期每日一题题解（按 tag 分类）](https://github.com/EndlessCheng/codeforces-go/blob/master/leetcode/SOLUTIONS.md)

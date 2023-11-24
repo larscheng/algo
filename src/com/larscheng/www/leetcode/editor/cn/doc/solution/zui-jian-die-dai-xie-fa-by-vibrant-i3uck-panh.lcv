@@ -1,0 +1,51 @@
+> Problem: [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/description/)
+
+[TOC]
+
+# 思路
+
+> 讲述看到这一题的思路
+
+# 解题方法
+
+> 描述你的解题方法
+
+# 复杂度
+
+- 时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+- 空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```C++
+
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode *dummyHead = new ListNode(0,head),*temp = dummyHead;
+
+        while (temp->next != nullptr && temp->next->next != nullptr) 
+        {
+            ListNode *node1 = temp->next,*node2 = temp->next->next;
+
+            temp->next = node2,
+            node1->next = node2->next,
+            node2->next = node1,
+            temp = node1;
+
+        }
+        ListNode* ans = dummyHead->next;
+        delete dummyHead;
+        return ans;
+    }
+};
+
+```
+

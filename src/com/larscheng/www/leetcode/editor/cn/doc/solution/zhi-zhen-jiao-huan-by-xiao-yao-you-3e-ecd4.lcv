@@ -1,0 +1,41 @@
+### 解题思路
+
+此处需要三个指针，两个是指向左右交换的，另一个是它们的前一个结点，交换节点本质就是修改节点的next。
+
+### 代码
+
+* java
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode h=new ListNode(0);
+        h.next=head;
+        if(head==null||head.next==null) return head;
+        ListNode pre=h;
+        ListNode t=null;
+        while(pre.next!=null&&pre.next.next!=null){
+          ListNode left=pre.next;
+          ListNode right=pre.next.next;
+          t=right.next;
+          pre.next=right;
+          right.next=left;
+          left.next=t;
+          pre=left;
+        }
+        return h.next;
+
+    }
+}
+```
+

@@ -1,0 +1,50 @@
+### 解题思路
+
+![snipaste-20210525-103723.png](https://pic.leetcode-cn.com/1621910258-rUqzeb-snipaste-20210525-103723.png)
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode oddCur = head, oddCurNext,
+          evenHead = head.next, evenCur = evenHead, prevEvenCur = null,
+          cur = evenHead.next;
+        boolean isOdd = true;
+        while (cur != null) {
+            if (isOdd) {
+                oddCur.next = cur;
+                oddCur = oddCur.next;
+            } else {
+                evenCur.next = cur;
+                evenCur = evenCur.next;
+            }
+            isOdd = !isOdd;
+            cur = cur.next;
+        }
+        oddCur.next = null;
+        evenCur.next = null;
+
+        evenCur = evenHead;
+        oddCur = head;
+        while (evenCur != null) {
+            oddCurNext = oddCur.next;
+
+            oddCur.next = evenCur.next;
+            evenCur.next = oddCur;
+
+            prevEvenCur = oddCur;
+            evenCur = oddCur.next;
+            oddCur = oddCurNext;
+        }
+        prevEvenCur.next = oddCur;
+        return evenHead;
+    }
+}
+```
+

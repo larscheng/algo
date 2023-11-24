@@ -1,0 +1,52 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* java
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+         ListNode left = head;
+        ListNode right = head;
+        ListNode tmp = new ListNode();
+        if (null == head || null == head.next) {
+            return head;
+        } else {
+            right = head.next;
+            //交换过后第二个元素是开头元素
+            head = head.next;
+        }
+        while (1 == 1) {
+            left.next = right.next;
+            right.next = left;
+            tmp = left;
+            if (null != left.next) {
+                left = left.next;
+            } else {
+                break;
+            }
+            if (null != left.next) {
+                right = left.next;
+            } else {
+                break;
+            }
+            tmp.next = right;
+        }
+        return head;
+    }
+}
+```
+
