@@ -1,0 +1,45 @@
+### 解题思路
+
+不能像数组那样操作噢，记得是->val取值，->left左节点，->right右节点
+然后是慢慢深入检索
+
+### 代码
+
+* php
+
+```php
+/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     public $val = null;
+ *     public $left = null;
+ *     public $right = null;
+ *     function __construct($val = 0, $left = null, $right = null) {
+ *         $this->val = $val;
+ *         $this->left = $left;
+ *         $this->right = $right;
+ *     }
+ * }
+ */
+ //不能像数组那样操作噢，记得是->val取值，->left左节点，->right右节点~
+class Solution {
+
+    /**
+     * @param TreeNode $p
+     * @param TreeNode $q
+     * @return Boolean
+     */
+    function isSameTree($p, $q) {
+        if ($p == null && $q== null) {
+            return true;
+        } elseif ($p == null || $q == null) {
+            return false;
+        } elseif ($p != $q) {
+            return false;
+        } else {
+            return $this->isSameTree($p->left, $q->left) && $this->isSameTree($p->right, $q->right);
+        }
+    }
+}
+```
+

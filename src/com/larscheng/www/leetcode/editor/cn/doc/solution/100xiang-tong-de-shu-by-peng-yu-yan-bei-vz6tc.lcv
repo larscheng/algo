@@ -1,0 +1,96 @@
+### 解题思路
+
+- 递归，深度优先遍历
+- 通过广度优先遍历 遍历比较两个树不同节点是否相等
+
+### 代码
+
+* []
+
+```java
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if(p == null && q == null){
+            return true;
+        }
+        if(p == null || q == null){
+            return false;
+        }
+        if(p.val != q.val){
+            return false;
+        }
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+
+    }
+}
+```
+
+* []
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        // 都为null则相等
+        if(p == null && q == null){
+            return true;
+        }
+        // 其中一个不为null，另一个为null 则为不相同
+        if(p == null || q == null){
+            return false;
+        }
+        Queue<TreeNode> queueP = new LinkedList<>();
+        Queue<TreeNode> queueQ = new LinkedList<>();
+        queueP.add(p);
+        queueQ.add(q);
+        while(!queueP.isEmpty() && !queueQ.isEmpty()){
+            TreeNode rootP = queueP.poll();
+            TreeNode rootQ = queueQ.poll();
+            TreeNode leftP = rootP.left;
+            TreeNode rightP = rootP.right;
+            TreeNode leftQ = rootQ.left;
+            TreeNode rightQ = rootQ.right;
+            // 节点相同，值不同 则为不相同的树
+            if(rootP.val != rootQ.val){
+                return false;
+            }
+            // 其中一个为null 另一个不为null，则为不相同
+            if(leftP == null ^ leftQ == null){
+                return false;
+            }
+            if(rightP == null ^ rightQ == null){
+                return false;
+            }
+            if(leftP != null){
+                queueP.add(leftP);
+            }
+            if(rightP != null){
+                queueP.add(rightP);
+            }
+            if(leftQ != null){
+                queueQ.add(leftQ);
+            }
+            if(rightQ != null){
+                queueQ.add(rightQ);
+            }
+        }
+        // 判断是否其中一个队列不为空，若不为空则不相等
+        return queueP.isEmpty() && queueQ.isEmpty();
+    }
+}
+```
+
