@@ -95,6 +95,12 @@ class Solution1 {
     }
 }
 class Solution2 {
+    /**
+     * O(N)/O(N)
+     * @param nums
+     * @param target
+     * @return
+     */
     public int[] twoSum(int[] nums, int target) {
         Map<Integer,Integer> map = new HashMap<>();
         for (int i = 0; i < nums.length; i++) {
