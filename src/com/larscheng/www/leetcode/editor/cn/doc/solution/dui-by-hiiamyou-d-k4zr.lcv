@@ -1,0 +1,41 @@
+### 解题思路
+
+建立一个大小为k的最小堆
+O(Nlogk):N个元素每个都要遍历，logk为大小为k的堆每次插入的复杂度
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        Map<Integer, Integer> cnt = new HashMap<>();
+        for(int num: nums) {
+            cnt.put(num, cnt.getOrDefault(num, 0) + 1);
+        }
+        Queue<Map.Entry<Integer, Integer>> pq = new PriorityQueue<>(
+                new Comparator<Map.Entry<Integer, Integer>>() {
+                    @Override
+                    public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
+                        return o1.getValue() - o2.getValue();
+                    }
+                }
+        );
+        int[] result = new int[k];
+        Iterator<Map.Entry<Integer, Integer>> iter = cnt.entrySet().iterator();
+        while(iter.hasNext()) {
+            pq.offer(iter.next());
+            if(pq.size() > k)
+                pq.poll();
+        }
+        int i = 0;
+        for(Map.Entry<Integer, Integer> entry: pq) {
+            result[i] = entry.getKey();
+            i++;
+        }
+        return result;
+    }
+}
+```
+

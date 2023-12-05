@@ -1,0 +1,56 @@
+### 解题思路
+
+思路：
+* 1.遍历数组，生产一个频数表，记录每个元素出现的次数
+* 2.创建一个小根堆
+* 3.遍历频次表，如果队中元素小于k个，直接将当前元素频次加入堆，否则，和堆顶元素比较：
+*   如果堆顶元素大于当前元素，堆保持不变，如果堆顶元素小于当前元素，堆顶元素弹出，将当前元素加入堆
+* 4.最后堆中剩余的元素就是前k个出现频次最高的元素
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        if(nums==null || nums.length==0){
+            return null;
+        }
+        //生产频数表nums[i]--->count
+        Map<Integer, Integer> map=new HashMap<>();
+        for(int i=0;i<nums.length;i++){
+            if(map.containsKey(nums[i])){
+                map.put(nums[i], map.get(nums[i])+1);
+            }else{
+                map.put(nums[i], 1);
+            }
+        }
+        //int[]第一个数放当前元素，第二个放当前元素的频次
+        PriorityQueue<int[]> heap=new PriorityQueue<>(new Comparator<int[]>() {
+            @Override
+            public int compare(int[] o1, int[] o2) {
+                return o1[1]-o2[1];//比较元素出现的频次
+            }
+        });
+        for(Map.Entry<Integer, Integer> entry : map.entrySet()){
+            if(heap.size()<k){
+                heap.add(new int[]{entry.getKey(), entry.getValue()});
+            }else{
+                if(heap.peek()[1]<entry.getValue()){
+                    heap.poll();
+                    heap.add(new int[]{entry.getKey(), entry.getValue()});
+                }
+            }
+        }
+
+        int[] res=new int[k];
+        int i=0;
+        while(!heap.isEmpty()){
+            res[i++]=heap.poll()[0];
+        }
+        return res;
+    }
+}
+```
+

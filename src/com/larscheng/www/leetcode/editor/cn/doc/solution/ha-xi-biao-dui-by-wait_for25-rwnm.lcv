@@ -1,0 +1,85 @@
+### 代码
+
+* java
+
+```java
+class Solution 
+{
+    //哈希表+大顶堆(或小顶堆)，哈希表统计元素及其出现次数，顶推按元素出现次数排序，
+    //若是大顶堆则将键值对全部入堆再弹出前k个，时间：O(nlogn) ; 空间：O(n)
+    //若是小顶堆则一直维护堆中元素为k个，超出k个则弹出堆顶的最小元素,时间：O(nlogk) ; 空间：O(k)
+    // public int[] topKFrequent(int[] nums, int k) 
+    // {
+    //     HashMap<Integer,Integer> map = new HashMap<>();
+    //     for(int num:nums)
+    //     {
+    //         map.put(num,map.getOrDefault(num,0)+1);
+    //     }
+    //     //这里使用大顶堆，按出现次数降序排列
+    //     PriorityQueue<int[]> maxHeap = new PriorityQueue<>(
+    //         new Comparator<int[]>()
+    //         {
+    //             public int compare(int[] a,int[] b)
+    //             {
+    //                 return b[1]-a[1];
+    //             }
+    //         }
+    //     );
+    //     for(int key:map.keySet())
+    //     {
+    //         maxHeap.add(new int[] {key,map.get(key)});
+    //     }
+    //     int[] res = new int[k];
+    //     for(int i=0;i<k;i++)
+    //     {
+    //         int[] temp = maxHeap.poll();
+    //         res[i]=temp[0];
+    //     }
+    //     return res;
+    // }
+
+    //小顶堆写法
+    public int[] topKFrequent(int[] nums, int k) 
+    {
+        HashMap<Integer,Integer> map = new HashMap<>();
+        for(int num:nums)
+        {
+            map.put(num,map.getOrDefault(num,0)+1);
+        }
+        //小顶堆
+        PriorityQueue<int[]> minHeap = new PriorityQueue<>(
+            new Comparator<int[]>()
+            {
+                public int compare(int[] a,int[] b)
+                {
+                    return a[1]-b[1];
+                }
+            }
+        );
+        for(int key:map.keySet())
+        {
+            if(minHeap.size()==k)
+            {
+                if(minHeap.peek()[1]<map.get(key))
+                {
+                    minHeap.poll();
+                    minHeap.add(new int[] {key,map.get(key)});
+                }
+            }
+            else
+            {
+                minHeap.add(new int[] {key,map.get(key)});
+            }
+        }
+        int[] res = new int[k];
+        for(int i=0;i<k;i++)
+        {
+            int[] temp = minHeap.poll();
+            res[i]=temp[0];
+        }
+        return res;
+       
+    }
+}
+```
+
