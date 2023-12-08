@@ -1,0 +1,52 @@
+> Problem: [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/description/)
+
+[TOC]
+
+# 思路
+
+看到这一题的时候，最先想到的就是字符串切片，然后使用conytains方法判断是否重复，但是会有个问题，如果重复了 没法知道是哪个重复了，所以字符串的写法比较麻烦
+
+使用HashMap就很好，把一个个字符放到map的key里，在从字符串里拿到新的字符进行判重的时候，就知道是哪个下标重复了
+
+> 讲述看到这一题的思路
+
+# 解题方法
+
+> 描述你的解题方法
+
+# 复杂度
+
+时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public static int lengthOfLongestSubstring(String s){
+        int len = s.length(); //获取字符串长度len
+        int subStringLen = 0; //初始化子串长度
+        int left =0;  //左指针
+        Map<Character,Integer> map = new HashMap<>(); //初始化map，k为字符元素，v为下标
+        for(int right=0; right < len; right++){
+            char c = s.charAt(right);  //遍历每个字符
+            if(map.containsKey(c)){     //如果在map里，就滑动左指针窗口
+            //因为abba这种情况，左指针会比上次小，所以要保持左指针不倒退
+            //如果重复，直接左指针跳到重复元素后面的那个位置
+                left = Math.max(map.get(c) +1,left);  
+            }
+            map.put(c,right); //更新map
+            subStringLen = Math.max(subStringLen,right-left+1); //统计长度
+        }
+        return subStringLen;
+    }
+}
+```
+
