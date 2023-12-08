@@ -1,0 +1,162 @@
+### 前言
+
+如果您对[滑动窗口](https://leetcode-cn.com/problems/shortest-supersequence-lcci/solution/xiang-xi-tu-jie-hua-dong-chuang-kou-chao-qi7g/ "https://leetcode-cn.com/problems/shortest-supersequence-lcci/solution/xiang-xi-tu-jie-hua-dong-chuang-kou-chao-qi7g/")相关内容还不太熟悉，可以先看看相关讲解👆。
+
+![1618069289-YEvrqL-image.png](https://pic.leetcode-cn.com/1619231326-QRiOZX-1618069289-YEvrqL-image.png)
+
+### 思路
+
+#### 1. 题意分析
+
+- 长度为 $n$ 的字符串 `s`
+
+- 大小为 $m$ 的单词数组 `words`，其中的所有单词**长度相同**，为 $d$
+
+- 要求1：将 `words` 中的所以单词**无序串联**形成字符串 `w`
+
+- 要求2：在字符串 `s` 中寻找**子串**与 `w` 进行**完全匹配**
+
+#### 2. 如何匹配子串 ❓
+
+**如何在**`s`中寻找 `words` 中所有的单词串呢，需要对`words`中的所有单词进行无序串联吗？
+
+很明显这是不现实的，因为对`words`中所有单词进行串联，相当于对所有的单词进行**全排列**
+
+而全排列的时间复杂度是$O(m!)$。
+
+**所以，我们无法求出**`words`中的所有单词排列，也没必要求出
+
+那么换一种思路，**需要注意到单词的无序串联，既然无序，说明与单词的顺序无关，只与单词的数量有关**。
+
+但是，这里采用数据结构**hash表**对`words`中出现的**单词及出现的次数**进行保存，在字符串`s`中也采用类似的方式，最后通过比较两个 hash表 是否相等即可。
+
+#### 3. 暴力方法 ❗
+
+在将题意分析清楚之后，我们很容易想到维护一个长度为$L$（假设字符串w的长度为$L$）的窗口，通过该窗口对`s`进行遍历。在遍历的过程中，**每移动一个字符，便对窗口内的所以单词进行计算**，判断窗口内的所有单词是否与`words`中的单词相同。
+
+\<![image.png](https://pic.leetcode-cn.com/1619067446-amVNPZ-image.png),![image.png](https://pic.leetcode-cn.com/1619067500-oXJkvT-image.png),![image.png](https://pic.leetcode-cn.com/1619067513-eusHQz-image.png),![image.png](https://pic.leetcode-cn.com/1619067525-jhtokD-image.png)>
+
+明显，如果采用暴力思路，每次窗口滑动，我们都需要对窗口内的单词进行重新计算，比如单词从`["bar","foo"]`变成`["arf", "oot"]`，两者之前是没有任何关联的。
+
+进而可求得暴力的时间复杂度为$O(n * m)$,其中 $n$ 为字符串`s`的长度，$m$ 为单词数组`words`的长度
+
+> 这种方案真的可行吗 ❓
+>
+> **事实上，这已经背离了滑动窗口的初衷，滑动窗口的目的是在线性复杂度内，在一段连续的区间上通过进行窗口滑动来对问题进行求解。**
+>
+> 也就是说，窗口的滑动时间复杂度是 $O(n)$，但每次滑动后，窗口内的计算复杂度应该是常量$O(1)$的，然后本方法的复杂度已经上了一个量级。
+
+#### 4. 优化： 多起点 ✔️
+
+> 这里我们先思考两个问题 ：
+>
+> **1. 能否像传统滑动窗口一样，将滑动操作的时间复杂度降低到O(1) ❓**
+> **2. 题目为什么强调words数组中的单词长度是相等的❓**
+
+实际上，当我们仔细思考过后，不难发现：\*\*传统滑动窗口每次窗口滑动的步长都是 \*\*$1$，所以可以直接减去前缀字符，增加后缀字符（在 $O(1)$ 复杂度内完成）。
+
+所以，本题是无法采用传统滑动步长为 $1$ 的滑动窗口的！！！（因为本题的基本单元为单词 长度可能 大于 $1$）
+
+> 考虑一种特殊情况，如果words中的所有单词长度为 $1$，那么不就可以转化成传统滑动窗口模型了吗？
+> 长度 大于1 也能采用类似的思路吗？
+
+讲到这里，相信读者思路已经很清晰了。
+
+> - 假设字符串`s`的长度为 $n$
+>
+> - 假设`words`中的单词个数为 $m$，每个单词长度为 $d$，所有单词长度之和为 $L$
+>
+> - 维护一个长度为 $L$ 的窗口在字符串`s`上进行滑动，每次滑动的步长为 $d$
+>
+> - 这样，每次滑动便不用重新计算窗口内的单词，因为每次窗口滑动的步长为 $d$，即跨越了整个单词
+>
+> - **除了第一个单词离开了窗口，窗口内的其他单词均未受到影响**
+
+#### 5. 转移过程
+
+> 设$f(i)$表示以下标 $i$ 为起点，长度为 $L$ 的窗口内的单词集合
+
+则窗口的滑动公式为：   $f(i + d) = f(i) - s[i : i + d] + s[i + L : i + L + d]$
+
+\*\*细心的读者可能会发现，将滑动步长设置成 \*\*$d$ 之后，如果窗口以 $0$ 为起点开始滑动，会漏掉起点 $1,2,3,..., d - 1$（除非$d = 1$）开始的窗口。
+
+确实如此，这里存在一个问题，该公式只能计算出$f(i + d), f(i + 2 * d),..., f(i + x * d)$，即 求出所有 $\pmod d$ 相同的元素，而无法计算出$f(i + 1), f(i + 2),\ldots,f(i + d - 1) \ldots$
+
+**所以这里需要设置多个起点**。
+
+#### 6. 多起点
+
+经过上述分析，我们需要设置 $d - 1$ 个起点，即 $d - 1$ 个滑动窗口，每个窗口的每次滑动步长为 $d$。
+
+$f(0) \rightarrow f(d) \rightarrow f[2 * d] \rightarrow f(3 * d) \rightarrow f(x * d) \ldots$
+$f(1) \rightarrow f(1 + d) \rightarrow f(1 + 2 * d) \rightarrow f(1 + 3 * d) \rightarrow f(1 + x * d) \ldots$
+$f(2) \rightarrow f(2 + d) \rightarrow f(2 + 2 * d) \rightarrow f(2 + 3 * d) \rightarrow f(2 + x * d) \ldots$
+$f(3) \rightarrow f(3 + d) \rightarrow f(3 + 2 * d) \rightarrow f(3 + 3 * d) \rightarrow f(3 + x * d) \ldots$
+$\ldots$
+$f(d - 1) \rightarrow f(d - 1 + d) \rightarrow f(d - 1 + 2 * d) \rightarrow f(d - 1 + 3 * d) \rightarrow f(3 + x * d) \ldots$
+
+这样便囊括了字符串`s`上所有长度为 $L$ 的窗口，不存在遗漏的情况。
+
+### 例子
+
+最后来看看各个窗口的滑动情况：
+
+> 由于单词的长度为 $3$，故设置 $3$ 个起点的滑动窗口同时向右滑动，红色、蓝色、绿色窗口分别代表起点为 $0$、$1$、$2$的窗口。
+
+\<![图片1.png](https://pic.leetcode-cn.com/1619072467-wwGJXy-%E5%9B%BE%E7%89%871.png),![图片2.png](https://pic.leetcode-cn.com/1619072479-PUGaPr-%E5%9B%BE%E7%89%872.png),![图片3.png](https://pic.leetcode-cn.com/1619072482-STJgAJ-%E5%9B%BE%E7%89%873.png),![图片4.png](https://pic.leetcode-cn.com/1619072484-DHJfDS-%E5%9B%BE%E7%89%874.png)>
+
+### 代码
+
+* c++
+
+```c++
+ class Solution {
+public:
+    vector<int> findSubstring(string s, vector<string>& words) {
+        vector<int> res;
+        // 设 words中所有单词的长度为 d
+        int n = s.size(), m = words.size(), d = words[0].size();
+        int len = 0;
+        unordered_map<string, int> um;
+        for (string w : words) {
+            len += w.size();
+            um[w]++;
+        }
+
+        // init: 初始化长度为 d 的数组
+        vector<unordered_map<string, int> > vu(d);
+        for (int i = 0; i < d && i + len <= n; i++) {
+            for (int j = i; j < i + len; j += d) {
+                string w = s.substr(j, d);
+                vu[i][w]++;
+            }
+            if (vu[i] == um) {
+                res.emplace_back(i);
+            }
+        }
+
+        // sliding window: 滑动窗口，每次移动 d 个位置
+        for (int i = d; i + len <= n; i++) {
+            int r = i % d;
+            string wa = s.substr(i - d, d), wb = s.substr(i + len - d, d);
+            if(--vu[r][wa] == 0) vu[r].erase(wa);
+            vu[r][wb]++;
+            if (vu[r] == um) {
+                res.emplace_back(i);
+            }
+        }
+
+        return res;
+    }
+};
+```
+
+### 总结
+
+- **时间复杂度：**$O((d * m) + n)$, 其中 $n$ 表示字符串 $s$ 的长度，$d$ 是 $words$ 中单词的长度, $m$ 是 $words$ 中单词的个数。
+
+- **空间复杂度：**$O(L)$，其中 $L$ 表示 $words$ 数组中所有单词的长度之和
+
+> 感谢您的观看，如有任何问题，欢迎留言交流！
+> 若对您有帮助，希望不吝一赞                          $\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ - \  by \ \  \ yex➰$
+

@@ -1,0 +1,100 @@
+> Problem: [30. 串联所有单词的子串](https://leetcode.cn/problems/substring-with-concatenation-of-all-words/description/)
+
+[TOC]
+
+# 思路
+
+> 先分别找出所有单词在s中出现的位置，然后分别对每一部分滑动窗口。感觉比题解绕了个圈，但是确实速度和空间都好了不少（）.
+
+# 解题方法
+
+> 先将每个单词出现的位置找出来并填入vector s_word中，注意每个不同的单词要填一个不同的数做区分。接下来把整个s_word分为m部分，每部分是's_word[i::m]''(0<=i<m)'，然后对每个部分进行滑动窗口，来找出满足条件的窗口
+
+# 复杂度
+
+- 时间复杂度:
+
+> l=s.size(), n=words中的单词种类, m=words[0].size();
+> $查找所有单词出现的位置为O(n(l+m))$
+> 后面再次匹配的时间为 O(l)
+
+- 空间复杂度:
+
+> 创建了一个长度为l的vector和几个map 算是$O(n)$吧
+
+# Code
+
+* []
+
+```C++
+
+class Solution {
+public:
+    vector<int> findSubstring(string s, vector<string>& words) {
+   // --start--
+    vector<int> result;
+    map<string, int> jud_str2int={};
+    map<int, int> jud_map={};
+    map<int, int> jud_nums={};
+    vector<int> s_word(s.size(), -1);
+
+    int index=0;
+    for(const string& word:words){  //初始化map（记录每个单词在words的次数）和str2int（单词与整数的映射）
+        if(jud_str2int[word]==0){
+            jud_str2int[word] = ++index;
+        }
+        jud_map[jud_str2int[word]]++;
+    }
+    for(const auto& it:jud_str2int){    // 找到每个单词出现的位置
+        index = 0;
+        while ((index = s.find(it.first,index)) != string::npos) {
+            s_word[index] = it.second;
+            index ++;
+        }
+    }
+
+    // display_vector(s_word);
+    int word_length = words[0].size();
+    for(int i=0; i<word_length; i++){
+        int start=i, end=i, have_num=0;
+        for(auto &it:jud_nums)   it.second=0;
+        while(end<s.size()){
+            if(s_word[end]==-1){    //啥也不是，因为要求连续，所以直接清空
+                end += word_length;
+                start = end;
+                for(auto &it:jud_nums)   it.second=0;
+                have_num=0;
+            }
+            else{
+                if(jud_nums[s_word[end]]<jud_map[s_word[end]])
+                {   // 出现次数不足，添加
+                    jud_nums[s_word[end]]++;
+                    have_num++;
+                    end+=word_length;
+                    if(have_num==words.size()){  //满足终极条件，start和end右移一步
+                        result.push_back(start);
+                        jud_nums[s_word[start]]--;
+                        have_num--;
+                        start += word_length;
+                    }
+                }
+                else{   // 出现过。滑动窗口左侧移动
+                    while(s_word[start] != s_word[end]){
+                        jud_nums[s_word[start]]--;  //删除左侧的那个值
+                        have_num--;
+                        start+=word_length;
+                    }
+                    start+=word_length;
+                    end += word_length;
+                }
+            }
+        }
+    }
+
+    // display_vector(result);
+    return result;
+    // --end--
+    }
+};
+```
+
