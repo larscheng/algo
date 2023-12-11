@@ -65,7 +65,8 @@ public class L1590_MakeSumDivisibleByP{
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public int minSubarray(int[] nums, int p) {
-
+        //TODO
+        return 0;
     }
 }
 //leetcode submit region end(Prohibit modification and deletion)
