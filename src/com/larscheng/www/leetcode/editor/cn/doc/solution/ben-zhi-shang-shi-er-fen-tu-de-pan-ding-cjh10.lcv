@@ -1,0 +1,69 @@
+### 解题思路
+
+- 这题本质上是考察二分图的判定
+- 如果你把每个人看做图中的节点，相互讨厌的关系看做图中的边，那么 dislikes 数组就可以构成一幅图
+- 又因为题目说互相讨厌的人不能放在同一组里，相当于图中的所有相邻节点都要放进两个不同的组
+- 那就回到了「双色问题」，如果能够用两种颜色着色所有节点，且相邻节点颜色都不同
+- **把 dislikes 构造成一幅图，然后执行二分图的判定算法**
+- 想了解双色问题的可看[785. 判断二分图 &&&&&细说二分图](https://leetcode-cn.com/problems/is-graph-bipartite/solution/xi-shuo-er-fen-tu-by-angela-x-mgxc/)
+
+### 代码
+
+* javascript
+
+```javascript
+/**
+ * @param {number} n
+ * @param {number[][]} dislikes
+ * @return {boolean}
+ */
+var possibleBipartition = function (n, dislikes) {
+  let ok = true;
+  // 图节点编号从 1 开始
+  let color = new Array(n + 1).fill(false);
+  let visited = new Array(n + 1).fill(false);
+  const buildGraph = (n, dislikes) => {
+    // 图节点编号为 1...n
+    let graph = new Array(n + 1).fill(0).map(() => new Array());
+    for (let edge of dislikes) {
+      let v = edge[1];
+      let w = edge[0];
+      // 「无向图」相当于「双向图」
+      // v -> w
+      graph[v].push(w);
+      // w -> v
+      graph[w].push(v);
+    }
+    return graph;
+  };
+  const traverse = (graph, v) => {
+    if (!ok) return;
+    visited[v] = true;
+    for (let w of graph[v]) {
+      if (!visited[w]) {
+        /**
+         * 相邻节点 w 没有被访问过
+         * 那么应该给节点 w 涂上和节点 v 不同的颜色
+         */
+        color[w] = !color[v];
+        // 继续遍历 w
+        traverse(graph, w);
+      } else {
+        /**
+         * 相邻节点 w 已经被访问过
+         * 根据 v 和 w 的颜色判断是否是二分图
+         */
+        if (color[w] == color[v]) ok = false;
+      }
+    }
+  };
+
+  // 转化成邻接表表示图结构
+  const graph = buildGraph(n, dislikes);
+  for (let i = 1; i <= n; i++) {
+    if (!visited[i]) traverse(graph, i);
+  }
+  return ok;
+};
+```
+

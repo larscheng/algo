@@ -1,0 +1,86 @@
+## 思路
+
+这道题是典型的图着色问题。这里提供深度优先搜索解决方案。
+
+## 算法
+
+可以把 dislikes 中每个元组看成结点之间的边，根据结点关系画出图，相邻的结点之间的颜色不能相同。如果我们能够利用两种颜色把所有结点着色就说明可以把这些结点分为两类。
+
+### 深度优先搜索
+
+对于每一个结点，我们有两种染色的方式（以图中颜色为例，可以染成蓝色和绿色）。如果对于一个未被染色的结点，我们可以先把它染成其中一种颜色（比如说蓝色），然后在把与之相连的结点染成不同的颜色（比如绿色），如果不是所有的相邻结点都满足要求（比如说相邻结点已经被染成蓝色），那么这个结点不能够染成这种颜色，要换一种颜色染色。如果两种颜色都尝试了之后还不能够成功染色，那么说明无法满足题目要求。
+
+![image.png](https://pic.leetcode-cn.com/1616218613-zwSqZw-image.png)
+
+### 代码
+
+* []
+
+```c++
+class Solution {
+public:
+    bool paint(int x, int c, vector<vector<int>>& edges, vector<int>& colors) {
+        if (colors[x] == c) return true;
+        else if (colors[x] != 0 && colors[x] != c) return false;
+        colors[x] = c;
+        int reversed = (c == 1 ? 2 : 1);
+        for (auto& e : edges[x]) {
+            if (!paint(e, reversed, edges, colors)) {
+                colors[x] = 0;
+                return false;
+            }
+        }
+        return true;
+    }
+    bool possibleBipartition(int N, vector<vector<int>>& dislikes) {
+        vector<vector<int>> edges(N);
+        for (auto e : dislikes) {
+            edges[e[0]-1].push_back(e[1]-1);
+        }
+        vector<int> colors(N, 0);
+        for (int i = 0; i < N; ++i) {
+            if(!paint(i, 1, edges, colors) && !paint(i, 2, edges, colors)) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+### 只选择一种颜色染色
+
+只选择一种颜色染色的代码如下。值得注意的是，由于我们只选择一种颜色染色，就需要保存为无向图。通过观察程序运行中间结果发现，如果我们不保存为无向图，那么就可能出现明明需要向下搜索时，没有搜索，导致应该被染色上色的结点没有被染上色。因此在下一次染色时，就会误判（本应该染绿色的结点没有染上绿色，而该结点当做起始结点搜索时只能够染蓝色，而蓝色是不被允许的）。
+
+* c++
+
+```c++
+class Solution {
+public:
+    bool paint(int x, int c, vector<vector<int>>& edges, vector<int>& colors) {
+        if (colors[x] != 0) return colors[x] == c;
+        colors[x] = c;
+        for (auto& e : edges[x]) {
+            if (!paint(e, -c, edges, colors)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    bool possibleBipartition(int N, vector<vector<int>>& dislikes) {
+        vector<vector<int>> edges(N);
+        for (auto e : dislikes) {
+            edges[e[0]-1].push_back(e[1]-1);
+            edges[e[1]-1].push_back(e[0]-1);
+        }
+        vector<int> colors(N, 0);
+        for (int i = 0; i < N; ++i) {
+            if(colors[i] == 0 && !paint(i, 1, edges, colors)) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+

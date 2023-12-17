@@ -1,0 +1,41 @@
+> Problem: [886. 可能的二分法](https://leetcode.cn/problems/possible-bipartition/description/)
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    int[] pa;
+    int[] dist;
+    public int find(int x) {
+        if (pa[x] != x) {
+            int y = pa[x];
+            pa[x] = find(pa[x]);
+            dist[x] += dist[y];
+        }
+        return pa[x];
+    }
+    public boolean possibleBipartition(int n, int[][] dislikes) {
+        pa = new int[n];
+        dist = new int[n];
+        for (int i = 0; i < n; i++) pa[i] = i;
+        for (int i = 0; i < dislikes.length; i++) {
+            int x = dislikes[i][0]-1; int y = dislikes[i][1] - 1;
+            int px = find(x); int py = find(y);
+            if (px == py) {
+                if ((dist[x] - dist[y]) % 2 == 0) {
+                    return false;
+                }
+            } else {
+                pa[px] = py;
+                dist[px] = dist[y] - dist[x] + 1;
+            }
+        }
+        return true;
+
+
+    }
+}
+```
+
