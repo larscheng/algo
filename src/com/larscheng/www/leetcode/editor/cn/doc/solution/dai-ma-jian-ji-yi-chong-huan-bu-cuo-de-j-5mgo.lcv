@@ -1,0 +1,37 @@
+[详细刷题视频合集](https://xiaochen1024.com/series/6196129fc1553b002e57bef5/6196208ec1553b002e57bef6)      
+[刷题笔记](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18)
+法一
+
+* 
+
+```
+var judgeCircle = function(moves) {
+    let countR = 0;
+    let countU = 0;
+    let len = moves.length;
+    for (let i = 0; i < len; i++) {
+        if (moves[i] == 'R') {
+            countR++
+        } else if (moves[i] == 'L') {
+            countR--
+        } else if (moves[i] == 'U') {
+            countU++
+        } else {
+            countU--
+        }
+    }
+    return countR == 0 && countU == 0;
+};
+```
+
+法二
+
+* 
+
+```
+var judgeCircle = function(moves) {
+    // 判断 L.count === R.count && U.count === D.count
+    return moves.split('L').length === moves.split('R').length && moves.split('U').length === moves.split('D').length
+};
+```
+

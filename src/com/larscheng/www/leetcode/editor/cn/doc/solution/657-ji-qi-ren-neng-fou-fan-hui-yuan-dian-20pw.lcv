@@ -1,0 +1,76 @@
+# 解法
+
+## 思路和算法
+
+为了判断机器人能否回到原点，可以遍历字符串 $\textit{moves}$ 模拟机器人的移动，对于机器人的每次移动更新机器人所在的坐标。
+
+用 $(x, y)$ 表示机器人的坐标，初始时 $(x, y) = (0, 0)$。
+
+对于机器人的每次移动，根据移动方向更新机器人的坐标。
+
+- 如果移动方向是 $\text{`U'}$，则机器人向上移动一次，将 $y$ 的值加 $1$。
+
+- 如果移动方向是 $\text{`D'}$，则机器人向下移动一次，将 $y$ 的值减 $1$。
+
+- 如果移动方向是 $\text{`L'}$，则机器人向左移动一次，将 $x$ 的值减 $1$。
+
+- 如果移动方向是 $\text{`R'}$，则机器人向右移动一次，将 $x$ 的值加 $1$。
+
+遍历字符串 $\textit{moves}$ 结束之后，判断机器人的坐标是否为 $(0, 0)$。如果 $(x, y) = (0, 0)$，则机器人回到原点，返回 $\text{true}$，否则返回 $\text{false}$。
+
+## 代码
+
+* [sol1-Java]
+
+```Java
+class Solution {
+    public boolean judgeCircle(String moves) {
+        int x = 0, y = 0;
+        int length = moves.length();
+        for (int i = 0; i < length; i++) {
+            char move = moves.charAt(i);
+            if (move == 'U') {
+                y++;
+            } else if (move == 'D') {
+                y--;
+            } else if (move == 'L') {
+                x--;
+            } else if (move == 'R') {
+                x++;
+            }
+        }
+        return x == 0 && y == 0;
+    }
+}
+```
+
+* [sol1-C#]
+
+```C#
+public class Solution {
+    public bool JudgeCircle(string moves) {
+        int x = 0, y = 0;
+        int length = moves.Length;
+        for (int i = 0; i < length; i++) {
+            char move = moves[i];
+            if (move == 'U') {
+                y++;
+            } else if (move == 'D') {
+                y--;
+            } else if (move == 'L') {
+                x--;
+            } else if (move == 'R') {
+                x++;
+            }
+        }
+        return x == 0 && y == 0;
+    }
+}
+```
+
+## 复杂度分析
+
+- 时间复杂度：$O(n)$，其中 $n$ 是字符串 $\textit{moves}$ 的长度。需要遍历字符串一次模拟机器人的移动。
+
+- 空间复杂度：$O(1)$。
+

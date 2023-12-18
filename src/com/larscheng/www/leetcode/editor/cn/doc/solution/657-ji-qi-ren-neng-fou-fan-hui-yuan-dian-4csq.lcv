@@ -1,0 +1,48 @@
+### 方法，模拟
+
+**解题思路**
+
+只需按指令模拟机器人移动的坐标即可。起始时机器人的坐标为 $(0,0)$，在遍历完所有指令并对机器人进行移动之后，判断机器人的坐标是否为 $(0,0)$ 即可。
+
+具体来说，用两个变量 $x$ 和 $y$ 来表示机器人当前所在的坐标为 $(x,y)$，起始时 $x=0$，$y=0$。接下来遍历指令并更新机器人的坐标：
+
+- 如果指令是 $U$，则令 $y=y-1$
+- 如果指令是 $D$，则令 $y=y+1$
+- 如果指令是 $L$，则令 $x=x-1$
+- 如果指令是 $R$，则令 $x=x+1$
+
+最后判断 $(x,y)$ 是否为 $(0,0)$ 即可。
+
+[参考](https://leetcode.cn/problems/robot-return-to-origin/solutions/389888/ji-qi-ren-neng-fou-fan-hui-yuan-dian-by-leetcode-s/)
+
+### 代码
+
+* []
+
+```Java
+class Solution {
+    public boolean judgeCircle(String moves) {
+        int x = 0, y = 0;
+        for (int i = 0; i < moves.length(); ++i) {
+            char c = moves.charAt(i);
+            if (c == 'U') {
+                --y;
+            } else if (c == 'D') {
+                ++y;
+            } else if (c == 'L') {
+                --x;
+            } else if (c == 'R') {
+                ++x;
+            }
+        }
+        return x == 0 && y == 0;
+    }
+}
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(N)$，其中 $N$ 表示 $\textit{moves}$ 指令串的长度。只需要遍历一遍字符串即可。
+
+- 空间复杂度： $O(1)$。只需要常数的空间来存放若干变量。
+
