@@ -1,0 +1,93 @@
+线程调度问题。
+1.首先将三个参数封装成一个对象类（方便理解）
+2.使用一个对enqueueTime升序排序的数组，一个对processingTime排序的小根堆两个数据结构
+3.初始化一个时间戳t，t每次需要t += processingTime（如果每次+1 硬模拟大概率超时）
+4.大致思路是
+- 每一轮循环中先将数组中enqueueTime小于当前时间戳t的对象都放入小根堆中（即放入任务队列）
+- 考虑执行完上一轮堆仍为空的情况（即当前时间戳t小于数组中所有enqueueTime，并且也没有待执行任务，故会停滞住）
+  这时候需要手动将数组中equeueTime最小的加入堆中
+- 最后考虑执行任务并更新时间戳。
+- 重复上述过程，直到数组中对象都被加入堆中
+- 循环结束后就按照堆的顺序依次添加结果（毕竟求的只是顺序）
+
+* 
+
+```
+class Solution {
+   class Exe {
+       int index;
+       int enqueueTime;
+       int processingTime;
+
+       public Exe(int index, int enqueueTime, int processingTime) {
+           this.index = index;
+           this.enqueueTime = enqueueTime;
+           this.processingTime = processingTime;
+       }
+   }
+
+
+   public int[] getOrder(int[][] tasks) {
+       int n = tasks.length;
+       Exe[] newTasks = new Exe[n];
+       for (int i = 0; i < n; i++) {
+           newTasks[i] = new Exe(i, tasks[i][0], tasks[i][1]);
+       }
+       Arrays.sort(newTasks, new Comparator<Exe>() {
+           @Override
+           public int compare(Exe o1, Exe o2) {
+               //起始时间升序排列
+               return o1.enqueueTime - o2.enqueueTime;
+           }
+       });
+       //小根堆
+       Queue<Exe> heap = new PriorityQueue<>(new Comparator<Exe>() {
+           @Override
+           public int compare(Exe o1, Exe o2) {
+               if (o1.processingTime == o2.processingTime)
+                   return o1.index - o2.index;
+               else
+                   return o1.processingTime - o2.processingTime;
+           }
+       });
+
+       //存储结果
+       int[] res = new int[n];
+       int indexOfRes = 0;
+       //之前遍历到的位置
+       int i = 0;
+       //进行的时间
+       long t = 0;
+       long finishTime = 0;
+       //从第一个开始
+       while (i < n) {
+           //每段时间判断newTasks中有无任务可以进队列
+           while (i < n && t >= newTasks[i].enqueueTime) {
+               //如果有添加进堆
+               heap.offer(newTasks[i]);
+               i++;
+           }
+           //如果堆中没有任务，即cpu空闲
+           if (heap.isEmpty()) {
+               //将时间提到newTask中最小时间
+               t = newTasks[i].enqueueTime;
+               while (i < n && t >= newTasks[i].enqueueTime) {
+                   heap.offer(newTasks[i]);
+                   i++;
+               }
+           }
+           //处理新任务
+           Exe cur = heap.poll();
+           res[indexOfRes++] = cur.index;
+           t += cur.processingTime;
+       }
+       //处理剩余的
+       while (!heap.isEmpty()) {
+           res[indexOfRes++] = heap.poll().index;
+       }
+       return res;
+   }
+
+}
+```
+
