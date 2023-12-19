@@ -1,0 +1,25 @@
+### 解题思路
+
+![搜狗截图20220311162159.png](https://pic.leetcode-cn.com/1646987239-QYaSNL-%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20220311162159.png)
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int numberOfRounds(String loginTime, String logoutTime) {
+        int inh = Integer.parseInt(loginTime.substring(0,2));
+        int inm = Integer.parseInt(loginTime.substring(3,5));
+        int outh = Integer.parseInt(logoutTime.substring(0,2));
+        int outm = Integer.parseInt(logoutTime.substring(3,5));
+        int ans = 0; 
+        ans += inh > outh || inh == outh && inm > outm ? (outh + 24 - inh)*4 : (outh - inh)*4 ;
+        int m1 = inm % 15 == 0 ? inm / 15 : inm / 15 + 1;
+        int m2 = outm / 15;
+        ans += m2 - m1;
+        return ans > 0 ? ans : 0;
+    }
+}
+```
+

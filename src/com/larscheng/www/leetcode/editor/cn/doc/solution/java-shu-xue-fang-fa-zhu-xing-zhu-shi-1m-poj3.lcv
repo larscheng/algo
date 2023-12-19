@@ -1,0 +1,35 @@
+### 解题思路
+
+计算出来时间差，然后再累加就好了。
+对于 **时间** 差，只需要直接乘以 **4** 就可以了。
+对于 **分钟** 差，只需要计算结束时的分钟对15的倍数，减去开始时的分钟对15的向上取整倍数就好了。
+最后把两者相加。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int numberOfRounds(String startTime, String finishTime) {
+        // 拿到开始时间和分钟, 以及结束时间和分钟
+        int startH = Integer.parseInt(startTime.split(":")[0]);
+        int startM = Integer.parseInt(startTime.split(":")[1]);
+        int finishH = Integer.parseInt(finishTime.split(":")[0]);
+        int finishM = Integer.parseInt(finishTime.split(":")[1]);
+        // 计算小时和分钟数
+        int hours = 0;
+        int minutes = 0;
+        // 如果结束时间小于开始时间, 或者结束时间与开始时间相同的情况下, 开始分钟大于结束分钟, 那么就补上 24 小时.
+        if (finishH < startH || (finishH == startH && startM > finishM)) hours = finishH + 24 - startH;
+        // 否则直接相减就是时间差
+        else hours = finishH - startH;
+        // 计算分钟差
+        minutes =  finishM / 15 - (startM + 14) / 15;
+        // 两者相加得到最终答案
+        int ans = hours * 4 + minutes;
+        return ans;
+    }
+}
+```
+

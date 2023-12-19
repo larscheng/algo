@@ -1,0 +1,28 @@
+### 解题思路
+
+转化为分钟数
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int numberOfRounds(String loginTime, String logoutTime) {
+        int h1=Integer.parseInt(loginTime.split(":")[0]);
+        int m1=Integer.parseInt(loginTime.split(":")[1]);
+        int h2=Integer.parseInt(logoutTime.split(":")[0]);
+        int m2=Integer.parseInt(logoutTime.split(":")[1]);
+        boolean flag=false;
+        if(h2>h1 || (h2==h1 && m2>m1)) flag=true;
+        m1=15*((m1+14)/15);
+        m2=15*(m2/15);
+        int time1=h1*60+m1;
+        int time2=h2*60+m2;
+        int time=flag ? (time2-time1) : (time2-time1+24*60);
+        time= time>=0? time:0;
+        return time/15;
+    }
+}
+```
+

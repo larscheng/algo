@@ -1,0 +1,42 @@
+![image.png](https://pic.leetcode-cn.com/1624851629-znLEGE-image.png)
+
+### 思路
+
+1. 取出起始和结束的`小时`和`分钟`数
+2. 判断 开始时间不在结束时间之后（没有跨夜），并且时间间隔小于15分钟，返回 0
+3. 这里隐藏了一个数组存储的过程
+   - 因为只有`小时：分钟`代表时间，所以一天的总局数可以计算得：`24 * 4 = 96`
+   - 因此可以初始化一个长度为96的二维数组，里面存储了每一场比赛的开始时间。数组下标代表该比赛的序号
+   - 计算 `startTime` 在数组中元素靠右即为可以参与的第一场比赛
+   - 计算 `finishTime` 在书中元素靠左即为可以参与的最后一场比赛
+   - 如果startTime <= finishTime 则计算他们之间的数组元素数量即可
+     ![image.png](https://pic.leetcode-cn.com/1624859034-CHAYLT-image.png)
+   - 如果startTime > finishTime 则计算,finishTime - 当天完整参加的场次 + 前一天总场次 - startTime
+     ![image.png](https://pic.leetcode-cn.com/1624859528-uZztBI-image.png)
+4. 发现可以不需要初始化上面的数组，但是沿用了数组的下标计算，因此代码如下
+
+* java
+
+```java
+public int numberOfRounds(String startTime, String finishTime) {
+        int startHH = Integer.parseInt(startTime.substring(0,2));
+        int startMM = Integer.parseInt(startTime.substring(3));
+        int endHH = Integer.parseInt(finishTime.substring(0,2));
+        int endMM = Integer.parseInt(finishTime.substring(3));
+        if(startHH == endHH && endMM - startMM > 0 && endMM - startMM < 15){
+            return 0;
+        }
+        int startIndex = startHH * 4 + (startMM + 14) / 15;
+        int endIndex = endHH * 4 + endMM / 15;
+        if(endIndex < startIndex){
+            return 96 - startIndex + endIndex;
+        }
+        return endIndex - startIndex;
+    }
+```
+
+### 复杂度分析
+
+- 时间复杂度：常数时间复杂度`O(1)`
+- 空间复杂度：常数个局部变量的空间：`O(1)`
+

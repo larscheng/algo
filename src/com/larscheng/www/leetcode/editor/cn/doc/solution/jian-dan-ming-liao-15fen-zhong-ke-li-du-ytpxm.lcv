@@ -1,0 +1,49 @@
+### 解题思路
+
+1. 辅助函数： 转为单位为分钟
+2. 开始小于结束， 跨天， +24h处理
+3. 转化为单位为15分钟
+   2.1 整点才开始， 故向上取整
+   2.2 整点完成才算完成，故向下取整
+4. 返回求差值
+
+### 代码实现
+
+* javascript
+
+```javascript
+/**
+ * @param {string} startTime
+ * @param {string} finishTime
+ * @return {number}
+ */
+ var numberOfRounds = function(startTime, finishTime) {
+    let m1 = toMinutes(startTime),m2 = toMinutes(finishTime);
+
+    if (m1 > m2) {
+        m2 += 24 * 60;
+    }
+
+    let ans = Math.floor(m2 / 15) - Math.ceil(m1 / 15);
+    return ans < 0 ? 0 : ans;
+};
+
+function toMinutes(time) {
+    let [h, m] = time.split(':');
+    return Number(h) * 60 + Number(m);
+}
+```
+
+修正, 支持新增用例
+
+* js
+
+```js
+"00:47"
+"00:57"
+```
+
+> 欢迎交流~~~
+> 关于算法题解和多语言实现， 请访问[https://doocs.github.io/leetcode/#/](https://doocs.github.io/leetcode/#/) （持续不断更新中...）
+> 关于JavaScript、可视化、大前端， 请请访问[https://zhaocchen.github.io/](https://zhaocchen.github.io/)
+

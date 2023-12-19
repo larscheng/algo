@@ -1,0 +1,44 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* python3
+
+```python
+class Solution:
+    def numberOfRounds(self, loginTime: str, logoutTime: str) -> int:
+        h1,m1 =map(int,loginTime.split(':')) 
+        h2,m2 =map(int,logoutTime.split(':'))
+        t1=0
+        t2=0
+        if m1<15:
+            t1=0
+        elif 15<=m1<30:
+            t1=1
+        elif 30<=m1<45:
+            t1=2
+        else:
+            t1=3
+        if m2<15:
+            t2=0
+        elif 15<=m2<30:
+            t2=1
+        elif 30<=m2<45:
+            t2=2
+        else:
+            t2=3
+        if m1 not in [0,15,30,45]:
+            m11=h1*4+t1+1
+        else:
+            m11=h1*4+t1
+        m12=h2*4+t2
+        if h2<h1 or (h2==h1 and m1>m2):
+            m12+=24*4
+        a=m12-m11
+        return max(0,a)
+        
+
+```
+
