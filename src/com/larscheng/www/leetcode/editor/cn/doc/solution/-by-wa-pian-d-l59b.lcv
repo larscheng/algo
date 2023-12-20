@@ -1,0 +1,55 @@
+### 解题思路
+
+可能性1：变成同一个字符，两个字符串，除这个字符以外所有的字符都要变。
+可能性2：以当前字符i为界，a小于b。a串中i字符以上（不含i）都变小，同时b串i以下（包含i）都变大。
+可能性3：参照可能性2，b小于a。
+
+三者之一，最小即为答案。
+尝试过程，尝试了每一个字符，但是z特殊，没有严格大于z的情况。所以z只有一种，全变成z。
+
+1. 先统计每个字符串中各个字符的数量。
+2. 利用前缀和，加速求得小于等于某一个字符，大于某一个字符一共有多少个。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+	public int minCharacters(String a, String b) {
+		int[] dic1 = this.dic(a);
+		int[] dic2 = this.dic(b);
+		int[] sums1 = this.sums(dic1);
+		int[] sums2 = this.sums(dic2);
+		int ans = Integer.MAX_VALUE;
+		for (int i = 0; i < 25; i++) {
+			// 变成同一个数i
+			int ans1 = sums1[26] - dic1[i] + sums2[26] - dic2[i];
+			// a 小
+			int ans2 = sums1[26] - sums1[i + 1] + sums2[i + 1];
+			// b 小
+			int ans3 = sums2[26] - sums2[i + 1] + sums1[i + 1];
+			ans = Math.min(Math.min(ans2, ans), Math.min(ans1, ans3));
+		}
+		ans = Math.min(ans, sums1[26] - dic1[25] + sums2[26] - dic2[25]);
+		return ans;
+	}
+
+	private int[] sums(int[] dic1) {
+		int[] ans = new int[27];
+		for (int i = 1; i < ans.length; i++) {
+			ans[i] = ans[i - 1] + dic1[i - 1];
+		}
+		return ans;
+	}
+
+	private int[] dic(String a) {
+		int[] ans = new int[26];
+		for (int i = 0; i < a.length(); i++) {
+			ans[a.charAt(i) - 'a']++;
+		}
+		return ans;
+	}
+}
+```
+

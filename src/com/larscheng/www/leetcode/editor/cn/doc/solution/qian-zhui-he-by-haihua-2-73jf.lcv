@@ -1,0 +1,50 @@
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int minCharacters(String a, String b) {
+        int[] cnta = new int[26];
+        int[] cntb = new int[26];
+        for (char c : a.toCharArray()) {
+            cnta[c - 'a']++;
+        }
+        for (char c : b.toCharArray()) {
+            cntb[c - 'a']++;
+        }
+
+        int[] presumA = new int[26];
+        presumA[0] = cnta[0];
+        for (int i = 1; i < 26; i++) {
+            presumA[i] = presumA[i - 1] + cnta[i];
+        }
+
+        int[] presumB = new int[26];
+        presumB[0] = cntb[0];
+        for (int i = 1; i < 26; i++) {
+            presumB[i] = presumB[i - 1] + cntb[i];
+        }
+
+        int ans = Integer.MAX_VALUE;
+        for (int i = 0; i < 26; i++) {
+            ans = Math.min(ans, a.length() - cnta[i] + b.length() - cntb[i]);   //变成同一个字符
+            //a < b
+            if (i > 0) {
+                int changeA = a.length() - presumA[i - 1];
+                int changeB = presumB[i - 1];
+                ans = Math.min(ans, changeA + changeB);
+            }
+            //b < a
+            if (i > 0) {
+                int changeA = presumA[i - 1];
+                int changeB = b.length() - presumB[i - 1];
+                ans = Math.min(ans, changeA + changeB);
+            }
+        }
+
+        return ans;
+    }
+}
+```
+

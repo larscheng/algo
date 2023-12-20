@@ -1,0 +1,98 @@
+# 解法
+
+## 思路和算法
+
+为了计算达成目标所需的最少操作数，需要分别计算使两个字符串满足每个条件的最少操作数。
+
+第一个条件和第二个条件相似，可以使用前缀和的思想计算最少操作数。
+
+首先分别计算字符串 $a$ 和 $b$ 中的每个字母的出现次数，对于每个字符串分别使用一个长度为 $26$ 的数组记录每个字母的出现次数，然后分别计算两个数组的前缀和数组，记为 $\textit{prefixSums}_1$ 和 $\textit{prefixSums}_2$。为了方便实现，将两个前缀和数组的长度设为 $27$，对于 $1 \le i \le 26$，$\textit{prefixSums}_1[i]$ 和 $\textit{prefixSums}_2[i]$ 分别表示字符串 $a$ 和 $b$ 中的小于等于第 $i$ 个字母的字母个数。
+
+用 $m$ 和 $n$ 分别表示字符串 $a$ 和 $b$ 的长度。满足第一个条件和第二个条件的最少操作数计算如下。
+
+- 对于 $1 \le i < 26$，如果经过操作之后，字符串 $a$ 中的所有字母都小于等于第 $i$ 个字母且字符串 $b$ 中的所有字母都大于第 $i$ 个字母，则满足第一个条件，需要修改的字符包括字符串 $a$ 中的所有大于第 $i$ 个字母的字符以及字符串 $b$ 中的所有小于等于第 $i$ 个字母的字符，因此字符串 $a$ 需要修改 $m - \textit{prefixSums}_1[i]$ 个字符，字符串 $b$ 需要修改 $\textit{prefixSums}_2[i]$ 个字符，操作数是 $(m - \textit{prefixSums}_1[i]) + \textit{prefixSums}_2[i]$。遍历所有的 $i$ 之后即可得到满足第一个条件的最少操作数。
+
+- 对于 $1 \le i < 26$，如果经过操作之后，字符串 $a$ 中的所有字母都大于第 $i$ 个字母且字符串 $b$ 中的所有字母都小于等于第 $i$ 个字母，则满足第二个条件，需要修改的字符包括字符串 $a$ 中的所有小于等于第 $i$ 个字母的字符以及字符串 $b$ 中的所有大于第 $i$ 个字母的字符，因此字符串 $a$ 需要修改 $\textit{prefixSums}_1[i]$ 个字符，字符串 $b$ 需要修改 $n - \textit{prefixSums}_2[i]$ 个字符，操作数是 $\textit{prefixSums}_1[i] + (n - \textit{prefixSums}_2[i])$。遍历所有的 $i$ 之后即可得到满足第二个条件的最少操作数。
+
+对于第三个条件，可以选择任意一个小写字母，将字符串 $a$ 和 $b$ 中的所有字符都换成该小写字母，因此需要遍历全部 $26$ 个小写字母计算操作数。如果一个小写字母在字符串 $a$ 和 $b$ 中的出现次数之和是 $\textit{count}$，则将字符串 $a$ 和 $b$ 中的所有字符都改成该小写字母的操作数是 $m + n - \textit{count}$。遍历所有的字母之后即可得到满足第三个条件的最少操作数。
+
+对于三个条件分别得到满足每个条件的最少操作数之后，其中的最小值即为达成目标所需的最少操作数。
+
+## 代码
+
+* [sol1-Java]
+
+```Java
+class Solution {
+    public int minCharacters(String a, String b) {
+        int[] counts1 = new int[26];
+        int[] counts2 = new int[26];
+        int m = a.length(), n = b.length();
+        for (int i = 0; i < m; i++) {
+            counts1[a.charAt(i) - 'a']++;
+        }
+        for (int i = 0; i < n; i++) {
+            counts2[b.charAt(i) - 'a']++;
+        }
+        int[] prefixSums1 = new int[27];
+        int[] prefixSums2 = new int[27];
+        for (int i = 0; i < 26; i++) {
+            prefixSums1[i + 1] = prefixSums1[i] + counts1[i];
+            prefixSums2[i + 1] = prefixSums2[i] + counts2[i];
+        }
+        int minOps1 = Integer.MAX_VALUE, minOps2 = Integer.MAX_VALUE, minOps3 = Integer.MAX_VALUE;
+        for (int i = 1; i < 26; i++) {
+            int ops1 = (m - prefixSums1[i]) + prefixSums2[i];
+            int ops2 = prefixSums1[i] + (n - prefixSums2[i]);
+            minOps1 = Math.min(minOps1, ops1);
+            minOps2 = Math.min(minOps2, ops2);
+        }
+        for (int i = 0; i < 26; i++) {
+            minOps3 = Math.min(minOps3, (m + n) - (counts1[i] + counts2[i]));
+        }
+        return Math.min(Math.min(minOps1, minOps2), minOps3);
+    }
+}
+```
+
+* [sol1-C#]
+
+```C#
+public class Solution {
+    public int MinCharacters(string a, string b) {
+        int[] counts1 = new int[26];
+        int[] counts2 = new int[26];
+        int m = a.Length, n = b.Length;
+        for (int i = 0; i < m; i++) {
+            counts1[a[i] - 'a']++;
+        }
+        for (int i = 0; i < n; i++) {
+            counts2[b[i] - 'a']++;
+        }
+        int[] prefixSums1 = new int[27];
+        int[] prefixSums2 = new int[27];
+        for (int i = 0; i < 26; i++) {
+            prefixSums1[i + 1] = prefixSums1[i] + counts1[i];
+            prefixSums2[i + 1] = prefixSums2[i] + counts2[i];
+        }
+        int minOps1 = int.MaxValue, minOps2 = int.MaxValue, minOps3 = int.MaxValue;
+        for (int i = 1; i < 26; i++) {
+            int ops1 = (m - prefixSums1[i]) + prefixSums2[i];
+            int ops2 = prefixSums1[i] + (n - prefixSums2[i]);
+            minOps1 = Math.Min(minOps1, ops1);
+            minOps2 = Math.Min(minOps2, ops2);
+        }
+        for (int i = 0; i < 26; i++) {
+            minOps3 = Math.Min(minOps3, (m + n) - (counts1[i] + counts2[i]));
+        }
+        return Math.Min(Math.Min(minOps1, minOps2), minOps3);
+    }
+}
+```
+
+## 复杂度分析
+
+- 时间复杂度：$O(m + n + |\Sigma|)$，其中 $m$ 和 $n$ 分别是字符串 $a$ 和 $b$ 的长度，$\Sigma$ 是字符集，这道题中 $\Sigma$ 是全部小写英语字母，$|\Sigma| = 26$。遍历字符串 $a$ 和 $b$ 计算每个字母的出现次数需要 $O(m + n)$ 的时间，计算前缀和数组以及计算满足每个条件的最少操作数需要 $O(|\Sigma|)$ 的时间，因此时间复杂度是 $O(m + n + |\Sigma|)$。
+
+- 空间复杂度：$O(|\Sigma|)$，其中 $\Sigma$ 是字符集，这道题中 $\Sigma$ 是全部小写英语字母，$|\Sigma| = 26$。空间复杂度主要取决于记录每个字母出现次数的数组以及前缀和数组，每个数组的长度是 $O(|\Sigma|)$。
+

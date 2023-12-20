@@ -1,0 +1,49 @@
+题目总共给了三个条件，我们把三个条件下，最小的修改次数算出来，最后统一比较出一个最小解。
+
+对于第三个条件，我们只需要统计哪个元素使用次数最多，把剩下元素替换就行；
+
+对于第1个条件：a中每个元素都严格小于b中每个元素
+因为元素规定了就是26个小写字母，所以这里设定一个用来比较的元素k,然后让a中所有元素**都小于等于k**, b中所有元素**都大于k**，计算出a和b调整字符的个数即可
+k从a-z枚举即可；
+
+第2个条件和第一个类似；
+
+**以上是总体思路**，然后还可以利用数组来统计字母的个数，具体代码如下：
+
+* 
+
+```
+public int minCharacters(String a, String b) {
+         int[] ac = new int[26];
+         int[] bc = new int[26];
+         for (char c : a.toCharArray()) {
+           ac[c - 'a']++;
+      }
+         for (char c : b.toCharArray()) {
+           bc[c - 'a']++;
+      }
+         //第三个条件，修改字符最少，改成同一个字符
+         int ans = a.length() + b.length();
+         for(int i=0; i<26; i++) {
+                  ans = Math.min(ans, a.length() + b.length() - ac[i] - bc[i]);
+         }
+         return Math.min(ans, Math.min(smaller(ac, bc), smaller(bc, ac)));
+}
+private int smaller(int[] a, int[] b) {
+         //第一个第二个条件类似，封装到一个方法
+         //因为字母总共就26个，所以枚举所有可能， 依次判断a中所有元素小于等于字符k,b中所有元素大于字符k，然后求出最小值即可
+         int ans = Integer.MAX_VALUE;
+         for(int i=0; i < 25; i++) {//因为z是最大的元素，所以不能让a中所有元素小于等于z，这一点需要排除，所以只循环到24
+                  int total = 0;//需要修改的元素的总数
+                  for(int j=i+1; j<26; j++) {//把a中素有大于i的元素统计起来，保证a中所有元素小于等于i，需要遍历a中所有元素
+                           total += a[j];
+                  }
+                  for(int j=0; j<=i; j++) {//把b中所有小于等于元素i的都统计起来，使调整后所有元素都大于i
+                           total += b[j];
+                  }
+                  ans = Math.min(ans, total);
+         }
+         return ans;
+}
+```
+

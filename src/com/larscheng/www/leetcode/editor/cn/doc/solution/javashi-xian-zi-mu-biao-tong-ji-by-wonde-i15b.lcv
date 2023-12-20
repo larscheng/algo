@@ -1,0 +1,80 @@
+[参考了这个C++题解](https://leetcode-cn.com/problems/change-minimum-characters-to-satisfy-one-of-three-conditions/solution/czui-jian-qian-zhui-he-hou-zhui-he-jie-f-znoc/)
+
+### 1、分析直接处理字符串的复杂度
+
+这道题的难点有两个，一是每次都要考虑三种可能性，二是更严重的要考虑每个字母当“边界”和“中心”的情况。“边界”是指字符串a均小于某个字母x，b均大于x，就满足了条件一或条件二；“中心”是指在字符串a和b中找到众数并消除其他字母，就满足了条件三。
+
+比如aba、caa，字母a作为“边界”就让第一个字符串全是aaa,第二个全是cbb。虽然这里操作了3次，不是最少操作数。所以实际上要处理每个字母并比较，才能得到字母b作为“边界”时的最少操作数是2，也就是第一个字符串是aba，第二个是ccc。
+
+每个字母都要考虑，那么如果处理字符串就需要多次遍历，时间复杂度N^2（N<=26）。
+
+### 2、将字符串转为字母表
+
+直接处理字符串的复杂度和每次计算三种情况，肯定很麻烦所以要想其他办法。
+
+从上面“在字符串a和b中找到众数并消除其他字母"分析里，既然我们需要统计每个字母出现的次数，可以猜想首先将字符串转为字母表。
+
+![image.png](https://pic.leetcode-cn.com/1612249347-RQKduc-image.png)
+
+再转化上面“边界”的概念，就是在上图让把灰色区域的字母次数全改为0，叠加至蓝色区域；要么就得把蓝色区域的字母次数全改为0，叠加至灰色区域。
+
+![image.png](https://pic.leetcode-cn.com/1612249362-yLBvcj-image.png)
+
+如上图移动“边界”到字符‘c'，依次扫描字母a~y，灰色或蓝色区域的数字之和即为可能的答案（修改的字母数量）取值，枚举灰色和蓝色区域的值，求最小值。
+
+注意最后一个字符 z 不能扫描，不满足上述两个条件。举例字符串是"a"和"aazz"。
+
+同时转化上面“中心”的概念，就是把两个字符串全改成同一个字符。它的取值是 a.size() + b.size() - 当前字符在a、b出现的次数总和。
+
+### 3、使用前缀和和后缀和
+
+如何得到“灰色或蓝色区域的数字之和”？
+
+我们将从a开始到某个字母x的字符次数累加，就得到了前缀和，这可以对应“边界”的前半段。而边界后半段我们怎么知道呢？
+
+使用一个字符串的字母总数，减去前缀和，就得到了“边界”后半段的字母次数总和。
+
+### 4、java实现代码
+
+* java
+
+```java
+class Solution {
+    public int minCharacters(String a, String b) {
+        // 初始化数组用于存储字符串a和b中的字母；
+        int[] acnt = new int[26];
+        int[] bcnt = new int[26];
+        // 获取a和b的字母总数；
+        int an = a.length(), bn=b.length();
+
+        // 分别对字符串的字母计数；
+        for (char c: a.toCharArray()) {
+            acnt[c-'a']++;
+        }
+        for (char c: b.toCharArray()) {
+            bcnt[c-'a']++;
+        }
+
+        // 遍历两段字母表计算“最少操作数”；
+        int ans = Integer.MAX_VALUE, ans_1, ans_2, asum=0, bsum=0;
+        for (int i = 0; i<25; i++) {
+            // 计算两段字母表的前缀和；
+            asum += acnt[i];
+            bsum += bcnt[i];
+            // 满足条件1或条件2的操作数：操作a的字母均小于等于字母i，操作b的字母均大于字母i，或者反之；
+            // 注意不能计算字母为‘z’的情况，举例字符串是"a"和"aazz"
+            ans_1 = Math.min(an-asum+bsum, bn-bsum+asum);
+            
+            // 满足条件3的操作数：操作a和b中字母i以外的字母，令均转为i；
+            ans_2 = Math.min(ans, an-acnt[i]+bn-bcnt[i]);
+            
+            // 贪心策略：比较保留当前的最少操作数；
+            ans = Math.min(ans_1, ans_2);
+        }
+        // 计算条件3在字母为‘z’时的操作数，并比较；
+        ans = Math.min(ans, an-acnt[25]+bn-bcnt[25]);
+        return ans;
+    }
+}
+```
+

@@ -1,0 +1,63 @@
+### 解题思路
+
+参考了大佬的这篇题解，分三种情况进行暴力模拟，然后取三者最小值。具体细节见代码注释😀
+[https://leetcode-cn.com/problems/change-minimum-characters-to-satisfy-one-of-three-conditions/solution/c-mo-ni-da-fa-hao-by-bndsbilly-nkaq/]()
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int minCharacters(string a, string b) {
+        vector<int> vec_a(26),vec_b(26);
+        for(int i=0;i<a.length();i++)
+            vec_a[a[i]-'a']++;
+        for(int i=0;i<b.length();i++)
+            vec_b[b[i]-'a']++;
+        //第一种情况，a<=基准字母，b>基准字母，基准字母无法取z
+        int res=INT_MAX,first=INT_MAX,second=INT_MAX,third=INT_MAX;
+        for(int i=0;i<25;i++)
+        {
+            int temp=0;
+            //不符合第一种情况的情形：a>基准字母,b<=基准字母
+            for(int j=i+1;j<26;j++)
+                temp+=vec_a[j];
+            for(int j=0;j<=i;j++)
+                temp+=vec_b[j];
+            first=min(first,temp);
+        }
+        //第二种情况，a>基准字母，b<=基准字母，基准字母无法取z
+        for(int i=0;i<25;i++)
+        {
+            int temp=0;
+            //不符合第二种情况的情形：a<=基准字母，b>基准字母
+            for(int j=0;j<=i;j++)
+                temp+=vec_a[j];
+            for(int j=i+1;j<26;j++)
+                temp+=vec_b[j];
+            second=min(second,temp);
+        }
+        //第三种情况，a和b等于基准字母
+        for(int i=0;i<26;i++)
+        {
+            int temp=0;
+            for(int j=0;j<26;j++)
+            {   
+                //j==i时，即a和b中的字母为基准字母，不需要改变
+                if(j==i)
+                    continue;
+                //j!=i时，a和b中的字母都要改为i对应的基准字母
+                temp+=vec_a[j]+vec_b[j];
+            }
+            third=min(third,temp);
+        }
+        res=min(res,first);
+        res=min(res,second);
+        res=min(res,third);
+        return res;
+    }
+};
+```
+

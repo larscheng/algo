@@ -1,0 +1,67 @@
+# 题目思路：
+
+1 首先题目中所给字符都为小写字母，要求有一字符串所有字符都比另外一个字符串小，可以改变两个字符串中的任意字符，或者全部变成一个字符。这道题的要求我没有发现什么规律，由于小写字母只有26个如此小的数量我们可以往枚举的方向去想。
+
+2.考虑取同的思路比较好操作，我们先考虑前面两种情况（其实只有一种情况）。
+我们枚举到一个字母m时,要求一个字符串的所有字符都比它要小且可以取等，另外一个字符串则要求全都比它大，一直枚举到y就行(z的话则不符合题目要求)。如何知道知道一个字符串小于等于一个字符的数量呢，下面通过举例说明：
+
+a="dabadd",通过哈希结构（这里直接用数组比较方便）,num['a'-'0']=2;
+num['b'-'a']=1,num['d'-'a']=3;字符串长度length=6,用前缀和的形式可知小于等于字符‘s’的数量(字符'a'从1开始，数组用sum表示),sum[1]表示小于等于'a'有多少个,sum[1]=2,sum[2]=3,sum[3]=3,sum[4]=6 ...以此类推。
+这样将a中所有字符都小于等于字符n的操作为 length-sum[n-'a'+1]的操作，那么另外一个字符串的操作为sum1[n-'a'+1]，加起来再去最小值。
+3.取同的话比较好操作，代码有详细的解释：
+
+* []
+
+```C++
+```
+
+* 
+
+```
+class Solution {
+public:
+    int minCharacters(string a, string b) {
+    long long num1[27]={0}， num2[26]={0};
+    long long sum1[27]={0}， sum2[27]={0}; 
+    long long length1=a.size(),length2=b.size();
+    int i,j;
+    for( i=0,j=0;i!=a.size()||j!=b.size();)
+    {
+    if(i<a.size())
+    {
+     num1[a[i]-'a']++;  //统计a中各个字符的数量
+     i++;
+    }
+     if(j<b.size())
+     {
+     num2[b[j]-'a']++;//统计b中各个字符的数量
+     j++;
+     }
+    }
+   for(i=1;i<=26;i++)
+   {
+    sum1[i]=sum1[i-1]+num1[i-1];//string a的前缀和数组
+    sum2[i]=sum2[i-1]+num2[i-1];//string b的前缀和数组
+   }
+  int t;
+  long long result=INT_MAX;//最终结果
+  //直接把三种情况放在一起写
+  for(t=0;t<=25;t++)
+  {
+      if(t!=25)
+      {
+  long long left=length1-sum1[t+1];
+  long long right=sum2[t+1];
+  //让a "小于"b，操作次数 left+right
+  long long left1=sum1[t+1];
+  long long right1=length2-sum2[t+1];
+  //让 b "小于"a ,操作次数 left1+right1
+  long long temp=min(left+right,left1+right1);
+  result=min(result,temp);}
+   result=min(result,length1+length2-num1[t]-num2[t]);//逗号右边是  a==b字符都相等的情况
+  }
+   return result;//返回结果
+    }
+};
+```
+
