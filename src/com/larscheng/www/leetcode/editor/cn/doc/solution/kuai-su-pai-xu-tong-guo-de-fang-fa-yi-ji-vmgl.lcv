@@ -1,0 +1,45 @@
+### 解题思路
+
+普通快速排序，中轴那里优化一下就可以
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    vector<int> sortArray(vector<int>& nums) {
+        qSort(nums,0,nums.size()-1);
+        return nums;
+    }
+    
+    void qSort(vector<int>& nums, int leftBorder, int rightBorder){
+        if(leftBorder >= rightBorder)return;
+
+        // 随机中轴
+        int pivot = leftBorder + rand() % (rightBorder - leftBorder + 1);
+        swap(nums[pivot], nums[leftBorder]);
+        int left = leftBorder, right = rightBorder;
+        int pivotNum = nums[leftBorder];
+
+        //普通快排
+        while(left<right){
+            while(left<right&&nums[right]>=pivotNum)--right;
+            nums[left] = nums[right];
+            while(left<right&&nums[left]<=pivotNum)++left;
+            nums[right] = nums[left];
+        }
+        nums[left] = pivotNum;
+
+        //下面代码是关键优化，缩小一下中轴范围，针对2，2，2，2，2...这种重复样本有效
+        while(left>0 && nums[left] == nums[left-1])--left;
+        while(right< nums.size()-1 && nums[right] == nums[right+1])++right;
+
+        //递归缩小范围的左右区域
+        qSort(nums, leftBorder,left-1);
+        qSort(nums, right+1, rightBorder);
+    }
+};
+```
+

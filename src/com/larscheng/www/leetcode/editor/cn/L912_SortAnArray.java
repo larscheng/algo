@@ -45,6 +45,43 @@ public class L912_SortAnArray{
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public int[] sortArray(int[] nums) {
+        quickSort(nums, 0, nums.length - 1);
+        return nums;
+    }
+
+    private void quickSort(int[] nums, int left, int right) {
+        if (left>=right){
+            return;
+        }
+        int index  = partition(nums,left,right);
+        quickSort(nums, left, index - 1);
+        quickSort(nums, index + 1, right);
+    }
+
+    private int partition(int[] nums, int left, int right) {
+        int temp = nums[left];
+        while (left<right){
+            //从右往左找小于temp的数
+            while (left< right && nums[right] > temp){
+                //大于temp，移动指针继续找
+                right--;
+            }
+            nums[left] = nums[right];
+            //从左往右找大于temp的数，移动到右侧
+            while (left< right && nums[left] < temp){
+                //小于temp，移动指针继续找
+                left++;
+            }
+            nums[right]=nums[left];
+        }
+        nums[left] = temp;
+        //left==right
+        return left;
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+class Solution3 {
+    public int[] sortArray(int[] nums) {
 
         int min = Arrays.stream(nums).min().getAsInt();
         //最小值为负数，所有数都减去负数min，保证最小值为0，出口处再统一加上min
@@ -93,8 +130,6 @@ class Solution {
         return nums;
     }
 }
-//leetcode submit region end(Prohibit modification and deletion)
-
     class Solution2 {
         public int[] sortArray(int[] nums) {
 

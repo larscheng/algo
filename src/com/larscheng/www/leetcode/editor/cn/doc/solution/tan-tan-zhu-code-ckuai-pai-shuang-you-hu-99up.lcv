@@ -1,0 +1,56 @@
+> Problem: [912. 排序数组](https://leetcode.cn/problems/sort-an-array/description/)
+
+[TOC]
+
+# 思路
+
+如果只使用正常快排思路(递归 + 分划)，那么在最坏情况（正序）时会达到最坏时间复杂度，因此可以使用 **随机枢纽值** 来解决。
+但是还是不能过 $[2,2,2,2,2,.....]$ 这样的样例，所以还需要进行其他优化：选取枢纽值后，那么枢纽值坐标周围的元素如何值和枢纽值相同，那么无须进行下一次分划范围。
+
+**优化如下**：
+- 随机选取枢纽值
+- 递归分划时，分划边界缩小（防止和枢纽值相同的元素重复排序）
+
+# 复杂度
+
+- 时间复杂度: $O(nlogn)$
+- 空间复杂度: $O(n)$
+
+# Code
+
+* []
+
+```C++
+class Solution {
+public:
+    int partition(vector<int>& nums, int l, int r){
+        // 优化一
+        int randomIndex = rand() % (r - l + 1) + l;
+        swap(nums[randomIndex], nums[l]);
+        int pivot = nums[l];
+        while(l < r){
+            while(l < r and nums[r] >= pivot) r--;
+            nums[l] = nums[r];
+            while(l < r and nums[l] <= pivot) l++;
+            nums[r] = nums[l];
+        }
+        nums[l] = pivot;
+        return l;
+    }
+    void quickSort(vector<int>& nums, int l, int r){
+        if(l >= r) return;
+        int pivotpos = partition(nums, l, r);
+        int leftPivot = pivotpos - 1, rightPivot = pivotpos + 1;
+        // 优化二
+        while(leftPivot >= l and nums[leftPivot] == nums[pivotpos]) leftPivot--;
+        while(rightPivot <= r and nums[rightPivot] == nums[pivotpos]) rightPivot++;
+        quickSort(nums, l, leftPivot);
+        quickSort(nums, rightPivot, r); 
+    }
+    vector<int> sortArray(vector<int>& nums) {
+        quickSort(nums, 0, nums.size() - 1);
+        return nums;
+    }
+};
+```
+

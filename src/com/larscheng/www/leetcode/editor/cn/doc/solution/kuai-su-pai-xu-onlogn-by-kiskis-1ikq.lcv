@@ -1,0 +1,93 @@
+> Problem: [912. 排序数组](https://leetcode.cn/problems/sort-an-array/description/)
+
+[TOC]
+
+# 思路
+
+> 常规快排会超时,写了一遍常规快排发现过了19个案例,还差2个案例没过
+> 看了下测试用例发现存在太多相同的数据元素，将相等判断去掉即可,再在交换的时候移动一下左右指针,递归左右子数组
+
+# 解题方法
+
+> 时间复杂度为O(nlogn),但在最坏情况下,->全部为逆序输入时,快排会退化为冒泡,时间复杂度也会退化至O(n^2)
+> 空间复杂度在最坏情况下也会占用O(n)栈帧空间(递归n次)
+> java代码附上,第一个代码是超时代码,第二个是优化过后的代码```
+> Code block
+
+* 
+
+```
+# 复杂度
+
+时间复杂度:
+>  $O(nlogn)$
+
+空间复杂度:
+>  $O(n)$
+class Solution {
+    public int[] sortArray(int[] nums) {
+        quickSort(nums, 0, nums.length - 1);
+        return nums;
+    }
+    private void quickSort(int[] nums, int start, int end) {
+        if (start >= end)
+            return; // 当子数组长度为1时终止递归
+        int i = start, j = end;
+        int base = nums[start]; // 这里选取每组数组的第一位数作为基准数
+        while (i < j) {
+             // 从右向左找到第一个比基准数小的数
+            while (i < j && nums[j] >= base)
+                j--;
+            // 从左向右找到第一个比基准数大的数
+            while (i < j && nums[i] <= base)
+                i++;
+            // 如果i != j 说明找到了这两个数,交换nums[i] nums[j]
+            if (i < j) {
+                int temp = nums[i];
+                nums[i] = nums[j];
+                nums[j] = temp;
+            }
+        }
+        // i == j 时,一轮循环结束, 将base移动到ij指针相遇的位置
+        nums[start] = nums[i];
+        nums[i] = base;
+        // 递归划分左右子数组
+        quickSort(nums, start, i - 1);
+        quickSort(nums, i + 1, end);
+    }
+}
+// 以上为超时代码！！！
+
+# Code
+```Java []
+class Solution {
+    public int[] sortArray(int[] nums) {
+        quickSort(nums, 0, nums.length - 1);
+        return nums;
+    }
+    // 将最后的交换优化
+    private void quickSort(int[] nums, int start, int end) {
+        if (start >= end) 
+            return;
+        int i = start, j = end;
+        int base = nums[start];
+        while (i <= j) {
+            while (i <= j && nums[i] < base)
+                i++;
+            while (i <= j && nums[j] > base)
+                j--;
+            
+            if (i <= j) {
+                int temp = nums[i];
+                nums[i] = nums[j];
+                nums[j] = temp;
+                i++;
+                j--;
+            }
+        }
+        quickSort(nums, start, j);
+        quickSort(nums, i, end);
+    }
+}
+```
+
