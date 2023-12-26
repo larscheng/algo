@@ -1,0 +1,64 @@
+# 二分
+
+要求找出覆盖所有房屋的最小加热半径，因此需要计算所有房屋距离最近的供暖器的位置，答案即是所有房屋最近的一个供暖器的位置 的最大值。
+
+**因此问题转化为：如何求每个房屋距离最近的一个供暖器的位置。**
+
+每个房屋距离最近的供暖器的位置，一定是房屋 左边最近一个 或者 右边最近一个 供暖器，因此找出距离其最近左右边的供暖器。
+
+**那么问题转化：如何求每个房屋，左右边供暖器的位置。**
+
+对`heaters`数组排序，然后遍历每个房屋，二分数组`heaters`找到大于 $houses_i$ 的第一个供暖期位置，就是 $houses_i$ 右边的第一个供暖期位置，设这个位置的下标为 $up\_pos$，那么 $up\_pos-1$ 就是$houses_i$ 左边的第一个供暖期位置。
+
+**需要特别注意的是：**下标位置 $up\_pos$ 和 $up\_pos-1$ 一定要在**边界内**。
+
+时间复杂度：$O(n \log n)$，$n$ 表示`heaters`数组的长度。
+
+空间复杂度：$O(1)$
+
+# 代码
+
+* c++
+
+```c++
+class Solution {
+public:
+    int findRadius(vector<int>& houses, vector<int>& heaters) {
+        sort(heaters.begin(), heaters.end());
+        int ans = 0;
+        for (int i = 0; i < houses.size(); i++) {
+            int up_pos = upper_bound(heaters.begin(), heaters.end(), houses[i]) - heaters.begin();
+            int cur_min = 1e9;
+            if (up_pos != heaters.size())
+                cur_min = min(cur_min, heaters[up_pos] - houses[i]);
+            if (up_pos - 1 >= 0)
+                cur_min = min(cur_min, houses[i] - heaters[up_pos - 1]);
+            ans = max(ans, cur_min);
+        }
+        return ans;
+    }
+};
+```
+
+# 最后
+
+大家好，我是编程熊，ACM亚洲区域赛金牌，字节跳动、旷视科技前员工，欢迎 [关注我](https://leetcode-cn.com/u/bianchengxiong/) 和加入 [LeetCode组队刷题群](https://mp.weixin.qq.com/s/TsTcCDboXwnTnUeIW3Zg9Q)。
+
+**分享几篇《算法与数据结构》干货文章，希望对你有帮助**
+
+1、[ACM金牌选手讲解LeetCode算法《线性表》](https://mp.weixin.qq.com/s/qwaYOFIksFVqZtA_nisl6g)
+
+2、[ACM金牌选手讲解LeetCode算法《栈和队列的高级应用》](https://mp.weixin.qq.com/s/I3DQOUmABmWav4nrAiI3Fg)
+
+3、[ACM金牌选手讲解LeetCode算法《哈希表》](https://mp.weixin.qq.com/s/af4gvYURUoCTfsyzsI9Www)
+
+4、[ACM金牌选手讲解LeetCode算法《二叉树》](https://mp.weixin.qq.com/s/8AcRNQS0Nno2_fU6kMtZeQ)
+
+5、[编程熊讲解LeetCode算法《堆》](https://mp.weixin.qq.com/s/ggd42G_QJ6I43F-vXSbpdA)
+
+6、[ACM金牌选手讲解几力扣LeetCode算法《堆排序》](https://mp.weixin.qq.com/s/tgmGyCszY-_DfttxftfvnA)
+
+如果题解和文章对你有所帮助，欢迎**点赞**支持。
+
+![image.png](https://pic.leetcode-cn.com/1640001015-AggZhf-image.png)
+

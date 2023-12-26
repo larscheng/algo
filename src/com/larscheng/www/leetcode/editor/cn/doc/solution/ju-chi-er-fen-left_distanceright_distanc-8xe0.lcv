@@ -1,0 +1,24 @@
+转换思想，找距离或者算距离，经常比较两边距离left_distance,right_distance.
+
+[475. 供暖器](/problems/heaters/)
+
+* 
+
+```
+class Solution:
+    def findRadius(self, houses: List[int], heaters: List[int]) -> int:
+        # 每个房子都得找离他最近得heaters，然后就为这个房子的最短半径，然后统计所有房子的最大值就能得到最后的最小加热半径
+        heaters.sort()
+        ans = 0
+        for x in houses:
+            i = bisect_left(heaters,x)  # 此处返回第一个大于等于x的heaters
+            j = i-1
+            left_dis = x - heaters[j] if j >=0 else inf
+            right_dis = heaters[i] -x if i < len(heaters) else inf
+            cur_dis = min(left_dis,right_dis)
+            ans = max(cur_dis,ans)
+
+        return ans
+        
+```
+

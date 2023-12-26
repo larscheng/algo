@@ -1,0 +1,69 @@
+看完这题唯一的想法就是爆搜，但也轻轻松松的爆了。
+![爆.bmp](https://pic.leetcode-cn.com/1639963376-uXUhqd-%E7%88%86.bmp)
+
+* Arrays.sort(hourses);
+
+```Arrays.sort(hourses);
+Arrays.sort(heaters);
+```
+
+首先就是为什么要排序了，这个我们后面再说
+
+* 
+
+```
+int l = 0 , r = (int)1e9;
+while (l < r){
+    int mid = l + r >> 1;
+    if(check(hourses,heaters,mid))r = mid;
+    else l = mid + 1;
+}
+return r;
+```
+
+总体来说就是用二分来锁定最小的能覆盖全场的范围
+如果以现在这个半径能全覆盖的话把右边界(即最大值)缩小
+相反放大左边界
+
+**check**
+
+* 
+
+```
+public static boolean check(int[] houses,int[] heaters,int x){
+    int n = houses.length,m = heaters.length;//数组长度
+    for(int i = 0 , j = 0 ; i < n ; ++ i){
+        while(j < m && houses[i] > heaters[j] + x)j++;
+        if(j < m && heaters[j] - x <= houses[i] && houses[i] <= heaters[j] + x)continue;
+        return false;
+    }
+    return true;
+}
+```
+
+for循环为遍历所有的房子 **现在houses数组和heaters数组都是有序的！！**
+**第一句 while(j < m && houses[i] > heaters[j] + x)j++;**
+如果j没有超出范围
+如果第i个house在第j个heater的右影响范围的右边说明第j个根本罩不住，尝试第j + 1个heater能不能罩的住
+直到找到能罩的住的
+**第二句 if(j < m && heaters[j] - x <= houses[i] && houses[i] <= heaters[j] + x)continue;**
+如果j没有超出范围
+如果第j个heater的总范围能罩住第i个house 即左范围在house左边，右范围在house右边
+continue 换下一个房子检验
+如果有任何一个house所有heater都罩不住他的话 return false 将 加热范围拉大
+如果所有house都能被heaters罩住的话 return true 将 加热范围缩小
+
+**！！！！！！为什么要排序！！！！！！！！！**
+因为本题为一个线性流程 就是说 如果我第j个heater不符合第一句的话，我这次判断加热范围就永远不会用到他了
+直接举例子
+houses = {1,2,3,5}
+heaters = {5,2}
+正确答案为 1
+但 如果不排序拿 1 去检验的话
+首先是第一个house 1
+第一个heater 5 明显罩不住他
+于是切换到第二个heater 2
+罩的住了。
+后面两个房子2 3 都罩的住
+但到 最后一个house 5的时候
+2 明显罩不住 但我们已经不能用第一个heater 5了

@@ -1,0 +1,63 @@
+今天是我坚持写题解的第 138 天！
+
+![](https://pic.leetcode-cn.com/1639971518-jEJxIb-file_1639971517931)
+
+# 方法、有序集合
+
+今天这道题比较简单，我们只需要求出距离每个房屋最近的两个供暖器（边界处可能只有一个），然后取这两个供暖器与房屋之间距离的最小值，就可以保证这个房屋能够被供暖，那么，对于所有的房屋，我们求出这些最小值的最大值，就可以保证所有的房屋都可以被供暖。
+
+这里我们可以先把 供暖器列表 排序，然后，对于每一个房屋，使用二分查找找到它左右的两个供暖器。
+
+更简单的方法，我们可以使用系统提供的 **有序集合** 快速实现二分查找。
+
+请看代码：
+
+* java
+
+```java
+class Solution {
+
+    private static final int INF = 1000000001;
+
+    public int findRadius(int[] houses, int[] heaters) {
+        // 使用有序集合，快速实现二分查找
+        Arrays.sort(heaters);
+        TreeSet<int[]> treeSet = new TreeSet<>((a, b) -> a[1] - b[1]);
+        for (int i = 0; i < heaters.length; i++) {
+            treeSet.add(new int[] {i, heaters[i]});
+        }
+
+        int ans = 0;
+        for (int house : houses) {
+            // 对于每一个房屋，找到小于等于它的最近的供暖器，即左供暖器
+            // 左供暖器右边的那个就是当前房屋右边的供暖器
+            // 注意边界的处理
+            int[] element = treeSet.floor(new int[] {0, house});
+            int left, right;
+            if (element == null) {
+                left = INF;
+                right = heaters[0] - house;
+            } else {
+                left = house - element[1];
+                right = element[0] == heaters.length - 1 ? INF : heaters[element[0] + 1] - house;
+            }
+
+            ans = Math.max(ans, Math.min(left, right));
+        }
+        return ans;
+    }
+}
+```
+
+- 时间复杂度：$O((m+n)*logn)$​​，m 为房屋的数量，n 为供暖器的数量，供暖器的排序需要 $O(nlogn)$​ 的时间复杂度，遍历房屋并在有序集合中查找供暖器的时间复杂度为 $O(mlogn)$​，所以，总的时间复杂度为 $O((m+n)*logn)$。
+- 空间复杂度：$O(n)$​。
+
+运行结果如下，相比于直接在排序后的 heaters 上使用二分查找，多使用了 $O(n)$ 的空间，同时入集合需要转换成 int[] 数组，造成了浪费，当然，这里也可以不使用 int[] 数组，但是后面需要两次二分查找：
+
+![image-20211220113429667](https://pic.leetcode-cn.com/1639971518-RAjIjP-file_1639971517564)
+
+# 最后
+
+**如果对你有帮助，请点个赞吧，谢谢^^**
+
+也可以[关注我](https://leetcode-cn.com/u/tong-zhu/)（公号：彤哥来刷题啦），每日分享题解，一起刷题，一起拿全家桶。

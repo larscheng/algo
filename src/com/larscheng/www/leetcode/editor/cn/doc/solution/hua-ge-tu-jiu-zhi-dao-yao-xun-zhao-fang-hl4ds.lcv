@@ -1,0 +1,83 @@
+抽象图固定维护寻找
+![image.png](https://pic.leetcode-cn.com/1629468509-wuiIAm-image.png)
+
+寻找所有房子与最近供暖器距离的最远，固定房子i，找到最近供暖器，找左边最近就是最后一个小于等于i的供暖器，找右边就是第一个大于等于i的供暖器
+
+* 
+
+```
+class Solution {
+public:
+    int findRadius(vector<int>& houses, vector<int>& heaters) {
+        int ans=0;
+        sort(heaters.begin(),heaters.end());
+        for(auto house:houses){
+            int left=findLeft(house,heaters);
+            int right=findRight(house,heaters);
+            int mostClose=INT_MAX;
+            //cout<<left<<right<<' '<<house<<endl;
+            if(left==-1)mostClose=heaters[right]-house;
+            else if(right==-1)mostClose=house-heaters[left];
+            else mostClose=min(house-heaters[left],heaters[right]-house);
+            ans=max(ans,mostClose);
+        }
+        return ans;
+    }
+    int findBig(int house,vector<int>&heaters){
+        int n=heaters.size();
+        int left=0,right=n-1;
+        while(left<right){
+            int mid=(left+right>>1)+1;
+            //cout<<house<<' '<<left<<right<<mid<<' '<<heaters[mid]<<endl;
+            if(heaters[mid]<=house)left=mid;
+            else if(heaters[mid]>house)right=mid-1;
+        }
+        if(heaters[left]>house)return -1;
+        return left;
+    }
+    int findSmall(int house,vector<int>&heaters){
+        int n=heaters.size();
+        int left=0,right=n-1;
+        while(left<right){
+            int mid=left+right>>1;
+            if(heaters[mid]>=house)right=mid;
+            else if(heaters[mid]<house)left=mid+1;
+        }
+        if(heaters[left]<house)return -1;
+        return left;
+    }
+};
+```
+
+踩过的坑
+常考的手写二分：nums中找到第一个大于等于target，或者最后一个小于等于target，最优雅的写法，注意最后一个小于等于要+1，更加稳妥的方法永远是
+if(left==mid){if(left==right){}else{}}考虑剩下2个和1个的情况，while(1)
+
+* 
+
+```
+int findBig(int house,vector<int>&heaters){
+    int n=heaters.size();
+    int left=0,right=n-1;
+    while(left<right){
+        int mid=(left+right>>1)+1;
+        //cout<<house<<' '<<left<<right<<mid<<' '<<heaters[mid]<<endl;
+        if(heaters[mid]<=house)left=mid;
+        else if(heaters[mid]>house)right=mid-1;
+    }
+    if(heaters[left]>house)return -1;
+    return left;
+}
+int findSmall(int house,vector<int>&heaters){
+    int n=heaters.size();
+    int left=0,right=n-1;
+    while(left<right){
+        int mid=left+right>>1;
+        if(heaters[mid]>=house)right=mid;
+        else if(heaters[mid]<house)left=mid+1;
+    }
+    if(heaters[left]<house)return -1;
+    return left;
+}
+```
+

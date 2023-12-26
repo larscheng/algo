@@ -1,0 +1,61 @@
+### 解题思路
+
+第一步以每一个房屋为研究中心，然后遍历加热站（可以利用二分法节省效率）找到房屋的前一个加热站和后一个加热站。
+接着通过比较房屋和前后加热站的距离比较房屋和谁更近。
+
+**对于所有房屋h(1),h(2),h(3)···h(n),每个房屋与最近的加热站的距离为dis(n),n为房间编号。即每个房屋距离加热站
+的最短距离disList为：
+disList=[dis(1),dis(2),dis(3)···dis(n)]
+因此：
+当取disList中的最大值dis-max时。一定满足dis-max大于等于disList中的每一项。即dis-max一定能够辐射到每一个房屋。
+为此dis-max即为问题的解。**
+
+### 代码
+
+![1.JPG](https://pic.leetcode-cn.com/d58ee665af9a6e31cc6af37436d36c56f81eb507a31f7a39ef43a1f08eb488eb-1.JPG)
+
+* javascript
+
+```javascript
+
+
+/**
+ * @param {number[]} houses
+ * @param {number[]} heaters
+ * @return {number}
+ */
+function add(val1, val2) {
+    return val1 - val2
+}
+var findRadius = function (houses, heaters) {
+    //先对输入数据进行排序，以免数据无顺序二分法出错
+    houses.sort(add)
+    heaters.sort(add)
+    let dis_max = 0
+    for (let i = 0; i < houses.length; i++) {
+        let left = 0
+        let right = heaters.length - 1
+        //如果right - left===1 就说明了房屋处已经于加热站left和加热站right中间。因此不用在遍历了
+        while ((right - left) > 1) {
+            //找到处于中间位置的加热站。这时有三种情况
+            //1、如果mid位置上的加热站的值等于此时所迭代到的房屋。那么就不用往下查找加热站。直接令left等于right等于mid退出循环即可
+            //2、如果mid位置上加热站的值大于此时所跌倒到的房屋。那么就说明房屋处于二分后的左半部分。这时令right等于mid继续循环
+            //3、如果mid位置上的加热站的值小于此时所迭代的房屋。那么说明此时房屋位于二分后的右半部分。这时令left等于mid继续查找房屋的前后加热站
+            let mid = Math.floor((left + right) / 2)
+            if (heaters[mid] === houses[i]) {
+                left=mid
+                right=mid
+            } else if (heaters[mid] > houses[i]) {
+                right = mid
+            } else if (heaters[mid] < houses[i]) {
+                left = mid
+            }
+        }
+        //找到了房屋i的前后加热站那left和right后。通过计算房屋距离前后加热站的最短距离来判断是否要更新dis_max的值
+        let max = Math.abs(houses[i] - heaters[left]) > Math.abs(houses[i] - heaters[right]) ? Math.abs(houses[i] - heaters[right]) : Math.abs(houses[i] - heaters[left])
+        dis_max = max > dis_max ? max : dis_max
+    }
+    return dis_max
+};
+```
+

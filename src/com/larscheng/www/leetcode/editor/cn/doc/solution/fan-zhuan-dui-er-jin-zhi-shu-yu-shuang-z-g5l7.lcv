@@ -1,0 +1,210 @@
+# 用到算法
+
+1. 优先队列（小根堆），在给原数组从小到大排列时使用，由于不是直接排序，而是按下标列出，所以借助小根堆。
+2. 二进制树（01字典树），用于存储原数组的下标，也方便实时查询里面有多少下标`j`大于指定的`i`。
+3. 双指针，在排列好的窗口数组中，用两个下标`i`和`j`轮番前进。
+
+# 计算步骤
+
+1. 大致思路是，先对原数组，以数值从小到大进行排序。
+   但这里不是直接简单地排序，而是将排序后的下标另外存放到一个窗口数组`window[numsSize]`中，也就是说，对于每一个`i < j`，都有`nums[window[i]] <= nums[window[j]]`。
+2. 原数组`nums[numsSize]`还得保持，因为我们还得用下标`windows[i]`，`windows[j]`去获取对应的数值`nums[windows[i]]`，`nums[windows[j]]`呢。
+   所以，这里我们借助一个优先队列来进行简单的堆排序，然后将下标存放到`window[numsSize]`数组中，细节见代码。
+3. 然后进行双指针运算，维护两个指针下标`i`和`j`，均从下标`0`开始。
+   我们从左到右遍历`window[numsSize]`中的每一个`window[i]`，它对应的`nums[window[i]]`是递增的。
+   跟着`i`一起往右移动`j`，直到`j`不满足`nums[window[i]] > nums[window[j]] * 2`的位置为止，把前面所有满足这个不等式的`window[j]`都加入到一个二进制树中（下述）。
+   待`j`停止右移时，二进制树中所有的下标对应的`nums`数值一定是满足不等式关系的。此时，我们查看二进制树中，一共有多少下标大于`window[i]`，将这个数量加到结果中即可。
+4. 上面的双指针移动过程中，由于原数组可能存在负数的原因，`j`移动得不一定比`i`慢。
+   比如`nums[window[i]] == -20`，那么`nums[window[j]]`只要小于`-10`即可，它比`nums[window[i]]`更大，即`j`跑得比`i`快。
+5. 二进制树。
+   它也是一个数组，映射成了一棵完整二叉树，它的父子节点关系与优先队列完全相同，根节点也是`0`。
+   它的功能很多，可以存放数值、移除数值、查找有多少数值比某个数大或小、查找大于某个数的最接近数值、小于某个数的最接近数值等等功能，大体思路与线段树类似。
+   它在存放一个数值时，从数值的最高比特开始算起，该位为`1`就往根节点的右节点走，数量加一，该位为`0`就往根节点的左节点走，数量加一。然后继续第二比特，逻辑是和最高比特一样的，依此类推直到最低比特为止。
+   删除一个数值也是类似的逻辑，只是上面的加一变成减一。
+   在查找有多少数值大于某个待比较值`i`时，用这个`i`从最高比特开始往低位遍历，如果最高位为`1`就往根节点的右节点走，什么别的都不做。如果最高位为`0`就往根节点的左节点走，同时把兄弟右节点的数量加到总结果中，因为同一个分叉位置，往兄弟右节点走的数值，一定大于往左节点走的数值。依此类推，直到最低比特为止。
+   二进制树最典型的应用题，可参考《[数组中两个数的最大异或值](https://leetcode.cn/problems/maximum-xor-of-two-numbers-in-an-array/)》。
+6. 在上面第4步计算`nums[window[j]]`的两倍时，可能会越界int类型数值的下限、上限，而进行除法替换的时候，也会因为除法向下取整的问题产生精度误差。
+   此时，我们借用两个long long类型的偏置值处理这个问题，同时还可以用左移位操作来代替乘以`2`的乘法。
+   即，用两个long long类型的偏置值，`offset = 2^31`，`offset2 = 2^32`，即`offset2`是`offset`的两倍。
+   当两个int类型的数满足`a > b * 2`时，`b * 2`可能越界，但是换成下面这一句，就不存在越界的问题了。
+   `offset2 + a > (offset + b) << 1L;`
+   这个long long类型的不等式，和上面的`a > b * 2`完全等价。
+
+# 代码
+
+时间复杂度，$O(n*log(n))$。
+空间复杂度，$O(n)$。
+
+* []
+
+```C
+#define FATHER_NODE(i)      (0 == (i) ? -1 : ((i) - 1 >> 1))
+#define LEFT_NODE(i)        (((i) << 1) + 1)
+#define RIGHT_NODE(i)       (((i) << 1) + 2)
+
+/* 优先队列。 */
+typedef struct
+{
+    int *arr;
+    int arrSize;
+}
+PriorityQueue;
+
+/* 二进制树（01字典树）。 */
+typedef struct
+{
+    int *arr;
+    int highestBit;
+}
+BinaryTree;
+
+/* 几个自定义函数的声明，具体实现见下。它们几个的时间复杂度都是O(log(n))。 */
+static void queuePush(PriorityQueue *queue, int *nums, int i);
+static void queuePop(PriorityQueue *queue, int *nums);
+static int calcHighestBit(int n);
+static void treePush(BinaryTree *tree, int i);
+static int treeBigger(BinaryTree *tree, int i);
+
+/* 主函数：
+  offset, offset2:  为了避免nums[j]乘以2时越界，以及避开负数，加上一个偏置值，变成long long类型的非负数。
+                    这样，nums[i] > nums[j]*2，就等价于：offset2 + nums[i] > (offset + nums[j]) << 1L。
+  treeSize:         二进制树的数组空间的总长度，不会超过numsSize的三倍，具体证明略，大致就是等比数列求和的思路。
+  window[]:         nums[]数组从小到大排序后的结果，但注意的是，这里面存储的都是nums[]数组的下标，而不是数值本身。
+  buff1[], buff2[]: 优先队列与二进制树的数组空间，其中buff2必须初始化为全0。
+  queue:            优先队列，里面存储的都是nums[]数组的下标。
+  tree:             二进制树（01字典树）。 */
+int reversePairs(int *nums, int numsSize)
+{
+    const long long offset = 2147483648L, offset2 = 4294967296L;
+    const int treeSize = numsSize * 3;
+    int i = 0, j = 0, t = 0, result = 0;
+    int window[numsSize], buff1[numsSize], buff2[treeSize];
+    PriorityQueue queue;
+    BinaryTree tree;
+    /* 初始化。 */
+    queue.arr = buff1;
+    queue.arrSize = 0;
+    memset(buff2, 0, sizeof(buff2));
+    tree.arr = buff2;
+    tree.highestBit = calcHighestBit(numsSize - 1);
+    /* 入堆后逐个出堆放入window[]数组。 */
+    for(i = 0; numsSize > i; i++)
+    {
+        queuePush(&queue, nums, i);
+    }
+    while(0 < queue.arrSize)
+    {
+        window[j] = queue.arr[0];
+        j++;
+        queuePop(&queue, nums);
+    }
+    /* 双指针，对于每一个window[i]，查看对应的nums[windows[i]]有多少nums[window[j]]能满足不等式关系。
+    注意，由于原数组存在负数的缘故，所以指针j的位置有可能跑得比i更快。 */
+    j = 0;
+    for(i = 0; numsSize > i; i++)
+    {
+        /* 对于每一个nums[windows[i]]，让另一个下标指针j往右列出所有满足不等式关系的下标，加入二进制树。 */
+        while(numsSize > j && offset2 + nums[window[i]] > offset + nums[window[j]] << 1L)
+        {
+            treePush(&tree, window[j]);
+            j++;
+        }
+        /* 查看已经出来的所有满足不等式关系的下标中，有多少个下标是比window[i]更大的。 */
+        t = treeBigger(&tree, window[i]);
+        result += t;
+    }
+    return result;
+}
+
+/* 优先队列push操作。由于队列中存储的都是nums[]数组的下标，所以函数入参得加上nums。 */
+static void queuePush(PriorityQueue *queue, int *nums, int i)
+{
+    int son = queue->arrSize, father = FATHER_NODE(son);
+    /* 新加入数值后，数量加一。 */
+    queue->arrSize++;
+    /* 根据父子节点的大小关系进行位置调整。 */
+    while(-1 != father && nums[i] < nums[queue->arr[father]])
+    {
+        queue->arr[son] = queue->arr[father];
+        son = father;
+        father = FATHER_NODE(son);
+    }
+    /* 放到满足父子节点大小关系的位置。 */
+    queue->arr[son] = i;
+    return;
+}
+
+/* 优先队列pop操作。由于队列中存储的都是nums[]数组的下标，所以函数入参得加上nums。 */
+static void queuePop(PriorityQueue *queue, int *nums)
+{
+    int father = 0, left = LEFT_NODE(father), right = RIGHT_NODE(father), son = 0;
+    /* 弹出堆顶后，数量减一。然后默认用堆尾的元素填补空缺。 */
+    queue->arrSize--;
+    /* 根据父子节点的大小关系进行位置调整。 */
+    while((queue->arrSize > left && nums[queue->arr[queue->arrSize]] > nums[queue->arr[left]])
+        || (queue->arrSize > right && nums[queue->arr[queue->arrSize]] > nums[queue->arr[right]]))
+    {
+        son = (queue->arrSize > right && nums[queue->arr[left]] > nums[queue->arr[right]]) ? right : left;
+        queue->arr[father] = queue->arr[son];
+        father = son;
+        left = LEFT_NODE(father);
+        right = RIGHT_NODE(father);
+    }
+    /* 放到满足父子节点大小关系的位置。 */
+    queue->arr[father] = queue->arr[queue->arrSize];
+    return;
+}
+
+/* 根据输入的树中最大值，来计算它的最高位比特，比如输入值的二进制是10110(b)，则返回最高比特10000(b)。
+  特殊地，输入的树中最大值可能为n == 0，即原数组的长度为1，此时返回1(b)。 */
+static int calcHighestBit(int n)
+{
+    int x = 1;
+    if(0 < n)
+    {
+        while(0 < n)
+        {
+            x++;
+            n = n >> 1;
+        }
+        x = 1 << x - 2;
+    }
+    return x;
+}
+
+/* 往二进制树中加入一个数值。 */
+static void treePush(BinaryTree *tree, int i)
+{
+    int x = 0, bit = 0;
+    /* 从高位到低位的顺序查看每一位，该位为1就往右节点加一，该位为0就往左节点加一。 */
+    for(bit = tree->highestBit; 0 != bit; bit = bit >> 1)
+    {
+        x = (bit & i) ? RIGHT_NODE(x) : LEFT_NODE(x);
+        tree->arr[x]++;
+    }
+    return;
+}
+
+/* 查看二进制树中有多少个数值大于i。 */
+static int treeBigger(BinaryTree *tree, int i)
+{
+    int x = 0, bit = 0, result = 0;
+    /* 从高位到低位的顺序查看每一位。 */
+    for(bit = tree->highestBit; 0 != bit; bit = bit >> 1)
+    {
+        /* 该位为1，就继续往右节点走。 */
+        if(bit & i)
+        {
+            x = RIGHT_NODE(x);
+        }
+        /* 该位为0，往左节点走的同时，查看兄弟右节点有多少数量，它们的值一定大于当前往左节点走的值。 */
+        else
+        {
+            result += tree->arr[RIGHT_NODE(x)];
+            x = LEFT_NODE(x);
+        }
+    }
+    return result;
+}
+```
+

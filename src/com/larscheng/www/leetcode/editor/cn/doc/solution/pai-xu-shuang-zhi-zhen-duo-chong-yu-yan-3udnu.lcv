@@ -1,0 +1,126 @@
+### 解题思路
+
+1   先对房屋和加热器从小到大进行排序
+2   另房屋索引为 i, 加热器索引为 j, 双指针的主要逻辑是当下一个加热器 heater[j + 1] 距离当前房屋较近时，即取下一个加热器
+
+### 代码
+
+* []
+
+```c
+int cmp(const void *a, const void *b) {return *(int *)a - *(int *)b;}
+int findRadius(int* houses, int housesSize, int* heaters, int heatersSize){
+    qsort(houses, housesSize, sizeof(houses[0]), cmp);
+    qsort(heaters, heatersSize, sizeof(heaters[0]), cmp);
+    int ans = 0, i = 0, j = 0;
+    while (i < housesSize) {
+        int pre = ans;
+        ans = fmax(ans, abs(houses[i] - heaters[j]));
+        while (j < heatersSize - 1 && abs(houses[i] - heaters[j]) >= abs(houses[i] - heaters[j + 1])) {
+            ++j;
+            ans = fmax(pre, abs(houses[i] - heaters[j]));
+        }
+        ++i;
+    }
+    return ans;
+}
+```
+
+* []
+
+```c++
+class Solution {
+public:
+    int findRadius(vector<int>& houses, vector<int>& heaters) {
+        sort(houses.begin(), houses.end());
+        sort(heaters.begin(), heaters.end());
+        int ans = 0, i = 0, j = 0;
+        while (i < houses.size()) {
+            int pre = ans;
+            ans = max(ans, abs(houses[i] - heaters[j]));
+            // while内的逻辑是当下一个加热器 heater[j + 1] 距离当前房屋较近时，即取下一个加热器
+            while (j < heaters.size() - 1 && abs(houses[i] - heaters[j]) >= abs(houses[i] - heaters[j + 1])) {
+                ++j;
+                ans = max(pre, abs(houses[i] - heaters[j]));
+            }
+            ++i;
+        }
+        return ans;
+    }
+};
+```
+
+* []
+
+```python
+class Solution:
+    def findRadius(self, houses: List[int], heaters: List[int]) -> int:
+        houses.sort()
+        heaters.sort()
+        ans, i, j, m, n = 0, 0, 0, len(houses), len(heaters)
+        while i < m:
+            pre = ans
+            ans = max(ans, abs(houses[i] - heaters[j]))
+            while j < n - 1 and (abs(houses[i] - heaters[j]) >= abs(houses[i] - heaters[j + 1])):
+                j += 1
+                ans = max(pre, abs(houses[i] - heaters[j]))
+            i += 1
+        return ans
+
+```
+
+* []
+
+```go
+func findRadius(houses []int, heaters []int) int {
+    sort.Ints(houses)
+    sort.Ints(heaters)
+    ans, i, j, m, n := 0, 0, 0, len(houses), len(heaters)
+    for (i < m) {
+        pre := ans
+        ans = max(ans, abs(houses[i] - heaters[j]))
+        for (j < n - 1 && abs(houses[i] - heaters[j]) >= abs(houses[i] - heaters[j + 1])) {
+            j += 1
+            ans = max(pre, abs(houses[i] - heaters[j]))
+        }
+        i += 1
+    }
+    return ans
+}
+func max(a, b int) int {
+    if (a < b) {
+        return b
+    } else {
+        return a
+    }
+}
+func abs(a int) int {
+    if (a >= 0) {
+        return a
+    }
+    return -a
+}
+```
+
+* []
+
+```rust
+impl Solution {
+    pub fn find_radius(mut houses: Vec<i32>, mut heaters: Vec<i32>) -> i32 {
+        houses.sort_unstable();
+        heaters.sort_unstable();
+        let (mut ans, mut i, mut j, m, n) = (0, 0, 0, houses.len(), heaters.len());       
+        while i < m {
+            let mut pre = ans;
+            ans = ans.max((houses[i] - heaters[j]).abs());
+            while (j < n - 1 && (houses[i] - heaters[j]).abs() >= (houses[i] - heaters[j + 1]).abs()) {
+                j += 1;
+                ans = pre.max((houses[i] - heaters[j]).abs());
+            }
+            i += 1;
+        }
+        return ans;
+    }
+}
+```
+

@@ -1,0 +1,66 @@
+### 解题思路
+
+见代码
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    /**
+     * 排序 + 双指针
+     */
+    public int findRadius(int[] houses, int[] heaters) {
+        Arrays.sort(houses);
+        Arrays.sort(heaters);
+        int ans = 0;
+        int idx = 0;
+        int length = heaters.length;
+        for (int house : houses) {
+            while (idx < length && heaters[idx] < house){
+                idx++;
+            }
+            if (idx == 0){
+                ans = Math.max(ans, heaters[idx] - house);
+            } else if (idx == length){
+                ans = Math.max(ans, house - heaters[idx - 1]);
+            } else {
+                ans = Math.max(ans, Math.min(house - heaters[idx - 1], heaters[idx] - house));
+            }
+        }
+        return ans;
+    }
+
+    /**
+     * 排序 + 二分查找
+     * 找出第一个 >= 当前房屋位置的供暖器
+     */
+    public int findRadius1(int[] houses, int[] heaters) {
+        int length = heaters.length;
+        Arrays.sort(heaters);
+        int ans = 0;
+        for (int house : houses) {
+            int left = 0;
+            int right = length;
+            while (left < right){
+                int mid = (right - left) / 2 + left;
+                if (heaters[mid] >= house){
+                    right = mid;
+                } else if(heaters[mid] < house){
+                    left = mid + 1;
+                }
+            }
+            if (left == 0){
+                ans = Math.max(ans, heaters[left] - house);
+            } else if (left == length){
+                ans = Math.max(ans, house - heaters[left - 1]);
+            }else {
+                ans = Math.max(ans, Math.min(house - heaters[left - 1], heaters[left] - house));
+            }
+        }
+        return ans;
+    }
+}
+```
+

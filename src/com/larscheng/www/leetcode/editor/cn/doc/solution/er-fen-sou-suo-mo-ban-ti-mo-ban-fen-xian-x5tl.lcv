@@ -1,0 +1,86 @@
+二分查找的模板练习题。
+把heaters排序以后，对于每一个house，需要的距离应该是{左侧暖气距离，右侧暖气距离}的最小值。
+最终答案，则是所有house所需距离的最大值。
+
+* 
+
+```
+class Solution {
+    public int findRadius(int[] houses, int[] heaters) {
+		Arrays.sort(heaters);
+		int res = 0;
+		for(int h : houses) {
+			int rightHeater = bsl(h, heaters);
+			int leftHeater = bsr(h, heaters);
+			int dis = Math.min(Math.abs(h-rightHeater), Math.abs(h-leftHeater));
+			res = Math.max(res, dis);
+		}
+		return res;
+    }
+	
+	private int bsl(int target, int[] arr) {
+		int l=0, r=arr.length-1;
+		while(l<r) {
+			int mid = (l+r)/2;
+			if(arr[mid] >= target) {
+				r = mid;
+			}else {
+				l = mid+1;
+			}
+		}
+		return arr[l];
+	}
+	
+	private int bsr(int target, int[] arr) {
+		int l=0, r=arr.length-1;
+		while(l<r) {
+			int mid = (l+r+1)/2;
+			if(arr[mid] <= target ) {
+				l = mid;
+			}else {
+				r = mid-1;
+			}
+		}
+		return arr[l];
+	}
+}
+```
+
+借着这道题，分享两个常用的二分查找模板。
+
+* 
+
+```
+public int 搜索符合条件的左边界(int 目标值, int[] 已排序的数组) {
+		int l=0, r=数组.length-1;
+		while(l<r) {
+			//关键点：搜索左边界，mid指针永远处于lr的中间偏左的位置
+			int mid = (l+r)/2;
+			if(符合条件) {
+				//关键：r指针挪动到mid位置，此时r符合条件，但因为我们找搜索符合条件的左边界，所以要在lr区间内继续搜索
+				r = mid;
+			}else {
+				//mid不符合条件，l移动到mid+1，避免死循环
+				l = mid+1;
+			}
+		}
+		return l;
+	}
+	
+	public int 搜索符合条件的右边界(int 目标值, int[] 已排序的数组) {
+		int l=0, r=数组.length-1;
+		while(l<r) {
+			//关键点：搜索右边界，mid指针永远处于lr的中间偏右的位置
+			int mid = (l+r+1)/2;
+			if(符合条件) {
+				//关键：l指针挪动到mid位置，此时l符合条件，但因为我们找搜索符合条件的右边界，所以要在lr区间内继续搜索
+				l = mid;
+			}else {
+				//mid不符合条件，r移动到mid-1，避免死循环
+				r = mid-1;
+			}
+		}
+		return l;
+	}
+```
+

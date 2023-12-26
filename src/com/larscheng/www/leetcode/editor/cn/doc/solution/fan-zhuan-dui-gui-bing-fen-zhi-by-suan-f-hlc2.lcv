@@ -1,0 +1,91 @@
+> Problem: [493. 翻转对](https://leetcode.cn/problems/reverse-pairs/description/)
+
+[TOC]
+
+# 思路
+
+> 大范围的答案 = 左部分的答案 + 有部分的答案 + 跨左右区间的答案
+> 排序，对于计算跨左右区间的答案是方便的
+> 这个题是满足上述两点的，因此可以用归并分治算法来解决
+
+# 复杂度
+
+- 时间复杂度:
+
+> 时间复杂度：$O(n * logn)$
+
+- 空间复杂度:
+
+> 空间复杂度：$O(n)$
+
+# 注意
+
+题目给的条件是：`输入数组中的所有数字都在32位整数的表示范围内`。在代码中有`2 * nums[j]`的出现，有可能会越界。
+
+# Code
+
+* []
+
+```Java
+
+class Solution {
+    public int reversePairs(int[] nums) {
+        int n = nums.length;
+        if (n < 2) {
+            return 0;
+        }
+        int[] help = new int[n];
+        return reversePair(nums, help, 0, n - 1);
+    }
+
+    // 递归函数定义：返回nums[l, r]的翻转对的个数
+    public int reversePair(int[] nums, int[] help, int l, int r) {
+        if (l == r) {
+            // 只剩下了一个元素，肯定不用想了就是0了,0个翻转对
+            return 0;
+        }
+        // 中间的索引下标
+        int mid = l + ((r - l) >> 1);
+        // 左部分的结果
+        int leftResult = reversePair(nums, help, l, mid);
+        // 右部分的结果
+        int rightResult = reversePair(nums, help, mid + 1, r);
+        // 跨左右区间的结果
+        int leftStepRight = merge(nums, help, l, mid, r);
+        // 返回结果
+        return leftResult + rightResult + leftStepRight;
+    }
+
+    public int merge(int[] nums, int[] help, int l, int mid, int r) {
+        // 记录翻转对的个数
+        int ans = 0;
+        for (int i = l, j = mid + 1, count = 0; i <= mid; i++) {
+            while (j <= r && (long) nums[i] > ((long) nums[j]) * 2) {
+                count++;
+                j++;
+            }
+            ans += count;
+        }
+        // 将数组按照从小到大的顺序排列
+        int i = l, j = mid + 1, p = l;
+        while (i <= mid && j <= r) {
+            help[p++] = nums[i] <= nums[j] ? nums[i++] : nums[j++];
+        }
+
+        while (i <= mid) {
+            help[p++] = nums[i++];
+        }
+
+        while (j <= r) {
+            help[p++] = nums[j++];
+        }
+
+        for (int k = l; k <= r; k++) {
+            nums[k] = help[k];
+        }
+        // 返回跨左右区间的结果
+        return ans;
+    }
+}
+```
+
