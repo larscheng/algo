@@ -1,0 +1,79 @@
+### 前言
+
+在看到`k`值问题时我们比较容易想到堆，再一个便是二分。我们先来考虑一下堆，堆在本题应该只有一种使用方式，便是用两个`for loop`循环将所有可能的数对距离加入到堆中，在将堆`pop` $k$ 次。以上算法时间复杂度明显大于$O(n^2)$。毫无技巧可言，属于暴力解法，不出意外会超时。因此考虑使用二分。
+
+*************
+
+### 二分思路
+
+首先我们不考虑细节问题，只考虑一下二分简单的逻辑应该怎么找到这个`k-th`距离。我们会想到的是有一个`左边界`与一个`右边界`，每次都不断地缩小这两个边界。如何缩小呢？我们找到两个边界的中间值`mid = (left + right)/2`，我们来看看当前的以此`mid`为距离时，这个距离在数组中有多少对数对比它小，如果有`x`个数对比此中间值小（小于等于)，那么是否说明此中间值`mid`就是第`x+1`大的数对距离。因此我们便尝试去统计每一次该中间值`mid`是第多少对数对距离记作`cnt`，并且与`k`比较:
+- 如果与`cnt < k`，则说明`mid`此时的距离不够，需要增大距离靠近`k`。
+- 反正`cnt >= k`，则说明`mid`此时的距离有可能刚刚好是在第`k`个，或者太大了，则需要缩小距离靠近`k`。
+
+**********************************
+
+以上理解了以后我们便可以进行下一步的讨论了。`如何去计算`该数组中以此`mid`为距离时，这个距离在数组中有多少对数对比它小？朴素的做法就是每一次都进行$O(n^2)$的遍历然后加一统计，并且每一次二分时都需要这样。更为快速则做法则是`(排序+双指针)`。那么我便不做过多的赘述，只是将这个可视化的过程做出来。
+
+<![Slide1.PNG](https://pic.leetcode.cn/1655246267-VihlWE-Slide1.PNG),![Slide2.PNG](https://pic.leetcode.cn/1655246268-BWfuCf-Slide2.PNG),![Slide3.PNG](https://pic.leetcode.cn/1655246270-WTNkQB-Slide3.PNG),![Slide4.PNG](https://pic.leetcode.cn/1655246274-aCjUEN-Slide4.PNG),![Slide5.PNG](https://pic.leetcode.cn/1655246277-PKhrLQ-Slide5.PNG),![Slide6.PNG](https://pic.leetcode.cn/1655246279-LQBusb-Slide6.PNG),![Slide7.PNG](https://pic.leetcode.cn/1655246282-SiTSGa-Slide7.PNG),![Slide8.PNG](https://pic.leetcode.cn/1655246285-dxjzjH-Slide8.PNG),![Slide9.PNG](https://pic.leetcode.cn/1655246288-uCTABE-Slide9.PNG),![Slide10.PNG](https://pic.leetcode.cn/1655246292-vFCpFG-Slide10.PNG),![Slide11.PNG](https://pic.leetcode.cn/1655246295-VBDqLV-Slide11.PNG),![Slide12.PNG](https://pic.leetcode.cn/1655246298-zTwGPQ-Slide12.PNG)>
+
+****************************
+
+**算法步骤：**
+1. 将数组排序
+2. 定义左右边界，左边界`left`距离最小的时候距离当然为`0`，右边界`right`可以取数组中的最大值或给定数据中有可能的最大值。
+3. 进行二分搜索，对每一个`mid`都进行同进此时该距离值为在数组中是所有数对距离中第几大的。记作`cnt`。
+   - `cnt < k`，则说明距离太小，需要调整左边界`left = mid + 1`，使其距离变大有更多的数对会被计算入`cnt`中从而靠近`k`。
+   - `cnt >= k`，则说明距离刚好或者过大，调整右边界`right = mid`使其靠近`k`。
+
+* []
+
+```cpp
+class Solution {
+public:
+    int smallestDistancePair(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        int left = 0, right = 1000000, n = nums.size();
+        while(left < right)
+        {
+            int mid = (left + right) >> 1, cnt = 0;
+            for(int i = 0, j = 0; i < n; ++i)
+            {
+                while(j < n && nums[j] - nums[i] <= mid) ++j;
+                cnt += j - i - 1;
+            }
+            if(cnt < k)
+                left = mid + 1;
+            else
+                right = mid;
+        }
+        return left;
+    }
+};
+```
+
+* []
+
+```python
+class Solution:
+    def smallestDistancePair(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        left, right, n = 0, 1000000, len(nums)
+        while left < right:
+            mid, cnt, j = (left + right) >> 1, 0, 0
+            for i in range(n):
+                while j < n and nums[j] - nums[i] <= mid:
+                    j += 1
+                cnt += j - i - 1
+            if cnt < k:
+                left = mid + 1
+            else:
+                right = mid
+        return left
+```
+
+时间复杂度：$O(nlogn + nlogC)$，其中前部分为排序数组的时间复杂度$O(nlogn)$，二分的时间复杂度为$O(logC)$，此处$C = 1000000$, 而每一次二分进行的双指针查找时间复杂度为$O(n)$, 因此后半部分总的为$O(nlogC)$。
+空间复杂度：$O(nlogn)$。
+
+******************
+
+如果有帮助的话，请点个👍吧~

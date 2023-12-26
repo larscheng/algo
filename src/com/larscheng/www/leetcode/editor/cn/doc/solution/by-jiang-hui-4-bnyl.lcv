@@ -1,0 +1,52 @@
+# 方法一：二分+双指针
+
+思路：我们先对数组进行排序，设数对距离为`dis`，则`dis`的取值范围是`[0,nums[n-1]-nums[0]]`，然后我们通过二分查找第k小距离是多少。
+为了找到当前小于mid的数对个数，我们可以通过双指针来计算贡献值。
+![image.png](https://pic.leetcode-cn.com/1655251222-lHsqJU-image.png)
+![image.png](https://pic.leetcode-cn.com/1655251212-kGUOFu-image.png)
+![image.png](https://pic.leetcode-cn.com/1655296589-qUEaLU-image.png)
+![image.png](https://pic.leetcode-cn.com/1655296671-GUSutt-image.png)
+![image.png](https://pic.leetcode-cn.com/1655251177-HAYDhg-image.png)
+**代码如下：**
+
+* 
+
+```
+public int smallestDistancePair(int[] nums, int k) {
+    //排序
+    Arrays.sort(nums);
+    int n = nums.length;
+    //找到左右取值范围
+    int left = 0, right = nums[n - 1] - nums[0];
+    int ans = 0;
+    //二分找第K小
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        int i = 0;
+        int count = 0;
+        //计算当前小于mid的数对有多少
+        for (int j = 0; j < n; j++) {
+            while (nums[j] - nums[i] > mid) {
+                i++;
+            }
+            count += j - i;
+        }
+        //count小于则left = mid + 1，
+        // 大于则right = mid - 1
+        if (count >= k) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return ans;
+}
+```
+
+**复杂度分析**
+时间复杂度：O(n×(logn+logD))，其中n是数组nums的长度，D=max(nums)−min(nums)。排序O(nlogn)，二分查找需要O(logD)，双指针需要O(n)。
+空间复杂度：O(logn)。排序的平均空间复杂度为O(logn)。
+如果对您有帮助，**记得关注 + 点赞 + 收藏呦！！！**
+**每天都会更新每日一题题解，欢迎大家评论区指出错误，大家加油！！**
+

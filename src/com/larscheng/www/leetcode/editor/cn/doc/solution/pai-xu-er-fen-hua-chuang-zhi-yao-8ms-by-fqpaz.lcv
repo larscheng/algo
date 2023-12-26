@@ -1,0 +1,176 @@
+# 1. 排序
+
+对数组进行快速排序。
+
+* []
+
+```C++
+sort(nums.begin(), nums.end());
+```
+
+* []
+
+```Python
+nums.sort()
+```
+
+# 2. 二分
+
+我们要搜索的目标是第k大的**距离**，距离的范围是：
+
+* []
+
+```C++
+int min = 0, max = nums.back() - nums.front();
+```
+
+* []
+
+```Python
+min = 0
+max = nums[-1] - nums[0]
+```
+
+这便是我们二分的起始条件。
+
+`max`是最大距离，`min`是最小距离，第k大距离在这二者之间，是我们要去二分查找的。
+
+二分的过程非常标准：
+
+* []
+
+```C++
+while (min < max) {
+    int mid = (min + max) / 2;    
+    if (check(mid))
+        max = mid;
+    else
+        min = mid + 1;
+}
+```
+
+* []
+
+```Python
+while min < max:
+    mid = (min + max) // 2
+    if check(mid):
+        max = mid
+    else:
+        min = mid + 1
+```
+
+最后返回`min`或`max`距离。
+
+# 3. 滑窗
+
+`check(mid)`函数检查**大于mid的距离**是否超过k个。
+
+遍历`r`。由于已经排序，如果窗口首末距离`nums[r]-nums[l]`超过`mid`，那么窗口不可能再扩大，收缩窗口左限`l++`。
+累计窗口内满足条件的数对数量。
+
+程序为：
+
+* []
+
+```C++
+int check(int mid) {
+    int count = 0;
+    int l = 0, 
+    for (int r = 0; r < nums.size(); r++) {
+        while (l < r && nums[r] - nums[l] > mid)
+            l++;
+        count += r - l;
+    }
+}
+```
+
+* []
+
+```Python
+def check(mid: int) -> int:
+    count = 0
+    l = 0
+    for r in range(len(nums)):
+        while l < r and nums[r] - nums[l] > mid:
+            l+=1
+        count += r - l
+```
+
+动画展示为：
+
+<![幻灯片0.JPG](https://pic.leetcode-cn.com/1624109321-eXvBOX-%E5%B9%BB%E7%81%AF%E7%89%870.JPG),![幻灯片1.JPG](https://pic.leetcode-cn.com/1624109134-ecbecg-%E5%B9%BB%E7%81%AF%E7%89%871.JPG),![幻灯片2.JPG](https://pic.leetcode-cn.com/1624109141-MLzbbt-%E5%B9%BB%E7%81%AF%E7%89%872.JPG),![幻灯片3.JPG](https://pic.leetcode-cn.com/1624109145-TDGLhh-%E5%B9%BB%E7%81%AF%E7%89%873.JPG),![幻灯片4.JPG](https://pic.leetcode-cn.com/1624109149-YIAvpp-%E5%B9%BB%E7%81%AF%E7%89%874.JPG),![幻灯片5.JPG](https://pic.leetcode-cn.com/1624109153-suLyER-%E5%B9%BB%E7%81%AF%E7%89%875.JPG),![幻灯片6.JPG](https://pic.leetcode-cn.com/1624109157-MRiztr-%E5%B9%BB%E7%81%AF%E7%89%876.JPG),![幻灯片7.JPG](https://pic.leetcode-cn.com/1624109161-jJSnHM-%E5%B9%BB%E7%81%AF%E7%89%877.JPG),![幻灯片8.JPG](https://pic.leetcode-cn.com/1624109173-fYgFvl-%E5%B9%BB%E7%81%AF%E7%89%878.JPG),![幻灯片9.JPG](https://pic.leetcode-cn.com/1624109177-irqMeV-%E5%B9%BB%E7%81%AF%E7%89%879.JPG),![幻灯片10.JPG](https://pic.leetcode-cn.com/1624109180-tDznaq-%E5%B9%BB%E7%81%AF%E7%89%8710.JPG),![幻灯片11.JPG](https://pic.leetcode-cn.com/1624109184-doWbvX-%E5%B9%BB%E7%81%AF%E7%89%8711.JPG),![幻灯片12.JPG](https://pic.leetcode-cn.com/1624109188-lxtjMC-%E5%B9%BB%E7%81%AF%E7%89%8712.JPG)>
+
+对于每一个`nums[r]`，找到满足条件的**最大**窗口，累计窗口内满足以下条件的数对数量：
+1. 大数为`nums[r]`
+2. 距离小于`mid`
+
+这个数量是`r-l`。
+
+#### 例：
+
+下图是`r=4`时满足条件的最大窗口。满足条件的数对包括
+$(3,12) , (4,12) , (11,12)$
+
+一共有 $r - l = 3$ 对。
+
+![幻灯片5.JPG](https://pic.leetcode-cn.com/1624109768-KAiBlY-%E5%B9%BB%E7%81%AF%E7%89%875.JPG)
+
+> 有的小伙伴可能会问了，$(3,4)$ 这种距离也小于`mid`怎么算呢？实际上这个已经在 `r=2, nums[r]=4` 的时候计算过了喔~！
+
+----
+
+最终代码：
+
+* []
+
+```C++
+class Solution {
+public:
+    int smallestDistancePair(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        int min = 0, max = nums.back() - nums.front();
+        while (min < max) {
+            int mid = (min + max) / 2;
+            int count = 0;
+            for (int l = 0, r = 0; r < nums.size(); r++) {
+                while (l < r && nums[r] - nums[l] > mid) l++;
+                count += r - l;
+            }
+            if (count >= k)
+                max = mid;
+            else
+                min = mid + 1;
+        }
+        return min;
+    }
+};
+```
+
+* []
+
+```Python
+class Solution:
+    def smallestDistancePair(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        min = 0
+        max = nums[-1] - nums[0]
+        while min < max:
+            mid = (min + max) // 2
+            count = 0
+            l = 0
+            for r in range(len(nums)):
+                while l < r and nums[r] - nums[l] > mid:
+                    l+=1
+                count += r - l
+            if count >= k:
+                max = mid
+            else:
+                min = mid + 1
+        return min
+```
+
+快速排序平均时间复杂度 $O(n\log{n})$。
+记二分查找范围`max(nums)-min(nums)`为 $w$，则二分查找时间复杂度 $O(\log{w})$。滑动窗口时间复杂度 $O(n)$，则二分滑窗嵌套复杂度是 $O(n\log{w})$。
+
+综上，时间复杂度 $O(n\log{n}+n\log{w})$。
