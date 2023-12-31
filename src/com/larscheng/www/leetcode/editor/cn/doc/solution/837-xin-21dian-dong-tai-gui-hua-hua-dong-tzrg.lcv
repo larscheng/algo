@@ -1,0 +1,60 @@
+# [837. 新21点](https://leetcode-cn.com/problems/new-21-game/)
+
+***
+
+### 思路
+
+1. 整个过程中，爱丽丝手里的牌面的可能情况为 [0, K + W - 1]
+2. dp数组用于记录每一种牌面下，到最终停止抽牌时牌面不大于N的概率
+3. 当手中牌面 >= K 时，概率可以确定，大于N为0，小于等于N为1
+4. 当手中牌面 == K - 1 时，再抽[1, W]中任意一张牌都会停止抽牌，那么在该种情况下，所求概率为
+   　　dp[K - 1] = 1/W * (dp[K] + dp[K + 1] + … + dp[K + W - 1])
+5. 当手中牌面 == K - 2 时，可分为以下两种情况
+   i. 再抽一张1变成 K - 1，到最后停止抽牌，概率为 1/W * dp[K - 1]
+   ii.再抽[2, W]区间内的任意一张牌，停止抽牌，总的概率为 1/W * (dp[K] + dp[K + 1] + … + dp[K + W - 2])
+   最后 dp[K - 2] = 1/W * (dp[K - 1] + dp[K] + … + dp[K + W - 2])
+6. 其他牌面小于K的情况也类似，都是取后面W个概率的均值
+7. 最后的返回值为dp[0]，即爱丽丝还没开始抽牌的时候，其最终停止抽牌时牌面不大于N的概率
+
+### 代码
+
+* []
+
+```Python
+class Solution:
+    def new21Game(self, N: int, K: int, W: int) -> float:
+        dp = [0] * (K + W)
+        s = 0
+        for i in range(K, K + W):
+            dp[i] = 1 if i <= N else 0
+            s += dp[i]
+        for i in range(K - 1, -1, -1):
+            dp[i] = s / W
+            s += dp[i] - dp[i + W]
+        return dp[0]
+```
+
+* []
+
+```Java
+class Solution {
+    public double new21Game(int N, int K, int W) {
+        double[] dp = new double[K + W];
+        double s = 0.0;
+        for(int i = K; i < K + W; i++){
+            dp[i] = i <= N ? 1 : 0;
+            s += dp[i];
+        }
+        for(int i = K - 1; i >= 0; i--){
+            dp[i] = s / W;
+            s += dp[i] - dp[i + W];
+        }
+        return dp[0];
+    }
+}
+```
+
+**复杂度分析**
+- 时间复杂度：$O(K + W)$
+- 空间复杂度：$O(K + W)$
+

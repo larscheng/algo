@@ -1,0 +1,106 @@
+# 解法
+
+## 思路和算法
+
+为方便表述，当 Alice 停止抽取数字时，如果 Alice 的点数不超过 $n$ 则称为获胜，否则称为落败。问题为计算当 Alice 停止抽取数字时的获胜概率。
+
+当 $k = 0$ 时，由于初始点数已经等于 $k$，因此 Alice 不会抽取任何数字，点数为 $0$，不会超过 $n$，因此 Alice 总是可以获胜，获胜概率是 $1.0$。以下只考虑 $k > 0$ 的情况。
+
+当 $k > 0$ 时，Alice 一定要抽取至少一个数字。假设一次抽取数字前后的点数分别是 $x$ 和 $y$，则该次抽取的数字是 $y - x$，从点数 $x$ 开始游戏的获胜概率和从点数 $y$ 开始游戏的获胜概率有关，因此可以使用动态规划计算 Alice 的获胜概率。
+
+考虑 Alice 可能达到的最大点数。最后一次抽取数字之前的可能的最大点数是 $k - 1$，最后一次抽取的数字的可能的最大值是 $\textit{maxPts}$，因此 Alice 可能达到的最大点数是 $k - 1 + \textit{maxPts}$。创建长度为 $k + \textit{maxPts}$ 的数组 $\textit{dp}$，其中 $\textit{dp}[i]$ 为从点数 $i$ 开始游戏的获胜概率。
+
+根据游戏规则，Alice 获胜的条件是点数在范围 $[k, n]$ 中。由于 Alice 可能达到的最大点数是 $k - 1 + \textit{maxPts}$，因此当点数在范围 $[k, \min(n, k - 1 + \textit{maxPts})]$ 中时 Alice 获胜，当点数在范围 $[n + 1, k - 1 + \textit{maxPts}]$ 中时 Alice 落败。动态规划的边界情况如下。
+
+- 当 $k \le i \le \min(n, k - 1 + \textit{maxPts})$ 时，$\textit{dp}[i] = 1.0$。
+
+- 当 $n < i \le k - 1 + \textit{maxPts}$ 时，$\textit{dp}[i] = 0.0$。
+
+当 $0 \le i \le k - 1$ 时，从点数 $i$ 开始抽取一个数字之后，可能的点数范围是 $[i + 1, i + \textit{maxPts}]$，到达该范围中的每个点数的概率都是 $\dfrac{1}{\textit{maxPts}}$，该范围中的点数 $j$ 对应的获胜概率是 $\textit{dp}[j]$。因此动态规划的状态转移方程如下。
+
+$$
+\textit{dp}[i] = \dfrac{\sum_{j = i + 1}^{i + \textit{maxPts}} \textit{dp}[j]}{\textit{maxPts}}
+$$
+
+由于 $\textit{dp}[i]$ 依赖于 $\textit{dp}[i + 1]$ 到 $\textit{dp}[i + \textit{maxPts}]$ 中的每一项，因此应从大到小遍历范围 $[0, k - 1]$ 中的每个 $i$ 并计算 $\textit{dp}[i]$。计算得到 $\textit{dp}[0]$ 即为结果。
+
+上述状态转移方程计算每个状态的时间是 $O(\textit{maxPts})$，因此时间复杂度是 $O(k \times \textit{maxPts})$，该时间复杂度过高，需要优化。
+
+计算 $\textit{dp}[k - 1]$ 的做法如下。由于从点数 $k - 1$ 开始抽取一个数字之后，可能的点数范围是 $[k, k + \textit{maxPts} - 1]$，其中满足 $\textit{dp}[j] = 1.0$ 的下标 $j$ 的范围是 $[k, \min(n, k + \textit{maxPts} - 1])]$，因此满足 $\textit{dp}[j] = 1.0$ 的下标 $j$ 的个数是 $\min(n - k + 1, \textit{maxPts})$。因此 $\textit{dp}[k - 1]$ 的计算方法如下。
+
+$$
+\textit{dp}[k - 1] = \dfrac{\min(n - k + 1, \textit{maxPts})}{\textit{maxPts}}
+$$
+
+当 $0 \le i < k - 1$ 时，计算 $\textit{dp}[i]$ 的做法如下。
+
+1. 计算 $\textit{dp}$ 的相邻两项之差。
+
+$$
+\textit{dp}[i] - \textit{dp}[i + 1] = \dfrac{\sum_{j = i + 1}^{i + \textit{maxPts}} \textit{dp}[j]}{\textit{maxPts}} - \dfrac{\sum_{j = i + 2}^{i + \textit{maxPts} + 1} \textit{dp}[j]}{\textit{maxPts}} = \dfrac{\textit{dp}[i + 1] - \textit{dp}[i + \textit{maxPts} + 1]}{\textit{maxPts}}
+$$
+
+2. 将上述等式转换，得到状态转移方程。
+
+$$
+\textit{dp}[i] = \dfrac{\textit{dp}[i + 1] \times (\textit{maxPts} + 1) - \textit{dp}[i + \textit{maxPts} + 1]}{\textit{maxPts}}
+$$
+
+因此动态规划的状态转移方程如下。
+
+- 当 $i = k - 1$ 时，$\textit{dp}[i] = \dfrac{\min(n - k + 1, \textit{maxPts})}{\textit{maxPts}}$。
+
+- 当 $0 \le i < k - 1$ 时，$\textit{dp}[i] = \dfrac{\textit{dp}[i + 1] \times (\textit{maxPts} + 1) - \textit{dp}[i + \textit{maxPts} + 1]}{\textit{maxPts}}$。
+
+由于 $\textit{dp}[i]$ 依赖于 $\textit{dp}[i + 1]$ 和 $\textit{dp}[i + \textit{maxPts} + 1]$，因此应从大到小遍历范围 $[0, k - 1]$ 中的每个 $i$ 并计算 $\textit{dp}[i]$。计算得到 $\textit{dp}[0]$ 即为结果。
+
+## 代码
+
+* [sol1-Java]
+
+```Java
+class Solution {
+    public double new21Game(int n, int k, int maxPts) {
+        if (k == 0) {
+            return 1.0;
+        }
+        double[] dp = new double[k + maxPts];
+        for (int i = Math.min(n, k - 1 + maxPts); i >= k; i--) {
+            dp[i] = 1.0;
+        }
+        dp[k - 1] = 1.0 * Math.min(n - k + 1, maxPts) / maxPts;
+        for (int i = k - 2; i >= 0; i--) {
+            dp[i] = (dp[i + 1] * (maxPts + 1) - dp[i + maxPts + 1]) / maxPts;
+        }
+        return dp[0];
+    }
+}
+```
+
+* [sol1-C#]
+
+```C#
+public class Solution {
+    public double New21Game(int n, int k, int maxPts) {
+        if (k == 0) {
+            return 1.0;
+        }
+        double[] dp = new double[k + maxPts];
+        for (int i = Math.Min(n, k - 1 + maxPts); i >= k; i--) {
+            dp[i] = 1.0;
+        }
+        dp[k - 1] = 1.0 * Math.Min(n - k + 1, maxPts) / maxPts;
+        for (int i = k - 2; i >= 0; i--) {
+            dp[i] = (dp[i + 1] * (maxPts + 1) - dp[i + maxPts + 1]) / maxPts;
+        }
+        return dp[0];
+    }
+}
+```
+
+## 复杂度分析
+
+- 时间复杂度：$O(k + \textit{maxPts})$，其中 $k$ 是停止抽取数字的最低得分，$\textit{maxPts}$ 是每次可以抽取的最大数字。状态数是 $k + \textit{maxPts}$，每个状态的计算时间是 $O(1)$，因此时间复杂度是 $O(k + \textit{maxPts})$。
+
+- 空间复杂度：$O(k + \textit{maxPts})$，其中 $k$ 是停止抽取数字的最低得分，$\textit{maxPts}$ 是每次可以抽取的最大数字。需要创建长度为 $k + \textit{maxPts}$ 的数组 $\textit{dp}$。
+

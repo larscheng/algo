@@ -1,0 +1,129 @@
+滑动窗口是一种基于双指针的一种思想，就是两个指针指向的元素之间形成一个窗口，并且左右指针方向一致的向前滑动（右端固定，左端滑动；左端固定，右端滑动）。因此，解决该问题的关键在于确定两个指针如何移动。
+
+**分类**：窗口有两类，一种是固定大小类的窗口，一类是大小动态变化的窗口。
+
+# 核心步骤
+
+在序列中，使用双指针中的左右指针，步骤如下：
+1. 初始化`left = right = 0`，把索引区间`[left, right)`称为一个**窗口**（注意该窗口是`左开右闭`，因为初始窗口`[0,0)`区间没有任何元素）。
+2. 循环遍历，不断的**增加right指针**，扩大窗口`[left, right)`，直到窗口中的序列符合要求。
+3. 满足要求后，停止增加`right指针`，转而不断增加`left指针`缩小窗口`[left, right)`，直到窗口中的序列不再符合要求。同时，**每次增加 left前，都要更新一轮结果**。
+4. 重复第 2 和第 3 步，直到`right指针`到达序列的尽头。
+
+> 注意：步骤二类似于在寻找一个`可行解`，而步骤三则是在`优化可行解`，最终找到一个最优解。
+> 滑动窗口的求解步骤就是左右指针轮流前进，窗口大小增增减减，窗口不断向右滑动。
+
+![Pasted image 20230228124709.png](https://pic.leetcode.cn/1677575642-CjcNAO-Pasted%20image%2020230228124709.png)
+
+该问题为**固定滑动窗口问题**，对于p的异位词，其长度一定与字符串p的长度相等，因此，可以在字符串s中维护一个与字符串p长度相等且固定长度的滑动窗口。当窗口中每种字符的数量与字符串p中每种字符的数量相同时，则该窗口内的字符串与字符串p为异位词。
+
+对于滑动窗口中每种字符的数量统计与字符串p中每种字符的数量统计可以利用字符的**ASCII码**来映射到数组中进行统计。如，对于字符b，可以通过 $'b'-'a'=1$ 来映射到数组中。
+
+那么在窗口滑动过程中，固定其窗口长度，并且分别统计窗口与字符串p中字符的数量。当两个数组中每个分量的数据相同时，则表示其为一个异位词。因此创建两个数组，`window_count`以及`p_count`用于统计。
+
+* java
+
+```java
+public List<Integer> findAnagrams(String s, String p) {  
+    int s_len = s.length(), p_len = p.length();  
+    List<Integer> ans = new ArrayList<Integer>();//用于记录窗口滑动过程中的可行解  
+  
+    //字符s的长度一定要大于字符p的长度，否则不存在异位词  
+    if (s_len < p_len) {  
+        return ans;  
+    }  
+    
+    int[] window_count = new int[26]; //用于维护窗口滑动过程中每个字符的数量  
+    int[] p_count = new int[26]; //用于统计字符p的每个字符数量  
+    
+    //初始统计  
+    for (int i = 0; i < p_len; i++) {  
+        window_count[s.charAt(i) - 'a']++;  
+        p_count[p.charAt(i) - 'a']++;  
+    }  
+    
+    //如果窗口最初始的时候满足异位词，则将0加入到ans数组中  
+    if (Arrays.equals(window_count, p_count))  
+        ans.add(0);  
+        
+    //窗口开始滑动,左右都按照同频率滑动  
+    for (int i = 0; i < s_len - p_len; i++) {  
+        window_count[s.charAt(i) - 'a']--;    // 左指针移动  
+        window_count[s.charAt(i + p_len) - 'a']++;  // 右指针移动  
+        
+        //判断是否满足异位词的条件，满足加入到ans中  
+        if (Arrays.equals(window_count, p_count))  
+            ans.add(i + 1);  
+            
+    }  
+    
+    return ans;  
+}
+```
+
+对于以上的代码中，发现对于统计字符串p的字符数量数组`p_count`只统计了一次之后就没有变动。因此可以考虑只统计滑动窗口中字符和字符串p中每种字母数量的差，存于数组`count`中，当`count`数组中所有的差都为0的时候，表示滑动窗口中的字符与字符串p构成异位词。该方案减少了对字符串p的统计内存消耗，在空间上进行了优化。
+
+当然，在考虑统计滑动窗口和字符串p中每种字母数量的差，存于数组`count`中后， 是否可以通过一个变量diff用于记录滑动窗口中的字符与字符串p中数量不同的字母的个数，也就是`count`数组中不为0的个数。当diff值等于0之后，表示滑动窗口中的字符和字符串p中每种字母数量的差都为0，即构成异位词。对于该方案，解决的关键在于如何在窗口滑动过程维护diff变量。
+
+> 比如说，字符`abbbb`与`aaaaa`的`count`数组为$[-4,4,0,...]$ ，该diff值为2。字符`abbbb`与字符`abccc`的`count`数组为$[0,3,-3,0,...]$ ，该diff值也为2。
+
+diff变量的变化主要在于窗口滑动过程中。由于字符串p不发生改变，那么对于窗口滑动过程中，主要根据窗口中左右指针所指向的字母的变化从而改动`count`数组，进而改变diff的值：
+1. 左指针指向的字符`s[left]`导致diff变化情况有：如果在数组`count`中，字符`s[left]`所对应的值为1或者0时，会导致窗口滑动一个单位长度，会使得`count`数组中0的个数会变化，进而导致diff值发生改变。
+2. 右指针指向的字符`s[right]`导致diff变化情况有：如果在数组`count`中，字符`s[right]`所对应的值为-1或者0时，也会导致窗口滑动一个单位长度，会导致`count`数组中0的个数发生变化，进而导致diff值发生改变。
+   于是，代码如下：
+
+* java
+
+```java
+public List<Integer> findAnagrams(String s, String p) {  
+  
+    int s_len = s.length(), p_len = p.length();  
+    List<Integer> ans = new ArrayList<Integer>();//用于记录窗口滑动过程中的可行解  
+    
+    //字符s的长度一定要大于字符p的长度，否则不存在异位词  
+    if (s_len < p_len) {  
+        return ans;  
+    }  
+    
+    int[] count = new int[26]; //用于维护窗口滑动过程中窗口中的字符与字符p中每个字符的差值  
+    int diff = 0; // 用于维护count数组中不为0的个数  
+    
+    //初始统计  
+    for (int i = 0; i < p_len; i++) {  
+        count[s.charAt(i) - 'a']++;  
+        count[p.charAt(i) - 'a']--;  
+    }  
+    
+    // 统计count数组中不为0的个数，并赋值给diff  
+    for (int i = 0; i < count.length; i++) {  
+        if (count[i] != 0) diff++;  
+    }  
+    
+    //如果窗口最初始的时候满足异位词，则将0加入到ans数组中  
+    if (diff == 0) ans.add(0);  
+    
+    //窗口开始滑动,左右都按照同频率滑动  
+    for (int i = 0; i < s_len - p_len; i++) {  
+        //左指针移动导致diff变化的情况  
+        if (count[s.charAt(i) - 'a'] == 1) {  
+            diff--;  
+        } else if (count[s.charAt(i) - 'a'] == 0) {  
+            diff++;  
+        }  
+        count[s.charAt(i) - 'a']--;    // 左指针移动  
+          
+        //右指针移动导致diff变化的情况  
+        if (count[s.charAt(i + p_len) - 'a'] == -1) {  
+            diff--;  
+        } else if (count[s.charAt(i + p_len) - 'a'] == 0) {  
+            diff++;  
+        }  
+        count[s.charAt(i + p_len) - 'a']++;  // 右指针移动  
+        
+        //判断是否满足异位词的条件，满足加入到ans中  
+        if (diff == 0) ans.add(i + 1);  
+    }  
+    return ans;  
+}
+```
+
