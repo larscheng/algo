@@ -1,0 +1,33 @@
+> Problem: [401. 二进制手表](https://leetcode.cn/problems/binary-watch/description/)
+
+# Code
+
+* []
+
+```C++
+class Solution {
+public:
+    vector<string> res;
+
+    void dfs(int k, int n, int h, int hb, int m, int mb) {
+        if (hb > 4 || mb > 6 || h > 11 || m > 59) return;   // 剪枝
+        if (k == n) {
+            res.emplace_back(to_string(h) + ":" + (m < 10 ? "0" : "") + to_string(m));
+            return;
+        }
+
+        dfs(k + 1, n, h | (1 << hb), hb + 1, m, mb);    // 选择当前小时位
+        dfs(k, n, h, hb + 1, m, mb);                   // 不选当前小时位
+        if (hb == 4) {                               // 防止重复枚举
+            dfs(k + 1, n, h, hb, m | (1 << mb), mb + 1);
+            dfs(k, n, h, hb, m, mb + 1);
+        }
+    }
+
+    vector<string> readBinaryWatch(int turnedOn) {
+        dfs(0, turnedOn, 0, 0, 0, 0);
+        return res;
+    }
+};
+```
+

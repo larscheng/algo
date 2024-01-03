@@ -1,0 +1,276 @@
+# 前言
+
+它，看似简单，实则让许多同学无从下手；
+
+它，看似出题，实则炫耀手上的二进制表；
+
+它，看似。。好了我编不下去了😤
+
+这道**简单**题打开了好几次，每次读题都让我头晕目眩。
+
+三年之期已到，是时候下手了~~
+
+# 思路
+
+这是题目给的表：
+
+![Binary_clock_samui_moon.jpg](https://pic.leetcode-cn.com/1610257964-NoMWAm-Binary_clock_samui_moon.jpg)
+
+把这只表的和题意所得到的信息列举出来，将得到以下信息：
+
+![lc401-1.jpg](https://pic.leetcode-cn.com/1619751868-sSQmen-lc401-1.jpg)
+
+首先，我们能非常直观的得到这只表的表示范围；
+
+其次，根据题意的要求，能得出这只表的有效表示范围（犹豫过 num = 2 时 12:00 算不算对，测试一下就知道了🤪）；
+
+最后，由于时间的**有效区间限制**，能推算得到 小时和分钟 分别亮灯的数量区间。
+
+## 位运算暴力
+
+由于这为二进制手表，因此我们模拟（暴力）时，尽量模拟地更相似一些（往二进制方面考虑），这会简化模拟过程 —— 只要模拟**有效范围内**的所有满足情况的二进制的表示，即可得到所有答案。
+
+即时针只能为`[0, 11]`，分针只能为`[0, 59]`。
+
+而该手表的亮灯正是代表了二进制位上的`1`，因此候选数字所对应的二进制中`1`的数量即为亮灯数。
+
+当 **时针代表的二进制中 `1` 的个数 + 分针所代表的二进制中 `1` 的个数 等于 `num`** 时，即为本题的一个有效答案。
+
+### 代码
+
+小知识：
+- `Integer.bitCount()` 可用于统计 `int` 值所对应的二进制中 `1` 的个数
+
+- `String.format()` 可用于字符串格式化，非常优雅。用法和 C 语言的 `printf` 类似，但效率感人...
+
+- `StringBuilder` 万金油，可用于字符串的拼接、修改等等一系列操作，效率喜人，代码不优雅...
+
+- `sprintf()` 可用于字符串 `char*` 的格式化
+
+* []
+
+```Java
+class Solution {
+    public List<String> readBinaryWatch(int num) {
+        List<String> res = new ArrayList<>();
+
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 60; j++) {
+                int cnt = Integer.bitCount(i) + Integer.bitCount(j);
+                if (cnt == num) {
+                    // res.add(String.format("%d:%02d", i, j));
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(i).append(':');
+                    if (j < 10) {
+                        sb.append('0');
+                    }
+                    sb.append(j);
+                    res.add(sb.toString());
+                }
+            }
+        }
+
+        return res;
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+private:
+    int countOne(int num) {
+        int cnt = 0;
+
+        while (num > 0) {
+            if (num & 1) {
+                cnt++;
+            }
+            num >>= 1;
+        }
+
+        return cnt;
+    }
+public:
+    vector<string> readBinaryWatch(int num) {
+        vector<string> res;
+
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 60; j++) {
+                int temp = countOne(i) + countOne(j);
+                if (temp == num) {
+                    char time[6];
+                    sprintf(time, "%d:%02d", i, j);
+                    res.emplace_back(string{ time });
+                    // res.push_back(time);
+                }
+            }
+        }
+
+        return res;
+    }
+};
+```
+
+不使用`Integer.bitCount()`时，我们可以自己写个方法统计二进制中`1`的数量:
+- `num & 1 == 1` 等价于 `num % 2 == 1`
+
+- `num >>= 1` 等价于 `num /= 2`
+
+- 该代码**仅适用**于自然数（对于负数可以去做做这道题哦：[191. 位1的个数](https://leetcode-cn.com/problems/number-of-1-bits/)）
+
+* []
+
+```Java
+private int countOne(int num) {
+    int cnt = 0;
+
+    while (num > 0) {
+        if ((num & 1) == 1) {
+            cnt++;
+        }
+        num >>= 1;
+    }
+
+    return cnt;
+}
+```
+
+## 回溯法
+
+设 「**亮灯数**」 为 `num` ，分钟的显示使用了 `x` 个灯，可得时钟显示剩余的可用灯数为 `num - x`。
+
+${\Large \because x\in \left [ 0,5 \right ]}$
+
+${\Large \therefore}$ 可用一个 ${\Large \left [ 0,5 \right ]}$ 的 ${\large for}$ 循环
+
+接着我们来设计回溯这个方法：
+
+如何回溯、边界条件是什么一定要搞清楚，才能顺利的把回溯写出来。
+
+- 所有的灯只有两种情况：要么亮，要么灭
+
+- 只有亮灯才能减少 `num` 的数量
+
+- 亮的灯所对应的二进制值需要统计
+
+- 二进制值的和满足要求才能进入下一层递归
+
+- 当 `num` 减到 `0` 时，代表这种情况成立，加入答案
+
+弱弱的图示一波...
+
+![lc401-2.jpg](https://pic.leetcode-cn.com/1619753033-bzJeDQ-lc401-2.jpg)
+
+由于分钟和小时的回溯代码实在是太像了（一模一样），因此这里使用一个 `boolean` 变量表示当前是在搜分钟(`true`)还是小时(`false`)。
+
+此外，分钟和小时所拥有的灯数也是不一样的，因此`for`循环也需要布尔值来设定搜索范围。
+
+最后，存储答案写在了小时搜索成功的分支里，进行组合就可以得到当前灯数分布的答案，且每次搜完需要清空`mins`哦。
+
+**感谢评论区 [@JianZhao](https://leetcode-cn.com/u/jianzhao/) 提出的优化建议，原代码中当 `num - i` 为负数时，将会多做几次循环的无用功。因此需要加上 `(num - i) >= 0` 这个循环条件来帮助我们进行剪枝，即 `num >= i` 。**
+
+* []
+
+```Java
+class Solution {
+    List<Integer> mins;
+    List<String> res;
+
+    public List<String> readBinaryWatch(int num) {
+        res = new ArrayList<>();
+        mins = new ArrayList<>();
+        
+        for (int i = 0; i < 6 && num >= i; i++) {
+            dfs(0, 0, i, true);
+            dfs(0, 0, num - i, false);
+            mins.clear();
+        }
+
+        return res;
+    }
+
+    private void dfs(int st, int sum, int cnt, boolean flag) {
+        if (cnt == 0) {
+            if (flag) {
+                mins.add(sum);
+            } else {
+                if (!mins.isEmpty()) { 
+                    for (int m : mins) {
+                        // res.add(String.format("%d:%02d", sum, m));
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(sum).append(':');
+                        if (m < 10) {
+                            sb.append('0');
+                        }
+                        sb.append(m);
+                        res.add(sb.toString());
+                    }
+                }
+            }
+            return;
+        }
+
+        for (int i = st; i < (flag ? 6 : 4); i++) {
+            int temp = (int)Math.pow(2, i);
+            if (flag && sum + temp >= 60 || !flag && sum + temp >= 12) {
+                break;
+            }
+            dfs(i + 1, sum + temp, cnt - 1, flag);
+        }
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+private:
+    vector<string> res;
+    vector<int> mins;
+
+    void dfs(int st, int sum, int cnt, bool flag) {
+        if (cnt == 0) {
+            if (flag) {
+                mins.push_back(sum);
+            } else {
+                if (!mins.empty()) {
+                    for (int m : mins) {
+                        char time[6];
+                        sprintf(time, "%d:%02d", sum, m);
+                        res.emplace_back(string{ time });
+                        // res.push_back(time);
+                    }
+                }
+            }
+            return;
+        }
+
+        for (int i = st; i < flag ? 6 : 4; i++) {
+            int temp = pow(2, i);
+            if (flag && sum + temp >= 60 || !flag && sum + temp >= 12) {
+                break;
+            }
+            dfs(i + 1, sum + temp, cnt - 1, flag);
+        }
+    }
+public:
+    vector<string> readBinaryWatch(int num) {
+        for (int i = 0; i < 6 && num >= i; i++) {
+            dfs(0, 0, i, true);
+            dfs(0, 0, num - i, false);
+            mins.clear();
+        }
+
+        return res;
+    }
+};
+```
+
+# 最后
+
+完结撒花🥳🥳🥳~还有什么疑问或者更好的解答方式欢迎留言哈
+
+求个赞呀~`boiboi`~ヾ(•ω•`)o

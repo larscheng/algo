@@ -1,0 +1,108 @@
+### 解题思路
+
+本题是标准的回溯暴力求解，枚举所有状态，对于 `hour` 的每一位有选与不选，对于 `minute` 的每一位有选与不选，因此所有可组成的状态就是选择 `n` 个状态就是递归出口。
+
+如 `N=2`，如下所示：
+1. `Hour` 选两个
+2. `Minute` 选两个
+3. `Hour` 选一个，`Minute` 选一个
+   ![幻灯片1.PNG](https://pic.leetcode-cn.com/863ebf7c4d08582d0fcdf1700146386c7c9128177d35346c685893bf8c41302a-%E5%B9%BB%E7%81%AF%E7%89%871.PNG)
+
+**减枝操作：**
++ **超界**：很明显是 $hour > 11\ || \ minute > 59$
++ **去重**：存在两个不同级别的选择，因此会出现很多重复，比如先选 `hour[0]` 后选择 `minute[1]` 与先选择  `minute[1]` 后选 `hour[0]` 是一个结果，因此出现重复。即本题是累加和，加法没有位置关系，是**组合问题**而**不是排列**问题。
+
+这个问题其实跟初中数学的一个互赠卡片类似，第一个人给剩下 `n-1` 个人互赠卡片，然后第二个人肯定不会再给第一个人赠送，即给剩下 `n-2` 的人互赠卡片。
+
+想像一下把灯变成**一排顺序连着**同学，排在前面的同学给后面互赠卡片，后面再倒回来送给前面人的互赠卡片就重复了。如下图所示，因此解决问题就是很简单，**枚举方向只能往一个方向，不可以倒回去。**
+
+![幻灯片2.PNG](https://pic.leetcode-cn.com/f4f1715a9e767572d1f1a08cdc513b1dd89fe4a5301456f47f1327be8879f4a6-%E5%B9%BB%E7%81%AF%E7%89%872.PNG)
+
+**例子：在 1-10 以内找到三个数字等于 5，其中每个数字不限使用次数。**
+
+暴力出奇迹
+
+* python
+
+```python
+target = 5
+for i in range(1, 11):
+    for j in range(1, 11):
+        for z in range(1, 11):
+            if i + j + z == target:
+                print(i, j, z)
+```
+
+输出：
+
+* c
+
+```c
+1 1 3
+1 2 2
+1 3 1
+2 1 2
+2 2 1
+3 1 1
+```
+
+细心发现【组和】就是不管顺序的，那么答案中 `1 1 3` 和 `3 1 1` 和`1 3 1` 都是一个东西。为什么会出现这样的情况，实际上它变成【排列】。原因就在于内层循环是从头开始的，如果我们改为从上层循环的起始值开始，那就不重复了。
+
+* python
+
+```python
+target = 5
+for i in range(1, 11):
+    for j in range(i, 11):  # change and [i,10]
+        for z in range(j, 11):
+            if i + j + z == target:
+                print(i, j, z)
+```
+
+输出：
+
+* 
+
+```
+1 1 3
+1 2 2
+```
+
+那么本题问题就是把 `hour` 的灯 $0\rightarrow 3$，`minute` 灯标记为 $4\rightarrow 10$ 再维护一个 `which` 位置变量，看当前枚举位置在哪里，下一次枚举起始位置 $\gt which$可以去重啦。
+
+### 代码
+
+* python3
+
+```python
+class Solution:
+    def readBinaryWatch(self, num: int) -> List[str]:
+        res = []
+        hour_seen = set()
+        minute_seen = set()
+
+        def backtrace(num: int, hour: int, minute: int, which: int) -> None:
+            if hour > 11 or minute > 59:
+                return
+            if num == 0:
+                res.append(f'{hour}:{minute:02}')
+                return
+            # 枚举 hour 可能，对应 h 是 2 ^ h
+            for h in range(which, 4):
+                if h not in hour_seen:
+                    hour_seen.add(h)
+                    backtrace(num - 1, hour + int(pow(2, h)), minute, h + 1)
+                    hour_seen.remove(h)
+            # 枚举 minute 可能，对应 m 是 2 ^ (m - 4)
+            for m in range(max(which, 4), 10):  # 注意枚举分该至少从 4 开始
+                if m not in minute_seen:
+                    minute_seen.add(m)
+                    backtrace(num - 1, hour, minute + int(pow(2, m - 4)), m + 1)
+                    minute_seen.remove(m)
+        backtrace(num, 0, 0, 0)
+        return res
+```
+
+**复杂度分析：**
+• **时间复杂度：** $O(C_{10}^n)$，从 10 个中挑 n 个。
+• **空间复杂度：** $O(n)$，递归栈最深（不可能全亮）与辅助去重集合。

@@ -1,0 +1,106 @@
+## 打表
+
+具体的，我们可以创建一个 `静态数据结构` 来存储打表信息（需确保全局唯一，即使存在多组测试数据只生成一次打表数据）。
+
+然后在返回数据的时候直接 $O(1)$ 查表返回。
+
+PS. 如果打表逻辑计算量接近 $10^7$ 上限，可以考虑放到本地去做，这里数据量较少，直接放到 `static` 代码块去做即可。
+
+**代码（感谢 [@🍭可乐可乐吗QAQ](/u/littletime_cc/) 和 [@Benhao](/u/qubenhao/) 提供的其他语言版本）：**
+
+* []
+
+```Java
+class Solution {    
+    // 打表逻辑，也可以放到本地做
+    // 注意使用 static 修饰，确保打表数据只会被生成一次
+    static Map<Integer, List<String>> map = new HashMap<>();
+    static {
+        for (int h = 0; h <= 11; h++) {
+            for (int m = 0; m <= 59; m++) {
+                int tot = getCnt(h) + getCnt(m);
+                List<String> list = map.getOrDefault(tot, new ArrayList<String>());
+                list.add(h + ":" + (m <= 9 ? "0" + m : m));
+                map.put(tot, list);
+            }
+        }
+    }
+    static int getCnt(int x) {
+        int ans = 0;
+        for (int i = x; i > 0; i -= lowbit(i)) ans++;
+        return ans;
+    }
+    static int lowbit(int x) {
+        return x & -x;
+    }
+    public List<String> readBinaryWatch(int t) {
+        return map.getOrDefault(t, new ArrayList<>());
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    static unordered_map<int,vector<string>> mp;
+    static int cnt;
+    static int getCnt(int x) {
+        int ans = 0;
+        for (int i = x; i > 0; i -= lowbit(i)) ans++;
+        return ans;
+    }
+    static int lowbit(int x) {
+        return x & -x;
+    }
+    static void PreTable(){
+        cout <<"test:" << cnt << endl; //这里可以看到只加载一次 
+        cnt++;
+        for (int h = 0; h <= 11; h++) {
+            for (int m = 0; m <= 59; m++) {
+                int tot = getCnt(h) + getCnt(m);
+                char buffer[6];
+                sprintf(buffer,"%d:%02d",h,m);
+                mp[tot].push_back(buffer);
+            }
+        }
+    }
+
+    vector<string> readBinaryWatch(int turnedOn) {
+        if(cnt == 1) PreTable();
+        return mp[turnedOn];
+    }
+};
+
+int Solution::cnt = 1;
+unordered_map<int,vector<string>> Solution::mp = {};
+```
+
+* []
+
+```Python
+def getCnt(x):
+    ans, i = 0, x
+    while i > 0:
+        ans += 1
+        i -= lowbit(i)
+    return ans
+    
+def lowbit(x):
+    return x & -x
+
+map = defaultdict(list)
+for h in range(12):
+    for m in range(60):
+        tot = getCnt(h) + getCnt(m)
+        map[tot].append(f"{h}:{m:02d}")
+
+class Solution:
+    def readBinaryWatch(self, turnedOn: int) -> List[str]:
+        return map[turnedOn]
+```
+
+* 时间复杂度：$O(1)$
+* 空间复杂度：$O(n)$
+

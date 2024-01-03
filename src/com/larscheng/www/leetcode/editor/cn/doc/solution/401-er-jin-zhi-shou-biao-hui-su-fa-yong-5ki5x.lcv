@@ -1,0 +1,112 @@
+### 解题思路
+
+执行用时：0 ms, 在所有 C 提交中击败了100.00%的用户
+内存消耗：5.6 MB, 在所有 C 提交中击败了82.61%的用户
+通过测试用例：11 / 11
+
+在readBinaryWatch()函数中，依次遍历小时灯和分钟灯的各个情况；(如总共有2个灯时小时灯与分钟灯的情况共有3种：2,0;1,1;0,2);
+在每种情况下，分别用Path_Hour()与Path_Min()函数通过回溯法得到可能的各种数字；
+然后将每种情况下的小时数字与分钟数字进行组合从而得到每种情况下可以表示的各种时间；
+
+### 代码
+
+* c
+
+```c
+const int hour[4] = { 1, 2, 4, 8 };
+const int min[6] = { 1, 2, 4, 8, 16, 32 };
+
+int hour_list[6];
+int min_list[20];
+char* rcc[190];
+//由于这三个数组在每次使用时都是相互独立的，所以可以设置为全局数量以供重复使用，减小内存消耗；
+
+char* Int_to_Str(int h, int m) {
+	char* rc = (char*)malloc(sizeof(char) * 6);//最大可能的内存占用空间为6个字节(两位小时数字，两位分钟数字，加上冒号与结束符)；
+	if (m < 10) {//由于题目中有分钟数字不能有前导零的要求，因此以分钟数字10为判断条件进行分别赋值；
+		sprintf(rc, "%d:0%d", h, m);
+	}
+	else {
+		sprintf(rc, "%d:%d", h, m);
+	}//sprintf()函数在完成向字符串数组的格式赋值后会自动在末尾添加结束符，因此在申请字符串数组空间时一定要将结束符也考虑在内；
+	return rc;
+}
+
+void Path_Hour(int* hour_list, int* hour_list_ind, int rest_hton, int start_ind, int hour_sum) {
+	if (rest_hton && start_ind > 3) {
+		return;
+	}//剪枝函数：如果可表示的数字位置小于剩余需要点亮灯数，那么该路径不成立，直接返回；
+
+    if (hour_sum > 11) {
+        return;
+    }//剪枝函数：如果该路径之前的数字和已经大于11，则不符合实际情况，直接返回；
+
+	if (!rest_hton) {
+		hour_list[*hour_list_ind] = hour_sum;
+		(*hour_list_ind)++;
+		return;
+	}//达到要求的数字就放在对应的数组中进行保存；
+
+	for (int i = start_ind; i < 4; i++) {
+		Path_Hour(hour_list, hour_list_ind, rest_hton - 1, i + 1, hour_sum + hour[i]);
+	}
+	//每次从上一个数字的后一位进行依次遍历；
+	//每向下递归一层，则剩余点亮灯数少1；
+	//路径和每次向下递归一层均进行更新；
+}
+
+void Path_Min(int* min_list, int* min_list_ind, int rest_mton, int start_ind, int min_sum) {
+	if (rest_mton && start_ind > 5) {
+		return;
+	}
+
+    if (min_sum > 59) {
+        return;
+    }
+
+	if (!rest_mton) {
+		min_list[*min_list_ind] = min_sum;
+		(*min_list_ind)++;
+		return;
+	}
+
+	for (int i = start_ind; i < 6; i++) {
+		Path_Min(min_list, min_list_ind, rest_mton - 1, i + 1, min_sum + min[i]);
+	}
+}//与Path_Hour()同理；
+
+char** readBinaryWatch(int turnedOn, int* returnSize) {
+	if (turnedOn > 8) {
+		*returnSize = 0;
+		return NULL;
+	}//剪枝函数：如果总灯数大于8，那么不存在符合实际的时间，直接返回空即可；
+
+	int rcc_ind = 0;
+
+	for (int hton = 0; hton <= turnedOn; hton++) {
+		if (hton > 3) {
+			break;
+		}//剪枝函数：如果小时灯数大于3，那么就不存在符合实际的小时数字，并且由于从小到大遍历，则之后也肯定不存在，直接跳出循环；
+		int mton = turnedOn - hton;
+		if (mton > 5) {
+			continue;
+		}//剪枝函数：如果分钟灯数大于5，那么同样不存在，但由于mton是从大到小的，后面可能会存在，因此只需跳过本次循环即可；
+
+		int hour_list_ind = 0, min_list_ind = 0;
+
+		Path_Hour(hour_list, &hour_list_ind, hton, 0, 0);
+		Path_Min(min_list, &min_list_ind, mton, 0, 0);
+
+		for (int i = 0; i < hour_list_ind; i++) {
+			for (int j = 0; j < min_list_ind; j++) {
+				rcc[rcc_ind] = Int_to_Str(hour_list[i], min_list[j]);
+				++rcc_ind;
+			}
+		}
+	}
+
+	*returnSize = rcc_ind;
+	return rcc;
+}
+```
+
