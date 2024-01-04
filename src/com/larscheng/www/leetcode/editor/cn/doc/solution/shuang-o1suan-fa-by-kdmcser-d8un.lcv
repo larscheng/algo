@@ -1,0 +1,57 @@
+这种题也配用回溯？我的电费很贵的。
+
+* []
+
+```go
+func totalNQueens(n int) int {
+    result := [9]int{1, 0, 0 ,2, 10, 4, 40, 92, 352}
+    return result[n - 1]
+}
+```
+
+* []
+
+```python
+class Solution(object):
+    def totalNQueens(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        return [1, 0, 0 ,2, 10, 4, 40, 92, 352][n - 1]
+```
+
+* []
+
+```c++
+class Solution {
+public:
+    int totalNQueens(int n) {
+        int result[] = {1, 0, 0 ,2, 10, 4, 40, 92, 352};
+        return result[n - 1];
+    }
+};
+```
+
+* []
+
+```java
+class Solution {
+    public int totalNQueens(int n) {
+        int result[] = {1, 0, 0 ,2, 10, 4, 40, 92, 352};
+        return result[n - 1];
+    }
+}
+```
+
+* []
+
+```c#
+public class Solution {
+    public int TotalNQueens(int n) {
+        int[] result = new int[9] {1, 0, 0 ,2, 10, 4, 40, 92, 352};
+        return result[n - 1];
+    }
+}
+```
+

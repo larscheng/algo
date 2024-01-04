@@ -1,0 +1,120 @@
+#### [52. N皇后 II](https://leetcode-cn.com/problems/n-queens-ii/)(hard）
+
+##### 方法1.位运算
+
+![ds_54](https://pic.leetcode-cn.com/1637716198-NzUgbs-20211118152024.png)
+
+js:
+
+* javascript
+
+```javascript
+var totalNQueens = function (n) {
+    if (n < 1) return
+    let count = 0;
+    dfs(n, 0, 0, 0, 0)
+    return count
+
+  	//n:皇后的数量
+  	//row：当前行
+  	//cols：放置皇后的位置
+  	//diag1：可以攻击的左倾斜对角线
+  	//diag2：可以攻击的右倾斜对角线
+    function dfs(n, row, cols, diag1, diag2) {
+        if (row >= n) {//递归终止 统计解法
+            count += 1;
+            return
+        }
+      	//~(cols | diag1 | diag2)：攻击的位置合起来 取反之后，1的位置就是可以放置皇后的位置
+      	//(1 << n) - 1：从右向左，大于n的位置都变成0
+      	//(~(cols | diag1 | diag2)) & ((1 << n) - 1)：从右向左，可以放置皇后的位置，大于n的位置都变成0
+        let bits = (~(cols | diag1 | diag2)) & ((1 << n) - 1)
+        while (bits) {
+            let p = bits & -bits//取到从右向左第一个1
+            bits = bits & (bits - 1)//去掉从右向左第一个1
+          	//列和两个对角线合上不可以放置的二进制位
+            dfs(n, row + 1, cols | p, (diag1 | p) << 1, (diag2 | p) >>> 1)
+          	
+        }
+    }
+};
+```
+
+Java:
+
+* java
+
+```java
+class Solution {
+    public int totalNQueens(int n) {
+        return dfs(n, 0, 0, 0, 0);
+    }
+
+    public int dfs(int n, int row, int clos, int diag1, int diag2) {
+        if (row == n) {
+            return 1;
+        } else {
+            int count = 0;
+            int bits = ((1 << n) - 1) & (~(clos | diag1 | diag2));
+            while (bits != 0) {
+                int position = bits & (-bits);
+                bits = bits & (bits - 1);
+                count += dfs(n, row + 1, clos | position, (diag1 | position) << 1, (diag2 | position) >> 1);
+            }
+            return count;
+        }
+    }
+}
+```
+
+#### 视频教程（高效学习）:[点击学习](https://xiaochen1024.com/series/6196129fc1553b002e57bef5/6196208ec1553b002e57bef6)
+
+#### 目录：
+
+[1.开篇介绍](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18)
+
+[2.时间空间复杂度](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/619635dcc1553b002e57bf12)
+
+[3.动态规划](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61963bcdc1553b002e57bf13)
+
+[4.贪心](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61963ce5c1553b002e57bf14)
+
+[5.二分查找](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61963e36c1553b002e57bf15)
+
+[6.深度优先&广度优先](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61964050c1553b002e57bf16)
+
+[7.双指针](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/619640cec1553b002e57bf17)
+
+[8.滑动窗口](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61964164c1553b002e57bf18)
+
+[9.位运算](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196420ac1553b002e57bf19)
+
+[10.递归&分治](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61964285c1553b002e57bf1a)
+
+[11剪枝&回溯](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/61964326c1553b002e57bf1b)
+
+[12.堆](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/619643e1c1553b002e57bf1c)
+
+[13.单调栈](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196ce3ac1553b002e57bf1f)
+
+[14.排序算法](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196ced6c1553b002e57bf20)
+
+[15.链表](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196cf7fc1553b002e57bf21)
+
+[16.set&map](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196cfc6c1553b002e57bf22)
+
+[17.栈](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d002c1553b002e57bf23)
+
+[18.队列](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d065c1553b002e57bf24)
+
+[19.数组](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d0f9c1553b002e57bf25)
+
+[20.字符串](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d19cc1553b002e57bf26)
+
+[21.树](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d279c1553b002e57bf27)
+
+[22.字典树](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d2c4c1553b002e57bf28)
+
+[23.并查集](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d34dc1553b002e57bf29)
+
+[24.其他类型题](https://xiaochen1024.com/courseware/60b4f11ab1aa91002eb53b18/6196d3adc1553b002e57bf2a)

@@ -1,0 +1,37 @@
+* 
+
+```
+class Solution {
+public:
+    int dfs(int n, int pos, unordered_set<int>& c, unordered_set<int>& x, unordered_set<int>& y) {
+        if (pos == n) {
+            return 1;
+        }
+
+        int ans = 0;
+        for (int i = 0; i < n; ++i) {
+            if (c.count(i) || x.count(pos + i) || y.count(pos - i)) {
+                continue;
+            }
+
+            c.insert(i);
+            x.insert(pos + i);
+            y.insert(pos - i);
+
+            ans += dfs(n, pos + 1, c, x, y);
+
+            c.erase(i);
+            x.erase(pos + i);
+            y.erase(pos - i);
+        }
+
+        return ans;
+    }
+
+    int totalNQueens(int n) {
+        unordered_set<int> c, x, y;
+        return dfs(n, 0, c, x, y);
+    }
+};
+```
+

@@ -1,0 +1,69 @@
+### 解题思路
+
+回溯法大家肯定都会啦，就不说了，很多人是不是把所有结果回溯完之后，然后返回最终的结果，这当然是可以的。但实际上，我们并不需要回溯全部结果，仅需要计算一半，最终结果就知道了。不信？那我们来看看有什么规律
+
+当n=4的时候，这两个结果如下：
+![屏幕快照 2020-10-05 下午9.22.18.png](https://pic.leetcode-cn.com/1601904159-bshZum-%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-10-05%20%E4%B8%8B%E5%8D%889.22.18.png)
+有没有发现解法一和解法二是对称的，其实这就是规律。如果你仔细想一下N皇后的问题，会发现后面得到解法多是前面解法对称过来的，那也就是回溯只需要回溯一半，知道有多少结果就行了，然后乘2返回最终结果，并不需要把所有结果都回溯一遍。当然，若n是奇数，你得留个心眼。
+
+比如,当n=5时，最终的10个结果
+
+![屏幕快照 2020-10-05 下午9.30.20.png](https://pic.leetcode-cn.com/1601904888-ThCwmR-%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-10-05%20%E4%B8%8B%E5%8D%889.30.20.png)
+
+有没有发现，前四个和后四个是对称的，也就是解法1和解法10是对称的，解法2和解法9是对称的...但是，因为它是奇数，以第一行中间那个位置为起点回溯的结果也不能忽略，就是图中没标序号的那两个解法（5，6）。实现方法就是（在以第一行中间位置为起点开展一段浪漫的爱情之前，记录下当前的已有的结果数量r1，当中间这段爱情结束时，看下结果数量r2，那么 r2-r1 就是你中间这段爱情的结晶，再加上 r1x2 就是最终结果）所以n=5时最终结果因该是 4x2 + （6-4） =10。
+
+因此，干嘛还计算全部？算一半你就可以知道结果了，后面不需要算😄
+
+### 代码
+
+* java
+
+```java
+class Solution {
+
+    int res = 0;
+	
+	public int totalNQueens(int n) {
+		int[] used = new int[n];
+		int[] path = new int[n];
+		Arrays.fill(path, -1);
+		int flag = 0;
+		for(int i=0; i<(n+1)/2; i++) { //仅需遍历一半！！！
+			if(i==(n/2)) flag = res; //n为奇数时，当遍历到中间时，记录一下之前有多少个res;n为偶数走不到这一步。
+			used[i] = 1;
+			path[0] = i;
+			backTrace(used, i, 1, n, path);
+			path[0] = -1;
+			used[i] = 0;
+		}
+		if((n&1)==0) return res*2; //n为偶数时，直接是前一半结果乘2
+		return flag*2+(res-flag);//n为奇数时，我们之前记录的flag乘2,加上以中间值为起点的时候回溯的结果(res-flag)
+
+    }
+	
+	
+	public void backTrace(int[] used, int last, int rowid, int n, int[] path) {
+		if(rowid==n) {
+			res++;
+			return;
+		}
+		for(int i=0; i<n; i++) {
+			if(used[i]==1) continue; //判断该列是否已经有过了
+			if(i==last || (last>0 && i==last-1) || (last<n-1 && i==last+1)) continue; //判断竖向，斜向问题
+			if(rowid>1) { //判断是否有跨行的斜向问题
+				int j = rowid-2;
+				for(; j>=0; j--) {
+					if( i-path[j] == rowid-j || path[j]-i == rowid-j) break;
+				}
+				if(j>=0) continue;
+			}
+			used[i] = 1;
+			path[rowid] = i;
+			backTrace(used, i, rowid+1, n, path);
+			path[rowid] = -1;
+			used[i] = 0;
+		}
+	}
+}
+```
+

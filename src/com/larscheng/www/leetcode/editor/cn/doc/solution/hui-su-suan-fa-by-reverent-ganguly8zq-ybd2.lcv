@@ -1,0 +1,62 @@
+* 
+
+```
+class Solution {
+public:
+    int ans;
+    void f(int n,int a,vector< vector<int> >&v){
+        if(a==n){
+            ans++;
+            return;
+        }
+        bool check;
+        for(int i=0;i<n;i++){
+            check=true;
+            for(int j=0;j<a;j++){
+                for(int k=0;k<n;k++){
+                    if(v[j][k]==0){
+                        continue;
+                    }
+                    if(k==i){
+                        check=false;
+                        break;
+                    }
+                    if(j-a==k-i||j-a==i-k){
+                        check=false;
+                        break;
+                    }
+                }
+                if(check==false){
+                    break;
+                }
+            }
+            if(check==false&&i==n-1){
+                return;
+            }
+            if(check==false){
+                continue;
+            }
+            v[a][i]=1;
+            f(n,a+1,v);
+            v[a][i]=0;
+        }
+        return;
+    }
+    int totalNQueens(int n) {
+        if(n<=3){
+            if(n==1){
+                return 1;
+            }
+            return 0;
+        }
+        vector< vector<int> >v;
+        vector<int>t;
+        t.resize(n,0);
+        v.resize(n,t);
+        ans=0;
+        f(n,0,v);
+        return ans;
+    }
+};
+```
+

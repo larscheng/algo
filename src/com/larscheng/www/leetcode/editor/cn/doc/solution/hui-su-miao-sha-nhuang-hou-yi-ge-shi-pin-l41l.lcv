@@ -1,0 +1,147 @@
+## 视频讲解
+
+请看 [【基础算法精讲 16】](https://www.bilibili.com/video/BV1mY411D7f6/)，制作不易，欢迎点赞~
+
+> APP 用户需要分享到微信打开链接。
+
+* [sol1-Python3]
+
+```py
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        m = n * 2 - 1
+        ans = 0
+        on_path, diag1, diag2 = [False] * n, [False] * m, [False] * m
+        def dfs(r: int) -> None:
+            if r == n:
+                nonlocal ans
+                ans += 1
+                return
+            for c, on in enumerate(on_path):
+                if not on and not diag1[r + c] and not diag2[r - c]:
+                    on_path[c] = diag1[r + c] = diag2[r - c] = True
+                    dfs(r + 1)
+                    on_path[c] = diag1[r + c] = diag2[r - c] = False  # 恢复现场
+        dfs(0)
+        return ans
+```
+
+* [sol1-Java]
+
+```java
+class Solution {
+    private int n, ans;
+    private boolean[] onPath, diag1, diag2;
+
+    public int totalNQueens(int n) {
+        this.n = n;
+        onPath = new boolean[n];
+        diag1 = new boolean[n * 2 - 1];
+        diag2 = new boolean[n * 2 - 1];
+        dfs(0);
+        return ans;
+    }
+
+    private void dfs(int r) {
+        if (r == n) {
+            ans++;
+            return;
+        }
+        for (int c = 0; c < n; ++c) {
+            int rc = r - c + n - 1;
+            if (!onPath[c] && !diag1[r + c] && !diag2[rc]) {
+                onPath[c] = diag1[r + c] = diag2[rc] = true;
+                dfs(r + 1);
+                onPath[c] = diag1[r + c] = diag2[rc] = false; // 恢复现场
+            }
+        }
+    }
+}
+```
+
+* [sol1-C++]
+
+```cpp
+class Solution {
+public:
+    int totalNQueens(int n) {
+        int ans = 0;
+        vector<int> on_path(n), diag1(n * 2 - 1), diag2(n * 2 - 1);
+        function<void(int)> dfs = [&](int r) {
+            if (r == n) {
+                ans++;
+                return;
+            }
+            for (int c = 0; c < n; ++c) {
+                int rc = r - c + n - 1;
+                if (!on_path[c] && !diag1[r + c] && !diag2[rc]) {
+                    on_path[c] = diag1[r + c] = diag2[rc] = true;
+                    dfs(r + 1);
+                    on_path[c] = diag1[r + c] = diag2[rc] = false; // 恢复现场
+                }
+            }
+        };
+        dfs(0);
+        return ans;
+    }
+};
+```
+
+* [sol1-Go]
+
+```go
+func totalNQueens(n int) (ans int) {
+    onPath := make([]bool, n)
+    diag1 := make([]bool, n*2-1)
+    diag2 := make([]bool, n*2-1)
+    var dfs func(int)
+    dfs = func(r int) {
+        if r == n {
+            ans++
+            return
+        }
+        for c, on := range onPath {
+            rc := r - c + n - 1
+            if !on && !diag1[r+c] && !diag2[rc] {
+                onPath[c], diag1[r+c], diag2[rc] = true, true, true
+                dfs(r + 1)
+                onPath[c], diag1[r+c], diag2[rc] = false, false, false // 恢复现场
+            }
+        }
+    }
+    dfs(0)
+    return
+}
+```
+
+* [sol1-JavaScript]
+
+```js
+var totalNQueens = function (n) {
+    let ans = 0;
+    let on_path = Array(n).fill(false);
+    let diag1 = Array(n * 2 - 1).fill(false);
+    let diag2 = Array(n * 2 - 1).fill(false);
+
+    function dfs(r) {
+        if (r === n) {
+            ans++;
+            return;
+        }
+        for (let c = 0; c < n; ++c) {
+            const rc = r - c + n - 1;
+            if (!on_path[c] && !diag1[r + c] && !diag2[rc]) {
+                on_path[c] = diag1[r + c] = diag2[rc] = true;
+                dfs(r + 1);
+                on_path[c] = diag1[r + c] = diag2[rc] = false; // 恢复现场
+            }
+        }
+    }
+    dfs(0);
+    return ans;
+};
+```
+
+- 时间复杂度：$\mathcal{O}(n!)$。对于全排列的枚举，[这期视频](https://www.bilibili.com/video/BV1mY411D7f6/) 精确地算出了全排列搜索树的节点个数为 $\left\lfloor e\cdot n!\right\rfloor$，其中 $e=2.718\cdots$ 为自然常数。所以时间复杂度为 $\mathcal{O}(n!)$
+- 空间复杂度：$\mathcal{O}(n)$。返回值的空间不计入。递归需要消耗 $\mathcal{O}(n)$ 的栈空间。
+
