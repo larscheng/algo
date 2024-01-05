@@ -1,0 +1,163 @@
+这道题是一个典型的在网格结构中进行 BFS（广度优先搜索）的题目。我们来讲讲为什么要使用 BFS 搜索，以及如何在写 BFS 代码。
+
+题解包括 Java 和 Python 语言，均已测试过，欢迎围观~
+
+## 什么情况应当用 BFS 搜索
+
+我们都知道 DFS（深度优先搜索）和 BFS（广度优先搜索）的区别，它们各有不同的适应场景。
+
+BFS 可以看成是**层序遍历**。从某个结点出发，BFS 首先遍历到距离为 1 的结点，然后是距离为 2、3、4…… 的结点。因此，BFS 可以用来求**最短路径问题**。BFS 先搜索到的结点，一定是距离最近的结点。
+
+![BFS 与最短路径](https://pic.leetcode-cn.com/0ef5121d0b1b70d60967e0f8081df945dbbca0a4b8fff26b8ca0e09c649e9210.jpg)
+
+再看看这道题的题目要求：返回该海洋区域到离它最近的陆地区域的距离。题目中所谓的曼哈顿距离，有点故弄玄虚了，其实就是在网格中需要走的步数。那么，这道题实际上就是求**海洋格子到陆地格子的最长路径**。BFS 能求最短路径，自然也能求最长路径。那么这道题使用 BFS，应该是毫无疑问的了。
+
+## 如何写层序遍历的 BFS 代码
+
+我们都知道 BFS 需要使用队列，代码框架是这样子的（伪代码）：
+
+* []
+
+```[]
+while queue 非空:
+	node = queue.pop()
+    for node 的所有相邻结点 m:
+        if m 未访问过:
+            queue.push(m)
+```
+
+但是用 BFS 来求最短路径的话，以上这个框架还需要稍微修改一下。
+
+如果用上面这种写法来遍历的话，我们是无法区分 BFS 遍历中的每一“层”的。这是因为，遍历的时候，第 1 层的结点还没出完队列，第 2 层的结点就进来了。这个队列中第 1 层和第 2 层的结点会紧挨在一起，无法区分，也就无法知道每个结点的距离 depth 了。
+
+因此，我们需要稍微修改一下代码，**在每一层遍历开始前，记录队列中的结点数量 $n$ ，然后一口气处理完这一层的 $n$ 个结点** 。这样，我们就知道这 $n$ 个结点位于同一层了。然后遍历下一层的时候，把变量 depth 加一。代码框架是这样的：
+
+* []
+
+```[]
+depth = 0 # 记录遍历到第几层
+while queue 非空:
+    depth++
+    n = queue 中的元素个数
+    循环 n 次:
+        node = queue.pop()
+        for node 的所有相邻结点 m:
+            if m 未访问过:
+                queue.push(m)
+```
+
+## 本题题解
+
+有了计算最短路径的层序 BFS 代码框架，写这道题就很简单了。这道题的主要思路是：
+
++ 一开始，我们找出所有陆地格子，将它们放入队列，作为第 0 层的结点。
++ 然后进行 BFS 遍历，每个结点的相邻结点可能是上、下、左、右四个方向的结点，注意判断结点位于网格边界的特殊情况。
++ 当遍历结束时，当前的遍历层数就是海洋格子到陆地格子的最远距离。
+
+注意：为了在遍历中不重复访问海洋格子，我们将已经遍历过的海洋格子的值改为 2，和原来海洋格子里的 0 区别开来。
+
+以下是题解代码：
+
+* []
+
+```Java
+public int maxDistance(int[][] grid) {
+    int N = grid.length;
+    
+    Queue<int[]> queue = new ArrayDeque<>();
+    // 将所有的陆地格子加入队列
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (grid[i][j] == 1) {
+                queue.add(new int[]{i, j});
+            }
+        }
+    }
+    // 如果我们的地图上只有陆地或者海洋，请返回 -1。
+    if (queue.isEmpty() || queue.size() == N * N) {
+        return -1;
+    }
+    
+    int distance = -1;
+    while (!queue.isEmpty()) {
+        distance++;
+        int n = queue.size();
+        // 这里一口气取出 n 个结点，以实现层序遍历
+        for (int i = 0; i < n; i++) {
+            int[] cell = queue.poll();
+            int r = cell[0];
+            int c = cell[1];
+            // 遍历上方单元格
+            if (r-1 >= 0 && grid[r-1][c] == 0) {
+                grid[r-1][c] = 2;
+                queue.add(new int[]{r-1, c});
+            }
+            // 遍历下方单元格
+            if (r+1 < N && grid[r+1][c] == 0) {
+                grid[r+1][c] = 2;
+                queue.add(new int[]{r+1, c});
+            }
+            // 遍历左边单元格
+            if (c-1 >= 0 && grid[r][c-1] == 0) {
+                grid[r][c-1] = 2;
+                queue.add(new int[]{r, c-1});
+            }
+            // 遍历右边单元格
+            if (c+1 < N && grid[r][c+1] == 0) {
+                grid[r][c+1] = 2;
+                queue.add(new int[]{r, c+1});
+            }
+        }
+    }
+    
+    return distance;
+}
+```
+
+* []
+
+```Python
+def maxDistance(self, grid: List[List[int]]) -> int:
+    N = len(grid)
+
+    queue = []
+    # 将所有的陆地格子加入队列
+    for i in range(N):
+        for j in range(N):
+            if grid[i][j] == 1:
+                queue.append((i, j))
+	# 如果我们的地图上只有陆地或者海洋，请返回 -1。
+    if len(queue) == 0 or len(queue) == N * N:
+        return -1
+
+    distance = -1
+    while len(queue) > 0:
+        distance += 1
+        # 这里一口气取出 n 个结点，以实现层序遍历
+        n = len(queue)
+        for i in range(n):
+            r, c = queue.pop(0)
+            # 遍历上边单元格
+            if r-1 >= 0 and grid[r-1][c] == 0:
+                grid[r-1][c] = 2
+                queue.append((r-1, c))
+            # 遍历下边单元格
+            if r+1 < N and grid[r+1][c] == 0:
+                grid[r+1][c] = 2
+                queue.append((r+1, c))
+            # 遍历左边单元格
+            if c-1 >= 0 and grid[r][c-1] == 0:
+                grid[r][c-1] = 2
+                queue.append((r, c-1))
+            # 遍历右边单元格
+            if c+1 < N and grid[r][c+1] == 0:
+                grid[r][c+1] = 2
+                queue.append((r, c+1))
+
+    return distance
+```
+
+如果你觉得本文对你有帮助，欢迎关注我的公众号《面向大象编程》，其中的《LeetCode 例题精讲》系列文章正在写作，不仅有题解，更能让你学会解题的通用思路，举一反三！
+
+![wechat](https://pic.leetcode-cn.com/31a76b008a4cce8a3995a26c813cfd54e73ed74f48fe1c4947ecf28e9562a375.jpg)
+

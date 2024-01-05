@@ -1,0 +1,194 @@
+## 单源 BFS
+
+通常我们使用 BFS 求最短路，都是针对如下场景：从特定的起点出发，求解到达特定终点的最短距离。
+
+**这是一类特殊的「单源最短路」问题：本质是在一个边权为 $1$ 的图上，求从特定「源点」出发到达特定「汇点」的最短路径。**
+
+对于本题，如果套用「单源最短路」做法，我们需要对每个「海洋」位置做一次 BFS：求得每个「海洋」的最近陆地距离，然后在所有的距离中取 $max$ 作为答案。
+
+单次 BFS 的最坏情况需要扫描完整个矩阵，复杂度为 $O(n^2)$。
+
+同时，最多有 $n^2$ 个海洋区域需要做 BFS，因此这样的做法复杂度为 $O(n^4)$，并且 $O(n^4)$ 可直接取满。
+
+PS. 数据范围为 $10^2$，理论上是一定会超时，但本题数据较弱，Java 2021/06/28 可过。
+
+一些细节：为了方便，我们在使用哈希表记录距离时，将二维坐标 $(x, y)$ 转化为对应的一维下标 $idx = x * n + y$ 作为 key 进行存储。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    int n;
+    int[][] grid;
+    public int maxDistance(int[][] _grid) {
+        grid = _grid;
+        n = grid.length;
+        int ans = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 0) {
+                    ans = Math.max(ans, bfs(i, j));
+                }
+            }
+        }
+        return ans;
+    }
+    // 单次 BFS：求解海洋位置 (x,y) 最近的陆地距离
+    int bfs(int x, int y) {
+        int[][] dirs = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};
+        Deque<int[]> d = new ArrayDeque<>();
+        Map<Integer, Integer> map = new HashMap<>();
+        d.addLast(new int[]{x, y});
+        map.put(x * n + y, 0);
+        while (!d.isEmpty()) {
+            int[] poll = d.pollFirst();
+            int dx = poll[0], dy = poll[1];
+            int step = map.get(dx * n + dy);
+            if (grid[dx][dy] == 1) return step;
+            for (int[] di : dirs) {
+                int nx = dx + di[0], ny = dy + di[1];
+                if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
+                int key = nx * n + ny;
+                if (map.containsKey(key)) continue;
+                d.addLast(new int[]{nx, ny});
+                map.put(key, step + 1);
+            }
+        }
+        return -1;
+    } 
+}
+```
+
+* 时间复杂度：$O(n^4)$
+* 空间复杂度：$O(n^2)$
+
+---
+
+## 多源 BFS
+
+这其实还是道「多源 BFS」入门题。
+
+**与「单源最短路」不同，「多源最短路」问题是求从「多个源点」到达「一个/多个汇点」的最短路径。**
+
+在实现上，最核心的搜索部分，「多源 BFS」与「单源 BFS」并无区别。
+
+**并且通过建立虚拟「超级源点」的方式，我们可以「多源 BFS」转换回「单源 BFS」问题。**
+
+什么意思？
+
+以本题为例，题面要我们求每个「海洋」区域到最近的「陆地」区域的最大值。
+
+我们可以将「源点/起点」和「汇点/终点」进行反转：*从每个「陆地」区域出发，多个「陆地」区域每次同时向往扩散一圈，每个「海洋」区域被首次覆盖时所对应的圈数，就是「海洋」区域距离最近的「陆地」区域的距离。*
+
+![image.png](https://pic.leetcode-cn.com/1624883230-EURgFl-image.png)
+
+不过，这是如何与「单源 BFS」联系起来的呢？
+
+我们可以想象存在一个「虚拟源点」，其与所有「真实源点」（陆地）存在等权的边，那么任意「海洋」区域与「最近的陆地」区域的最短路等价于与「虚拟源点」的最短路：
+
+![image.png](https://pic.leetcode-cn.com/1624883248-rDOmaM-image.png)
+
+**实现上，我们并不需要真的将这个虚拟源点建立出来，只需要将所有的「真实源点」进行入队即可。**
+
+这个过程相当于从队列中弹出「虚拟源点」，并把它所能到点（真实源点）进行入队，然后再进行常规的 BFS 即可。
+
+一些细节：实现上为了方便，在进行常规 BFS 时，如果一个「海洋」区域被访问到，说明其被离它「最近的陆地」覆盖到了，修改值为最小距离。这样我们只需要考虑那些值仍然为 $0$ 的「海洋」区域即可（代表尚未被更新）。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    public int maxDistance(int[][] grid) {
+        int n = grid.length;
+        Deque<int[]> d = new ArrayDeque<>();
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1) {
+                    d.add(new int[]{i, j});
+                    map.put(i * n + j, 0);
+                }
+            }
+        }
+        int ans = -1;
+        int[][] dirs = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};
+        while (!d.isEmpty()) {
+            int[] poll = d.poll();
+            int dx = poll[0], dy = poll[1];
+            int step = map.get(dx * n + dy);
+            for (int[] di : dirs) {
+                int nx = dx + di[0], ny = dy + di[1];
+                if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
+                if (grid[nx][ny] != 0) continue;
+                grid[nx][ny] = step + 1;
+                d.add(new int[]{nx, ny});
+                map.put(nx * n + ny, step + 1);
+                ans = Math.max(ans, step + 1);
+            }
+        }
+        return ans;
+    }
+}
+```
+
+* []
+
+```Java
+class Solution {
+    public int maxDistance(int[][] grid) {
+        int n = grid.length;
+        Deque<int[]> d = new ArrayDeque<>();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1) {
+                    d.addLast(new int[]{i, j});
+                    grid[i][j] = -1;
+                }
+            }
+        } 
+        int ans = -1;
+        int[][] dirs = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};
+        while (!d.isEmpty()) {
+            int[] poll = d.pollFirst();
+            int dx = poll[0], dy = poll[1];
+            int step = Math.max(grid[dx][dy], 0);
+            for (int[] di : dirs) {
+                int nx = dx + di[0], ny = dy + di[1];
+                if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
+                if (grid[nx][ny] != 0) continue;
+                d.addLast(new int[]{nx, ny});
+                grid[nx][ny] = step + 1;
+                ans = Math.max(ans, step + 1);
+            }
+        }
+        return ans;
+    }
+}
+```
+
+* 时间复杂度：$O(n^2)$
+* 空间复杂度：$O(n^2)$
+
+---
+
+## 总结
+
+今天我们介绍了「多源 BFS」，通过建立「虚拟源点」，我们可以将其转化回「单源 BFS」问题。
+
+实现上我们只需要将所有的「真实源点」进行入队，然后再进行 BFS 即可。
+
+看起来两者区别不大，但其本质是通过源点/汇点转换，应用常规的 Flood Fill 将多次朴素 BFS 转化为一次 BFS，可以有效降低我们算法的时间复杂度。
+
+---
+
+## 最后
+
+**如果有帮助到你，请给题解点个赞和收藏，让更多的人看到 ~ ("▔□▔)/**
+
+也欢迎你 [关注我](https://oscimg.oschina.net/oscnet/up-19688dc1af05cf8bdea43b2a863038ab9e5.png) 和 加入我们的[「组队打卡」](https://leetcode-cn.com/u/ac_oier/)小群 ，提供写「证明」&「思路」的高质量题解。
+
+所有题解已经加入 [刷题指南](https://github.com/SharingSource/LogicStack-LeetCode/wiki)，欢迎 star 哦 ~
