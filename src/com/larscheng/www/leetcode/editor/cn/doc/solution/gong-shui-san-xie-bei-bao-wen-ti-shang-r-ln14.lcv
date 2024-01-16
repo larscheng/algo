@@ -1,0 +1,290 @@
+## 前言
+
+今天是我们讲解**动态规划专题**中的「背包问题」的第二天。
+
+在众多背包问题中「01 背包问题」是最为核心的，因此我建议你先精读过 [背包问题 第一讲](https://mp.weixin.qq.com/s/xmgK7SrTnFIM3Owpk-emmg) 之后再阅读本文。
+
+另外，我在文章结尾处列举了我所整理的关于背包问题的相关题目。
+
+---
+
+## 基本分析
+
+**通常「背包问题」相关的题，都是在考察我们的「建模」能力，也就是将问题转换为「背包问题」的能力。**
+
+由于本题是问我们能否将一个数组分成两个「等和」子集。
+
+问题等效于**能否从数组中挑选若干个元素，使得元素总和等于所有元素总和的一半**。
+
+这道题如果抽象成「背包问题」的话，应该是：
+
+**我们背包容量为 $target=sum/2$，每个数组元素的「价值」与「成本」都是其数值大小，求我们能否装满背包。**
+
+---
+
+## 转换为 01 背包
+
+由于每个数字（数组元素）只能被选一次，而且每个数字选择与否对应了「价值」和「成本」，求解的问题也与「最大价值」相关。
+
+可以使用「01 背包」的模型来做。
+
+当我们确定一个问题可以转化为「01 背包」之后，就可以直接套用「01 背包」的状态定义进行求解了。
+
+**注意，我们积累 DP 模型的意义，就是在于我们可以快速得到可靠的「状态定义」。**
+
+**在 [路径问题](https://mp.weixin.qq.com/s/flnaRo6VnvkeUQoRDkin9w) 中我教过你通用的 DP 技巧解法，但那是基于我们完全没见过那样的题型才去用的，而对于一些我们见过题型的 DP 题目，我们应该直接套用（或微调）该模型「状态定义」来做。**
+
+我们直接套用「01 背包」的状态定义：
+
+$f[i][j]$ 代表考虑前 $i$ 个数值，其选择数字总和不超过 $j$ 的最大价值。
+
+当有了「状态定义」之后，结合我们的「最后一步分析法」，每个数字都有「选」和「不选」两种选择。
+
+因此不难得出状态转移方程：
+
+![image.png](https://pic.leetcode-cn.com/1617263021-mRtbUr-image.png)
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    public boolean canPartition(int[] nums) {
+        int n = nums.length;
+
+        //「等和子集」的和必然是总和的一半
+        int sum = 0;
+        for (int i : nums) sum += i;
+        int target = sum / 2;
+        
+        // 对应了总和为奇数的情况，注定不能被分为两个「等和子集」
+        if (target * 2 != sum) return false;
+
+        int[][] f = new int[n][target + 1];
+        // 先处理考虑第 1 件物品的情况
+        for (int j = 0; j <= target; j++) {
+            f[0][j] = j >= nums[0] ? nums[0] : 0;
+        }
+
+        // 再处理考虑其余物品的情况
+        for (int i = 1; i < n; i++) {
+            int t = nums[i];
+            for (int j = 0; j <= target; j++) {
+                // 不选第 i 件物品
+                int no = f[i-1][j];
+                // 选第 i 件物品
+                int yes = j >= t ? f[i-1][j-t] + t : 0;
+                f[i][j] = Math.max(no, yes);
+            }
+        }
+        // 如果最大价值等于 target，说明可以拆分成两个「等和子集」
+        return f[n-1][target] == target;
+    }
+}
+```
+
+* 时间复杂度：$target$ 为数组总和的一半，$n$ 数组元素个数。为共有 $n * target$ 个状态需要被转移，复杂度为 $O(n * target)$
+* 空间复杂度：$O(n * target)$
+
+---
+
+## 滚动数组
+
+在上一讲我们讲到过「01 背包」具有两种空间优化方式。
+
+其中一种优化方式的编码实现十分固定，只需要固定的修改「物品维度」即可。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    public boolean canPartition(int[] nums) {
+        int n = nums.length;
+
+        //「等和子集」的和必然是总和的一半
+        int sum = 0;
+        for (int i : nums) sum += i;
+        int target = sum / 2;
+        if (target * 2 != sum) return false;
+
+        // 将「物品维度」修改为 2
+        int[][] f = new int[2][target + 1];
+        // 先处理考虑第 1 件物品的情况
+        for (int j = 0; j <= target; j++) {
+            f[0][j] = j >= nums[0] ? nums[0] : 0;
+        }
+
+        // 再处理考虑其余物品的情况
+        for (int i = 1; i < n; i++) {
+            int t = nums[i];
+            for (int j = 0; j <= target; j++) {
+                // 不选第 i 件物品，将物品维度的使用加上「&1」
+                int no = f[(i-1)&1][j];
+                // 选第 i 件物品，将物品维度的使用加上「&1」
+                int yes = j >= t ? f[(i-1)&1][j-t] + t : 0;
+                f[i&1][j] = Math.max(no, yes);
+            }
+        }
+        // 如果最大价值等于 target，说明可以拆分成两个「等和子集」
+        // 将物品维度的使用加上「&1」
+        return f[(n-1)&1][target] == target;
+    }
+}
+```
+
+* 时间复杂度：$target$ 为数组总和的一半，$n$ 数组元素个数。为共有 $n * target$ 个状态需要被转移，复杂度为 $O(n * target)$
+* 空间复杂度：$O(target)$
+
+---
+
+## 一维空间优化
+
+事实上，我们还能继续进行空间优化：只保留代表「剩余容量」的维度，同时将容量遍历方向修改为「从大到小」。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    public boolean canPartition(int[] nums) {
+        int n = nums.length;
+
+        //「等和子集」的和必然是总和的一半
+        int sum = 0;
+        for (int i : nums) sum += i;
+        int target = sum / 2;
+
+        // 对应了总和为奇数的情况，注定不能被分为两个「等和子集」
+        if (target * 2 != sum) return false;
+
+        // 将「物品维度」取消
+        int[] f = new int[target + 1];
+        for (int i = 0; i < n; i++) {
+            int t = nums[i];
+            // 将「容量维度」改成从大到小遍历
+            for (int j = target; j >= 0; j--) {
+                // 不选第 i 件物品
+                int no = f[j];
+                // 选第 i 件物品
+                int yes = j >= t ? f[j-t] + t : 0;
+                f[j] = Math.max(no, yes);
+            }
+        }
+        // 如果最大价值等于 target，说明可以拆分成两个「等和子集」
+        return f[target] == target;
+    }
+}
+```
+
+* 时间复杂度：$target$ 为数组总和的一半，$n$ 数组元素个数。为共有 $n * target$ 个状态需要被转移，复杂度为 $O(n * target)$
+* 空间复杂度：$O(target)$
+
+---
+
+## 总结
+
+今天我们对昨天学的「01 背包」进行了应用。
+
+可以发现，本题的难点在于**对问题的抽象**，主要考察的是如何将原问题转换为一个「01 背包」问题。
+
+事实上，无论是 DP 还是图论，对于特定问题，大多都有相应的模型或算法。
+
+难是难在如何将问题转化为我们的模型。
+
+至于如何培养自己的「问题抽象能力」？
+
+首先通常需要我们积累一定的刷题量，并对「转换问题的关键点」做总结。
+
+例如本题，一个转换「01 背包问题」的关键点是我们需要将「划分等和子集」的问题等效于「在某个数组中选若干个数，使得其总和为某个特定值」的问题。
+
+---
+
+## 拓展
+
+但这道题到这里还有一个”小问题“。
+
+就是我们最后是通过「判断」来取得答案的。
+
+通过判断取得的最大价值是否等于 $target$ 来决定是否能划分出「等和子集」。
+
+虽然说逻辑上完全成立，但总给我们一种「间接求解」的感觉。
+
+造成这种「间接求解」的感觉，主要是因为我们没有对「01 背包」的「状态定义」和「初始化」做任何改动。
+
+但事实上，我们是可以利用「01 背包」的思想进行「直接求解」的。
+
+因此在下一讲，我们还会再做一遍这道题。
+
+不过却是以「另外一个角度」的「01 背包」思维来解决。
+
+敬请期待 ~
+
+---
+
+## 其他「背包」问题
+
+看不懂「背包」解决方案？
+
+以下是公主号讲过的「背包专题」系列目录，欢迎 [关注](https://oscimg.oschina.net/oscnet/up-19688dc1af05cf8bdea43b2a863038ab9e5.png) 🍭🍭🍭 ：
+
+1. 01背包 : [背包问题 第一讲](https%3A//mp.weixin.qq.com/s/xmgK7SrTnFIM3Owpk-emmg)
+
+   1. 【练习】01背包 : [背包问题 第二讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247485658%26idx%3D1%26sn%3Df298abe76d9cc058805b6a18d2523db6)
+
+   2. 【学习&练习】01背包 : [背包问题 第三讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247485727%26idx%3D1%26sn%3D2cfb1a43bdb4f47cf4457c58f809deb8)
+
+   3. 【加餐/补充】01 背包：[背包问题 第二十一讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488868%26idx%3D1%26sn%3D5e54a1d091a8249d3033a28fc299076d)
+2. 完全背包 : [背包问题 第四讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247486107%26idx%3D1%26sn%3De5fa523008fc5588737b7ed801caf4c3)
+
+   1. 【练习】完全背包 : [背包问题 第五讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247486225%26idx%3D1%26sn%3Df63388476ccf29e465536a065cffe8d8)
+
+   2. 【练习】完全背包 : [背包问题 第六讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247486435%26idx%3D1%26sn%3D2464b01e9c0fb8d81fcea6dd4ed0ec92)
+
+   3. 【练习】完全背包 : [背包问题 第七讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247486586%26idx%3D1%26sn%3Dda57c4d7d39bcbd2e16c2cc4e21b2361)
+3. 多重背包 : [背包问题 第八讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247486649%26idx%3D1%26sn%3Dba09ee2d78377c2ddbb9e43622880133)
+
+4. 多重背包（优化篇）
+
+   1. 【上】多重背包（优化篇）: [背包问题 第九讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247486796%26idx%3D1%26sn%3Da382b38f8aed295410550bb1767437bd)
+
+   2. 【下】多重背包（优化篇）: [背包问题 第十讲](https://mp.weixin.qq.com/s?__biz=MzU4NDE3MTEyMA==&mid=2247486963&idx=1&sn=51d34f0f841122ed9be2335a402041e8&chksm=fd9ca6eccaeb2ffa1abe413177be376799b427b092bfb73c13e7b77e171b460f4c24b3b7d3bc&token=1872331648&lang=zh_CN#rd)
+5. 混合背包 : [背包问题 第十一讲](https://mp.weixin.qq.com/s?__biz=MzU4NDE3MTEyMA==&mid=2247487034&idx=1&sn=eaa05b76387d34aa77f7f14f35fa78a4&chksm=fd9ca525caeb2c33095d285222dcee0dd072465bf7288bda0aab39e90a04bb7b1af018b89fd4&token=1872331648&lang=zh_CN#rd)
+
+6. 分组背包 : [背包问题 第十二讲](https://mp.weixin.qq.com/s?__biz=MzU4NDE3MTEyMA==&mid=2247487504&idx=1&sn=9ac523ec0ac14c8634a229f8c3f919d7&chksm=fd9cbb0fcaeb32196b80a40e4408f6a7e2651167e0b9e31aa6d7c6109fbc2117340a59db12a1&token=1936267333&lang=zh_CN#rd)
+
+   1. 【练习】分组背包 : [背包问题 第十三讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247487587%26idx%3D1%26sn%3Dcc18c2e8c3374612113df7ab7fdc8d46)
+7. 多维背包
+
+   1. 【练习】多维背包 : [背包问题 第十四讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247487782%26idx%3D1%26sn%3Df6852cea7a28eb2c522dc424270617b5)
+
+   2. 【练习】多维背包 : [背包问题 第十五讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488103%26idx%3D1%26sn%3D5767d5691b6c87f15ca3182c3742fc79)
+8. 树形背包 : [背包问题 第十六讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488290%26idx%3D1%26sn%3Da9c525e36211710e0ff480e3300e346b)
+
+   1. 【练习篇】树形背包 : [背包问题 第十七讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488337%26idx%3D1%26sn%3D016e65bdff75841c9041a14adeb24f64)
+
+   2. 【练习篇】树形背包 : [背包问题 第十八讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488400%26idx%3D1%26sn%3D7ec15fd8dbb8d85fb9a895a7073157ce)
+9. 背包求方案数
+
+   1. 【练习】背包求方案数 : [背包问题 第十九讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488724%26idx%3D1%26sn%3D68b106ec37730b9ce3988195ae45ac7b)
+
+   2. 【练习】背包求方案数 : [背包问题 第十五讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488103%26idx%3D1%26sn%3D5767d5691b6c87f15ca3182c3742fc79)
+
+   [注：因为之前实在找不到题，这道「求方案数」题作为“特殊”的「多维费用背包问题求方案数」讲过]
+
+10. 背包求具体方案
+
+    1. 【练习】背包求具体方案 : [背包问题 第二十讲](https%3A//mp.weixin.qq.com/s?__biz%3DMzU4NDE3MTEyMA%3D%3D%26mid%3D2247488752%26idx%3D1%26sn%3De7af274d7293558718748d54f7ddade1)
+11. 泛化背包
+    1. 【练习】泛化背包
+
+---
+
+## 最后
+
+**如果有帮助到你，请给题解点个赞和收藏，让更多的人看到 ~ ("▔□▔)/**
+
+所有题解已经加入 [刷题指南](https://github.com/SharingSource/LogicStack-LeetCode/wiki)，欢迎 star 哦 ~

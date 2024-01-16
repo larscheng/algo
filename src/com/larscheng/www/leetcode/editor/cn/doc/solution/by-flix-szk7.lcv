@@ -1,0 +1,345 @@
+### 前言
+
+背包问题 (Knapsack problem) 是一种组合优化的 NP (NP-Complete) 完全问题。问题可以描述为：给定一组物品，每种物品都有自己的重量和价格，在限定的总重量内，我们如何选择，才能使得物品的总价格最高。问题的名称来源于如何选择最合适的物品放置于给定背包中。[@百度百科](https://baike.baidu.com/item/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98)
+
+<br> </br>
+
+**一般问题：**   我们有 $n$ 件物品和一个容量 $(capacity)$ 为 $C$ 的背包，记第 $i$ 件物品的重量 $(weight)$ 为 $w_i$，价值 $(value)$ 为 $v_i$，求将哪些物品装入背包可使价值总和最大。
+
+> **0-1背包：** 如果限定每件物品最多只能选取 $1$ 次（即 $0\ 或\ 1$ 次），则问题称为 `0-1背包问题`。
+
+> **完全背包：** 如果每件物品最多可以选取无限次，则问题称为 `完全背包问题`。
+
+假设放入背包中的物品 $i$ 的数目为 $k_{i}$，则上述背包问题在数学上可表达为：
+
+$\max \  \sum_{i=0}^{n-1}\ k_{i} \cdot v_{i} \ ,$
+受限于 $s.t.$
+
+$$
+\sum_{i=0}^{n-1} k_{i} \cdot w_{i} \leqslant C, \quad
+
+\left\{\begin{array}{lll}
+k_{i} \in\{0,1\} & \textcolor{red}{\longleftarrow} & \text { 「0-1背包问题」 } \\
+
+k_{i} \in\{0,1,2, \ldots,+\infty\} & \textcolor{red}{\longleftarrow} & \text { 「完全背包问题」 }
+\end{array}\right.
+$$
+
+<br> </br>
+
+**0-1背包** 和 **完全背包** 是两种最为常见的背包问题，其他类型的背包问题，如多重背包、分组背包等可参考网上的一些资料， 如：《背包问题九讲》[（网页版）](http://cuitianyi.com/Pack/) [（PDF版）](https://comzyh.com/upload/PDF/Pack-PDF-Comzyh.pdf)
+
+---
+
+### 解题思路
+
+本题本质上是一道「0−1 背包问题」：给定一个只包含正整数的非空数组 $nums$，判断是否可以从数组中选出一些数字，使得选出的这些数字的和刚好等于整个数组的元素和的一半。
+
+> 程序执行前可先判断 $nums$ 是否可以等分，若不能则可直接返回 False。
+
+下面介绍两种通用的解决此类问题的方法：
+* 方法一：记忆化搜索（在本题目中会超时）
+* 方法二：动态规划
+
+---
+
+**拓展：**
+* 掌握模板，可解决一众「0-1 背包问题」：
+
+  | 题号 |  题解 | 难度 |
+  | :-----| :---- | :----: |
+  | （本题）[416. 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/) |  [记忆化搜索、动态规划 + 空间优化](https://leetcode-cn.com/problems/partition-equal-subset-sum/solution/by-flix-szk7/) | 中等 |
+  | [474. 一和零](https://leetcode-cn.com/problems/ones-and-zeroes/) |   [记忆化搜索、动态规划 + 空间优化](https://leetcode-cn.com/problems/ones-and-zeroes/solution/by-flix-a384/) | 中等 |
+  | [494. 目标和](https://leetcode-cn.com/problems/target-sum/) |  [记忆化搜索、动态规划 + 空间优化](https://leetcode-cn.com/problems/target-sum/solution/by-flix-rkb5/) | 中等 |
+  | [1049. 最后一块石头的重量 II](https://leetcode-cn.com/problems/last-stone-weight-ii/) |  [记忆化搜索、动态规划 + 空间优化](https://leetcode-cn.com/problems/last-stone-weight-ii/solution/by-flix-m5mx/) | 中等 |
+  | （雷同题目）[剑指 Offer II 101. 分割等和子集](https://leetcode.cn/problems/NUPfPr/) |  [记忆化搜索、动态规划 + 空间优化](https://leetcode.cn/problems/NUPfPr/solution/by-flix-c3fv/) | 简单（中等） |
+
+&nbsp;
+
+* 对「0-1 背包」模板稍加拓展，可用于解决一众「完全背包问题」：
+
+  | 题号 |  题解 | 难度 |
+  | :-----| :---- | :----: |
+  | [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/) |  [从0-1背包到完全背包，逐层深入+推导](https://leetcode-cn.com/problems/coin-change/solution/by-flix-su7s/) | 中等 |
+  | [518. 零钱兑换 II](https://leetcode-cn.com/problems/coin-change-2/) |  [从0-1背包到完全背包，逐层深入+数学推导](https://leetcode-cn.com/problems/coin-change-2/solution/by-flix-e1vv/) | 中等 |
+  | [279. 完全平方数](https://leetcode-cn.com/problems/perfect-squares/) |  [详解完全背包（含数学推导）](https://leetcode-cn.com/problems/perfect-squares/solution/by-flix-sve5/) | 中等 |
+
+---
+
+**方法一：记忆化搜索**
+
+**递归搜索：** 常规的递归搜索 $dfs(i,\ *args)$ 在到达一个位置 $i$ 时无非有两种情况（选或不选）：
+* 跳过 $i$ 位置：直接考虑下一步；
+* 选择 $i$ 位置：根据实际情况判断该选择是否可行，以及选择 $i$ 之后的下一步操作如何进行。
+
+本题为「0−1 背包问题」，恰好对应于选或不选第 $i$ 件物品。只不过目标为从 $nums$ 中选出若干个数字使其和恰好等于数组总和的一半，记为 $target = \frac{sum(nums)} {2}$。
+
+在搜索中加入记忆化后，对应的代码如下：
+
+#### 代码
+
+* []
+
+```Python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        
+        @functools.cache            # Python里的记忆化单元【可自写】
+        def dfs(i, cusum):          # cusum记录已选择的数字之和
+            if cusum == target:     # 找到了分配方案
+                return True
+            if i == len(nums):      # nums遍历完了依然没找到分配方案
+                return False
+            
+            # 不选nums[i]，并考虑下一个数字nums[i+1]
+            ans1 = dfs(i+1, cusum)
+
+            # 选择s[i]，并考虑下一个数字nums[i+1]
+            ans2 = dfs(i+1, cusum + nums[i])
+            
+            return ans1 or ans2
+        
+
+        '''主程序'''
+        total = sum(nums)
+        if total % 2 == 1:      # 总和无法等分
+            return False
+        
+        target = total // 2
+        if max(nums) > target:  # 最大值大于总和的一半，无法分割
+            return False
+
+        return dfs(0, 0)        # 初始从nums[0]开始搜索
+```
+
+&nbsp;
+上述算法的时间复杂度接近 $O(2^n),\ n=len(nums)$，因此不适合 $nums$ 中元素较多的情况。
+
+很多**自上而下**的递归搜索过程都可以修改为复杂度更低的**自下而上的**动态规划过程，下面介绍一下动态规划的实现方法。
+
+---
+
+**方法二：动态规划**
+<br>
+
+**「0-1 背包问题」一般形式：**
+动态规划是解决「0−1 背包问题」的标准做法。一般地，我们定义：$dp[i][j]$ 表示前 $i$ 件物品放入一个容量为 $j$ 的背包可以获得的最大价值，则状态转移过程可表示为：
+
+* **不选择**第 $i$ 件物品：问题转化为了前 $i-1$ 件物品放入容量为 $j$ 的背包中所获得的价值：$dp[i][j] =dp[i-1][j]$ ；
+* **选择**第 $i$ 件物品：第 $i$ 件物品占据容量 $w_i$，前 $i-1$ 件物品放入剩下的容量为 $j-w_i$ 的背包中，问题也就转化为了前 $i-1$ 件物品放入容量为 $j-w_i$ 的背包中所获得的价值 $dp[i-1][j-w_i]$ 加上要放入的第 $i$ 件物品的价值 $v_i$：$dp[i][j] =dp[i-1][j-w_i] + v_i$ 。注意，能放入第 $i$ 件物品的前提为：$w_i \leq j$。
+
+两种情况取较大者：
+
+$dp[i][j] = \max\left\{ \ dp[i-1][j],\quad dp[i-1][j-w_i] + v_i \  \right\}\ .\quad \quad \quad （1）$
+
+> ⚠️ 求最优解的背包问题中，有的题目要求`恰好装满背包`时的最优解，有的题目则要求`不超过背包容量`时的最优解。一种区别这两种问法的实现方法是在状态初始化的时候有所不同。[摘自@《背包问题九讲》[（网页版）](http://cuitianyi.com/Pack/) [（PDF版）](https://comzyh.com/upload/PDF/Pack-PDF-Comzyh.pdf)]
+> 初始化的 $dp$ 数组事实上就是在背包中没有放入任何物品时的合法状态：
+> 1. 如果要求`恰好装满背包`，那么在初始化时 $dp[i][0]=0$，其它 $dp[i][1,2,...,*]$ 均设为 $-∞$。这是因为此时只有容量为 $0$ 的背包可能被价值为 $0$ 的 nothing “恰好装满”，而其它容量的背包均没有合法的解，属于未定义的状态。
+> 2. 如果只是要求`不超过背包容量`而使得背包中的物品价值尽量大，初始化时应将  $dp[*][*]$ 全部设为 $0$。这是因为对应于任何一个背包，都有一个合法解为 “什么都不装”，价值为 $0$。
+
+---
+
+<br> </br>
+
+**本题题目分析：**
+
+对于本题而言，$nums[i]$ 则对应于常规背包问题中第 $i$ 件物品的重量。我们要做的是判断是否可以将数组 $nums$ 分割成两个子集，使得两个子集的元素和相等，这是一个 `True / False` 的**存在问题**。我们的目标是从 $nums$ 中选出若干个数字使其和恰好等于数组总和的一半，记为 $target = \frac{sum(nums)} {2}$。
+
+<br> </br>
+
+**I. 状态定义**
+
+$\ \quad$ 对于本题，定义 $dp[i][j]$ 表示从前 $i$ 个数字中选出若干个，刚好可以使得被选出的数字其和为 $j$。
+
+<br> </br>
+
+**II. 状态转移**
+
+$\ \quad$ 根据本题的要求，上述「0-1 背包问题」的状态转移方程（1）可修改为：
+
+$dp[i][j] =   dp[i-1][j] \quad or \quad dp[i-1][j-nums[i-1]] \ . \quad \quad \quad （2）$
+
+<br> </br>
+
+**III. 初始化**
+
+$\ \quad$ 记非空数组 `nums` 的长度为 $n$。为便于状态更新，减少对边界的判断，初始二维 $dp$ 数组维度为 ${(n+1) \times (target+1)}$，其中第一维为 $n+1$ 也意味着：第 $i$ 个数字为 $nums[i-1]$，第 $1$ 个数字为 $nums[0]$，第 $0$ 个数字为空。
+
+初始化时：
+* $dp[0][0] = True$：表示可以从前 $0$ 个数字中选出若干个数字使得其和为 $0$，即「空集合」不选任何数字即可得到 $0$。
+* 对于其他 $dp[0][j],\ \ j\geq 1$，则有 $dp[0][j] = False$：「空集合」无法选出任何数字使得其和为 $j\geq 1$。
+
+  > $dp[i][0]=True$ 在程序迭代实现中已有体现，在此无需提前重复定义。
+
+&nbsp;
+
+---
+
+#### 代码
+
+**1. 【二维DP】** 动态规划的基础代码如下：
+
+* []
+
+```Python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+
+        total = sum(nums)
+        if total % 2 == 1:      # 总和无法等分
+            return False
+        
+        target = total // 2
+        if max(nums) > target:  # 最大值大于总和的一半，无法分割
+            return False
+        
+        '''【0/1背包】：从nums中选出的数字刚好能组成target'''
+        n = len(nums)
+
+        # 初始化
+        dp = [[False] * (target+1) for _ in range(n+1)]
+        # dp[i][j]: 从前i个元素中选出若干个数字刚好能够组成j
+        dp[0][0] = True     # 其他 dp[0][j]均为False
+
+        # 状态更新
+        for i in range(1, n+1):
+            for j in range(target+1):
+                if j < nums[i-1]:   # 容量有限，无法选择第i个数字nums[i-1]
+                    dp[i][j] = dp[i-1][j]
+                else:               # 可选择第i个数字nums[i-1]，也可不选
+                    dp[i][j] = dp[i-1][j] | dp[i-1][j-nums[i-1]]
+        
+        return dp[n][target]
+```
+
+**复杂度分析**
+* 时间复杂度：$O(n×target)$，其中 $n$ 是数组的长度，$target$ 是数组元素和的一半。
+
+* 空间复杂度：$O(n×target)$。
+
+&nbsp;
+
+**2. 【一维DP】** 动态规划的滚动数组优化如下：
+
+在上面的状态转移方程中，每一行的 $dp[i][*]$ 状态值都只与上一行的 $dp[i-1][*]$ 状态值有关，因此可基于**滚动数组**的思想进行对状态空间 $dp$ 进行优化而省去第一维度：
+
+$\textcolor{red}{dp2[j]}=dp[j] ∣ dp[j−nums[i-1]]\ .$
+
+* []
+
+```Python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+
+        total = sum(nums)
+        if total % 2 == 1:      # 总和无法等分
+            return False
+        
+        target = total // 2
+        if max(nums) > target:  # 最大值大于总和的一半，无法分割
+            return False
+        
+        n = len(nums)
+
+        # 初始化
+        dp = [False] * (target+1)
+        dp[0] = True
+
+        # 状态更新
+        for i in range(1, n+1):
+            dp2 = [False] * (target+1)      # 滚动数组
+            dp2[0] = True           # 也可省去此行
+            for j in range(target+1):
+                if j < nums[i-1]:   # 容量有限，无法选择第i个数字nums[i-1]
+                    dp2[j] = dp[j]
+                else:               # 可选择第i个数字nums[i-1]，也可不选
+                    dp2[j] = dp[j] | dp[j-nums[i-1]]
+            dp = dp2
+            
+        return dp[target]
+```
+
+* []
+
+```Python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+
+        total = sum(nums)
+        if total % 2 == 1:      # 总和无法等分
+            return False
+        
+        target = total // 2
+        if max(nums) > target:  # 最大值大于总和的一半，无法分割
+            return False
+
+        # 初始化
+        dp = [False] * (target+1)
+        dp[0] = True
+
+        # 状态更新
+        for num in nums:
+            dp2 = [False] * (target+1)
+            dp2[0] = True
+            for j in range(target+1):
+                if j < num:     # 容量有限，无法选择当前数字num
+                    dp2[j] = dp[j]
+                else:         # 可选择当前数字num，也可不选
+                    dp2[j] = dp[j] | dp[j-num]
+            dp = dp2
+            
+        return dp[target]
+```
+
+**复杂度分析**
+* 时间复杂度：$O(n×target)$，其中 $n$ 是数组的长度，$target$ 是数组元素和的一半。
+
+* 空间复杂度：$O(target)$。
+
+<br> </br>
+
+---
+
+**3. 【一维DP】内层循环倒序：**
+
+在状态转移过程中，每一行的 $dp$ 状态值都只与其**正上方**和**左上方**的状态值有关，因此可对状态空间 $dp$ 进一步优化而省去滚动数组 $dp2$：
+
+$\textcolor{red}{dp[j]}=dp[j] ∣ dp[j−nums[i-1]] \  .$
+
+![LeetCode-416-2.png](https://pic.leetcode-cn.com/1650882398-pnsvHV-LeetCode-416-2.png)
+
+考虑到我我们在更新 $dp[j]$ 时，使用的其实是上一行的  $dp$ 值；而如果第二层循环**从小到大**计算的话，那么 $dp[j−nums[i-1]]$ 先于 $dp[j]$ 被更新，因此当我们计算 $dp[j]$ 值的时候，$dp[j−nums[i-1]]$ 已经是被更新过的状态，而不再是上一行的 $dp$ 值了。
+
+而在第二层循环中，通过**从大到小**计算则可巧妙地保证在计算 $dp[j]$ 时所用到的 $dp[j]$ 和 $dp[j-nums[i-1]]$ 均来自上一行。
+
+* []
+
+```Python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+
+        total = sum(nums)
+        if total % 2 == 1:      # 总和无法等分
+            return False
+        
+        target = total // 2
+        if max(nums) > target:  # 最大值大于总和的一半，无法分割
+            return False
+
+        # 初始化
+        dp = [False] * (target+1)
+        dp[0] = True
+
+        # 状态更新
+        for num in nums:
+            for j in range(target, num-1, -1):  # 倒序，且j>=num 【j<num时无需更新dp[j]】
+                dp[j] |= dp[j-num]      # 可选择当前数字num，也可不选
+            
+        return dp[target]
+```
+
+**复杂度分析**
+* 时间复杂度：$O(n×target)$，其中 $n$ 是数组的长度，$target$ 是数组元素和的一半。
+
+* 空间复杂度：$O(target)$。
+
