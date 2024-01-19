@@ -1,0 +1,52 @@
+> Problem: [455. 分发饼干](https://leetcode.cn/problems/assign-cookies/description/)
+
+[TOC]
+
+# 思路
+
+> 讲述看到这一题的思路
+
+# 解题方法
+
+> 描述你的解题方法
+
+# 复杂度
+
+时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```C++
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        // 对孩子和饼干先进行排序
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        // 输出结果
+        int flag = 0;
+        for(int i = 0, j = 0; i < s.size() && j < g.size();){
+            if(s[i] < g[j]){
+                // 如果当前饼干不能满足当前孩子，则判断下一个饼干能否满足
+                ++i;
+            }
+            else if(s[i] >= g[j]){
+                // 如果当前饼干能够满足当前孩子，则继续判断下一个饼干和下一个孩子
+                ++flag;
+                ++i;
+                ++j;
+            }
+        }
+        return flag;
+    }
+};
+```
+

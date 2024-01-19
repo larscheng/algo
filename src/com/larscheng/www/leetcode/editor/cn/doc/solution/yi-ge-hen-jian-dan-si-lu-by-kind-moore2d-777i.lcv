@@ -1,0 +1,29 @@
+![image.png](https://pic.leetcode.cn/1674746436-mEdejM-image.png)
+
+# 解题思路
+
+由于我们此时需要s数组中找饼干分给g数组中的孩子，为了使饼干获得**最大的使用价值**，我们首先需要将两个数组进行**排序**。之后定义**两个指针**，指向两个数组，开始遍历两个数组，如果此时s数组中饼干不足以让此时对应的孩子满足，就要向后取值，即指向s数组的指针向后进行移动。如果可以满足，则让两个指针同时向后移动，下面进行代码实现。
+
+# 代码实现
+
+* 
+
+```
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        int count = 0;
+        for (int i = 0, j = 0; i < g.size() && j < s.size();) {
+            if (s[j] >= g[i] ) {
+                ++count;
+                ++i;
+                ++j;
+            } else ++j;
+        }
+        return count;
+    }
+};
+```
+

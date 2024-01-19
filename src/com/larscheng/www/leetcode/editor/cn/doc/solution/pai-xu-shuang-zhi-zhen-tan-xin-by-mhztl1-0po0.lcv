@@ -1,0 +1,37 @@
+贪心：从大到小分饼干
+
+* 
+
+```
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) 
+    {
+        //排序
+        sort(g.begin(),g.end());
+        sort(s.begin(),s.end());
+
+        //双指针
+        int gr = g.size() - 1;
+        int sr = s.size() - 1;
+
+        //分饼干
+        int n = 0;
+        while(gr >= 0 && sr >= 0)
+        {
+            if(s[sr] >= g[gr])
+            {
+                sr--;
+                gr--;
+                n++;
+            }
+            else
+            {
+                gr--;
+            }
+        }
+        return n;
+    }
+};
+```
+

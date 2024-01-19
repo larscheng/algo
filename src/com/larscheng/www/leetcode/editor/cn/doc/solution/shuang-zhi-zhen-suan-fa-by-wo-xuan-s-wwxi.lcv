@@ -1,0 +1,20 @@
+我上来就是一个sort反手就是一个双指针，ok没问题
+
+    int sum = 0;
+    int l = 0,r = 0;
+    sort(g.begin(),g.end());
+    sort(s.begin(),s.end());
+    while(l < g.size() && r < s.size())
+    {
+        if(s[r] >= g[l]) //食物大于胃口
+        {
+            l++; //胃口指针加加
+            r++; //食物指针加加
+            sum++; // 满足条件加加
+        }
+        else{   //不满足的话看看下一张大饼画得够不够你吃？
+            r++; 
+        }
+    }
+    return sum;
+

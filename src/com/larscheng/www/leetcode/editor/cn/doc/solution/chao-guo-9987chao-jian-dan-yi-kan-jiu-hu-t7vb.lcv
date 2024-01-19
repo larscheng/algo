@@ -1,0 +1,54 @@
+> Problem: [455. 分发饼干](https://leetcode.cn/problems/assign-cookies/description/)
+
+[TOC]
+
+# 思路
+
+> 根据题意,每个小孩只能分到一个饼干,并且每个小孩都有对应的一个最小胃口值;
+> 可以得出这是一道很经典的排序+贪心算法题,双指针可以用来优化时间复杂度
+
+# 解题方法
+
+1. 我们将小孩的满足度数组和饼干尺寸数组进行升序排序
+2. 以小孩满足度数组为最外层遍历,并找到是否有能满足本次遍历到的小孩的饼干(题解中的while循环逻辑即是)
+3. 因为步骤1中已经对两个数组进行升序排序,那么即可以用一个left指针来记录饼干已经用到了哪一个，因为是升序排序所以不可能存在之前一个小孩先用的是后面的饼干这种情况,以此来优化时间复杂度
+4. 官方解答中的双指针我没看懂..,但是我觉得这样优化时间复杂度已经足够了,各位大佬如有高见,欢迎指出!
+
+# 复杂度
+
+时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        Arrays.sort(g);
+        Arrays.sort(s);
+        
+        int sum = 0;
+        int left = 0;
+        for (int i = 0; i < g.length; i++) {
+            while (left<s.length){
+                if (g[i]<=s[left]){
+                    sum++;
+                    left++;
+                    break;
+                }else{
+                    left++; 
+                }
+            }
+        }
+        return sum;
+    }
+}
+```
+

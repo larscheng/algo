@@ -1,0 +1,47 @@
+> Problem: [455. 分发饼干](https://leetcode.cn/problems/assign-cookies/description/)
+
+[TOC]
+
+# 思路
+
+贪心思路，排序后双指针计数。
+
+# Code
+
+执行用时分布24ms击败100.00%；消耗内存分布13.53MB击败78.95%
+
+* []
+
+```Python
+class Solution(object):
+    def findContentChildren(self, g, s):
+        g.sort(), s.sort()
+        gi, gn, si, sn, cnt = 0, len(g), 0, len(s), 0
+        while gi < gn and si < sn:
+            if g[gi] <= s[si]: 
+                cnt += 1
+                gi += 1
+            si += 1
+        return cnt        
+```
+
+* []
+
+```C
+int cmp(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+int findContentChildren(int* g, int gSize, int* s, int sSize) {
+    qsort(g, gSize, sizeof(int), cmp);
+    qsort(s, sSize, sizeof(int), cmp);
+    int gi = 0, si = 0, cnt = 0;
+    while (gi < gSize && si < sSize) 
+        if (g[gi] <= s[si ++]) { ++ cnt; ++ gi;}
+    return cnt;
+}        
+```
+
+**您若还有不同方法，欢迎贴在评论区，一起交流探讨！ ^_^**
+
+**↓ 点个赞，点收藏，留个言，再划走，感谢您支持作者！ ^_^**

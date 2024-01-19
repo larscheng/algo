@@ -1,0 +1,34 @@
+* 
+
+```
+class Solution {
+    // 贪心
+    public int findContentChildren(int[] g , int[] s) {
+        // 将孩子们的胃口值按照从小到大的顺序排列
+        // 优先满足胃口小的孩子
+        Arrays.sort(g);
+        // 将饼干按照从小到大的顺序排列
+        Arrays.sort(s);
+        // child代表g的下标,即表示有多少孩子的胃口得到满足
+        int child = 0;
+        // cookie代表s的下标,即表示目前有多少饼干被使用了
+        int cookie = 0;
+        // 遍历所有的饼干
+        // 遍历过后饼干只有两种状态
+        // 要么找到了需要这个饼干的孩子
+        // 要么剩下的孩子中，胃口值最低的孩子都大于这个饼干的值，那么这个饼干没人要
+        while(cookie < s.length && child < g.length) {
+            // 孩子的胃口得到了满足
+            if(s[cookie] >= g[child]) {
+                // 得到满足的孩子数量加1 
+                child++;   
+            }
+            // 查看下一个饼干能否找到需要的孩子
+            cookie++;
+        }
+        // 最后返回孩子数量
+        return child;
+    }
+}
+```
+
