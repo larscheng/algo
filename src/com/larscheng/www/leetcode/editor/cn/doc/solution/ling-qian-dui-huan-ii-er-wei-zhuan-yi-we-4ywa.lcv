@@ -1,0 +1,139 @@
+### 1、思路
+
+**(动态规划，完全背包)**
+
+**二维分析**
+
+**状态表示：** `f[i][j]` 表示从前`i`种硬币中选，且总金额恰好为`j`的所有选法集合的方案数。
+
+那么`f[n][amount]`就表示表示从前`n`种硬币中选，且总金额恰好为`amount`的所有选法集合的方案数，即为答案。
+
+**集合划分：**
+
+按照第`i`种硬币可以选 `0`个,`1`个，`2`个，`3`个，，，，`k`个划分集合 `f[i][j]`。其中`k*coin[i] <= j`，也就是说在背包能装下的情况下，枚举第`i`种硬币可以选择几个。
+
+- 第`i`种硬币选 `0`个，`f[i][j] = f[i-1][j]`
+- 第`i`种硬币选 `1`个，`f[i][j] = f[i-1][j - coins[i]]`
+- 第`i`种硬币选 `k`个，`f[i][j] = f[i-1][j - k*coins[i]]`
+
+**状态计算：**
+
+`f[i][j] = f[i-1][j]+f[i-1][j-coins[i]]+f[i-1][j-2*coins[i]],,,,,,+f[i-1][j-k*coins[i]]` 。
+**初始化条件：**
+
+- `f[0][0] = 1`，使用`0`种硬币币，凑`0`元钱，也是一种方案。
+
+**时间复杂度分析：**  $O(amount^2*n)$，其中 $amount$是总金额，$n$是数组 $coins$的长度。
+
+### 2、二维c++代码
+
+* c
+
+```c
+class Solution {
+public:
+    int change(int amount, vector<int>& coins) {
+        int n = coins.size();
+        vector<vector<int>>f(n + 1, vector<int>(amount + 1 , 0));
+        f[0][0] = 1;  // 使用0种货币，凑0元钱,也是一种方案
+        for(int i = 1; i <= n; i++)
+        {
+            int v =coins[i - 1];
+            for(int j = 0; j <= amount; j++)
+                 for(int k = 0; k*v <= j; k++)
+                   f[i][j] += f[i-1][j-k*v];    //状态计算方程
+        }
+        return f[n][amount];        
+    }
+};
+```
+
+### 3、二维java代码
+
+* java
+
+```java
+class Solution {
+    public int change(int amount, int[] coins) {
+        int n = coins.length;
+        int[][] f = new int[n + 1][amount + 1];
+        f[0][0] = 1;   // 使用0种货币，凑0元钱,也是一种方案
+        for (int i = 1; i <= n; i++) {
+            int v = coins[i - 1];
+            for (int j = 0; j <= amount; j++) 
+                for (int k = 0; k * v <= j; k++) 
+                    f[i][j] += f[i - 1][j - k * v];  //状态计算方程
+        }
+        return f[n][amount];
+    }
+}
+```
+
+![](https://pic.leetcode-cn.com/1629860018-VvTCfN-file_1629860018256)
+
+### 4、一维优化
+
+二维完全背包求解方案时间复杂度较高，考虑一维优化。
+
+`v`代表第`i`种硬币的面值
+
+`f[i][j] = f[i-1][j] + f[i-1][j-v]+f[i-1][j-2v]+,,,,,+f[i-1][j-kv])`
+
+`f[i][j-v] = f[i-1,[j-v]+f[i-1][j-2v]+,,,,,+f[i-1][j-kv])`
+
+**因此：**
+
+`f[i][j] = f[i-1][j]+f[i][j-v])`
+
+**图示：**
+
+![](https://pic.leetcode-cn.com/1629860018-PMLsQD-file_1629860018260)
+
+**去掉物品种类维度，状态计算方程为：**  `f[j] = f[j] + f[j-v]`
+
+**时间复杂度分析：** $O(amount*n)$  ，其中 $amount$是总金额，$n$是数组 $coins$的长度。
+
+### 5、一维c++代码
+
+* c
+
+```c
+class Solution {
+public:
+    int change(int amount, vector<int>& coins) {
+        vector<int>f(amount + 1);
+        f[0] = 1; //f[0][0] = 1;
+        for(int i = 1; i <= coins.size(); i++)
+        {
+            int v =coins[i - 1];
+            for(int j = v; j <= amount; j++)
+                f[j] += f[j - v];
+        }
+        return f[amount];        
+        
+    }
+};
+```
+
+### 6、一维java代码
+
+* java
+
+```java
+class Solution {
+    public int change(int amount, int[] coins) {
+        int[] f = new int[amount + 1];
+        f[0] = 1; //f[0][0] = 1;
+        for(int i = 1; i <= coins.length; i++)
+        {
+            int v =coins[i - 1];
+            for(int j = v; j <= amount; j++)
+                f[j] += f[j - v];
+        }
+        return f[amount];       
+    }
+}
+```
+
+![在这里插入图片描述](https://pic.leetcode-cn.com/1629860018-xmGUai-file_1629860018258)
+
