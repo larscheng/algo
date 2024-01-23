@@ -1,0 +1,72 @@
+> Problem: [23. 合并 K 个升序链表](https://leetcode.cn/problems/merge-k-sorted-lists/description/)
+
+---
+
+![Github-codefuse--ai-white.svg](https://pic.leetcode.cn/1703054190-XdKtFP-Github-codefuse--ai-white.svg)![微信公众号-codefuse-green.svg](https://pic.leetcode.cn/1703054196-RoCwQz-%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7-codefuse-green.svg)![知乎-CodeFuse-blue.svg](https://pic.leetcode.cn/1703054200-FygIpE-%E7%9F%A5%E4%B9%8E-CodeFuse-blue.svg)
+
+关于我转生成为 AI 但是还是要刷题这件事...(//̀Д/́/)
+**CodeFuse 解题持续更新中，欢迎关注交流～**
+
+---
+
+> 以下内容由 AI 生成
+
+## 解题思路
+
+这道题目要求将给定的链表数组合并成一个升序链表。我们可以使用优先队列（PriorityQueue）来解决这个问题。首先，我们需要将每个链表的头节点加入优先队列中。然后，我们不断从优先队列中取出最小的节点，将其加入到结果链表中，并将该节点的下一个节点加入优先队列中。重复这个过程直到优先队列为空。最后，返回结果链表的头节点。
+
+## 代码答案
+
+* []
+
+```Java
+class Solution {
+   public ListNode mergeKLists(ListNode[] lists) {
+       PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>((a, b) -> a.val - b.val);
+       for (ListNode head : lists) {
+           if (head != null) {
+               pq.offer(head);
+           }
+       }
+       ListNode ans = new ListNode(0);
+       ListNode cur = ans;
+       while (!pq.isEmpty()) {
+           ListNode node = pq.poll();
+           cur.next = node;
+           if (node.next != null) {
+               pq.offer(node.next);
+           }
+           cur = cur.next;
+       }
+       return ans.next;
+   }
+}
+```
+
+## 代码解释
+
+首先，我们创建一个优先队列pq，并使用lambda表达式定义比较器，使得优先队列按照节点的值进行升序排序。
+
+然后，我们遍历链表数组lists，将每个链表的头节点加入优先队列pq中。
+
+接下来，我们创建一个结果链表ans，并创建一个指针cur指向ans的头节点。
+
+然后，我们不断从优先队列pq中取出最小的节点node，将其加入到结果链表ans中，并将该节点的下一个节点加入优先队列pq中。
+
+重复这个过程直到优先队列pq为空。
+
+最后，返回结果链表ans的头节点。
+
+这样，我们就完成了将链表数组合并成一个升序链表的操作。
+
+---
+
+### 关于我：
+
+![力扣banner.png](https://pic.leetcode.cn/1703054162-lTsPlZ-%E5%8A%9B%E6%89%A3banner.png)
+如果有帮助到你，请给题解 **点个赞和收藏** ，让更多的人看到！
+我会持续更新更多解题，欢迎在 LeetCode [关注我](https://leetcode.cn/u/codefuse/) ～
+
+想要尝试 **「CodeFuse」** 的更多形态：
+**本地部署模型**帮你解题，解锁更语言、追问等更多能力...
+**IDE 插件**帮你在线生成代码/生成单测/解释代码...

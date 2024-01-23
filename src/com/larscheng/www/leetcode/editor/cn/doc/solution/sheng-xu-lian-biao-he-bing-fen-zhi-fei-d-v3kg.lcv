@@ -1,0 +1,108 @@
+### 解题思路
+
+分治（非递归），merge前两个链，pop_back到vector尾部，不断循环，直至只剩一个链。【性能较低】
+![【通过截图】\[leetcode\]升序链表题-1.png](https://pic.leetcode-cn.com/1621909170-DYnfaM-%E3%80%90%E9%80%9A%E8%BF%87%E6%88%AA%E5%9B%BE%E3%80%91%5Bleetcode%5D%E5%8D%87%E5%BA%8F%E9%93%BE%E8%A1%A8%E9%A2%98-1.png)
+
+### 代码
+
+* cpp
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        int k=lists.size();
+        if(k==0)return nullptr;
+        if(k==1)return lists[0];
+        
+        queue<ListNode*> q;
+        for(ListNode* list : lists){
+            q.push(list);
+        }
+
+        ListNode* list1;
+        ListNode* list2;
+
+        while(q.size()>1){
+            list1=q.front();
+            q.pop();
+            list2=q.front();
+            q.pop();
+            q.push(merge_two_lists(list1,list2));
+        }
+
+        return q.front();
+
+        // list1=q.front();
+        // q.pop();
+        // list2=q.front();
+        // while(list2!=nullptr){
+        //     // if(!list2=q.pop())break;//队列中只剩一个队列，所以已合并结束
+        //     q.pop();
+
+        //     q.push(merge_two_lists(list1,list2 ));
+        //     list1=q.front();
+        //     q.pop();
+        //     list2=q.front();
+        // }
+
+        // return list1;
+    }
+
+private:
+    ListNode* merge_two_lists(ListNode *list1,ListNode *list2 ){
+        printf("start to merge two lists...\n");
+
+        vector<ListNode*> ordered_nodes;
+        // ListNode* start=ordered_nodes;
+
+        while(list1!=nullptr&&list2!=nullptr){
+            
+            if(list1->val<=list2->val){
+                printf("<1>list1_val`:%d list2_val:%d\n",list1->val,list2->val);
+                ordered_nodes.push_back(list1);
+                // ordered_nodes=ordered_nodes->next;
+                list1=list1->next;
+            }else{
+                printf("<2>list1_val`:%d list2_val:%d\n",list1->val,list2->val);
+                ordered_nodes.push_back(list2);
+                // ordered_nodes=ordered_nodes->next;
+                list2=list2->next;
+            }
+        }
+
+        //将前面排好序的节点连起来
+        ListNode *merged_list=new ListNode();
+        ListNode* start=merged_list;
+        for(ListNode *node:ordered_nodes){
+            merged_list->next=node;
+            merged_list=merged_list->next;
+        }
+
+        if(list1==nullptr){
+            merged_list->next=list2;
+        }else{
+            merged_list->next=list1;
+        }
+
+        // while(list1!=nullptr){
+        //     ordered_nodes->next=list1;
+        //     ordered_nodes=ordered_nodes->next;
+        //     list1=list1->next;
+        // }
+
+        return start->next;     
+    }
+};
+```
+

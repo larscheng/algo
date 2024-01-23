@@ -1,0 +1,66 @@
+> Problem: [23. 合并 K 个升序链表](https://leetcode.cn/problems/merge-k-sorted-lists/description/)
+> 不看讲解自己干掉了一个hard，发下c++代码
+> 思路：
+> 1.将lists进行二分；
+> 2.分别递归，获取vector中左右两侧的ListNode；
+> 3.左右两侧的ListNode排序合并，并返回；
+
+自顶向下，再自下向上进行合并。
+
+# Code
+
+* []
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+	ListNode* mergeKLists(vector<ListNode*>& lists) {
+		int N = lists.size();
+		return merge(lists, 0, N-1/*, N*/);
+	}
+
+	ListNode* merge(vector<ListNode*>& lists, int left, int right)//, int n
+	{
+		if (left > right) return nullptr;
+		if (left == right /*&& n < 0*/) return lists[left];
+		//if (n == 0) return lists[left];
+		if (left == right && left < lists.size()) return lists[left];
+		int mid = (left + right) / 2;
+		ListNode* L = merge(lists, left, mid);//, mid - 1
+		ListNode* R = merge(lists, mid+1 , right);//, n - mid
+		return mergeTwo(L, R);
+	}
+
+	ListNode* mergeTwo(ListNode* left, ListNode* right)
+	{
+		ListNode* dummyNode = new ListNode();
+		ListNode* cur = dummyNode;
+		while (left!=nullptr && right!=nullptr)
+		{
+			if (left->val < right->val)
+			{
+				cur->next = left;
+				left = left->next;
+			}
+			else {
+				cur->next = right;
+				right = right->next;
+			}
+			cur = cur->next;
+		}
+		cur->next = left != nullptr ? left : right;
+		return dummyNode->next;
+	}
+};
+```
+
