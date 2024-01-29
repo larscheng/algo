@@ -1,0 +1,92 @@
+### 解题思路
+
+对于每一行数，做一次2*n-1放在 `| `左边，再做一次2n放在 `|` 右边。
+
+1是，对这一行整体左变换，整体右变换，因此，
+
+1，`|` 2是，因此
+
+1，3，`|` 2，4
+
+1,5,3,7, `|` 2,6,4,8   左部分来自上一行整体的变换。
+
+漂亮做整体变换还是漂亮， 所以`|`左右分别是漂亮。
+
+左边是漂亮，右边是漂亮，左右单独拿出边界也是漂亮。奇数 + 偶数 = 奇数 ，漂亮。
+
+从漂亮里抽出数据还是漂亮。抽满足n的数就行。正面突破结束 7.50%
+
+这个过程的反向过程就是递归过程。效果会好很多。就是理解起来绕一绕。
+
+比如n=5，左边凑个3，右边凑个2
+
+3左边凑个2，右边凑个1，
+
+2左边一个1，右边一个1
+
+1就是1
+
+递归回来将数字做变换组合。
+
+### 代码
+
+* java
+
+```java
+class Solution {
+	public int[] beautifulArray(int n) {
+		int[] ans = new int[n];
+		Queue<Integer> queue = new LinkedList<>();
+		queue.add(1);
+		while (queue.size() < n) {
+			Queue<Integer> tmp = new LinkedList<>();
+			int size = queue.size();
+			while (size > 0) {
+				int cur = queue.poll() << 1;
+				queue.add(cur - 1);
+				tmp.add(cur);
+				size--;
+			}
+			queue.addAll(tmp);
+		}
+		int p = 0;
+		while (!queue.isEmpty()) {
+			int cur = queue.poll();
+			if (cur <= n) {
+				ans[p++] = cur;
+			}
+		}
+		return ans;
+	}
+}
+```
+
+* java
+
+```java
+class Solution {
+	public int[] beautifulArray(int n) {
+		if (n == 1) {
+			return new int[] { 1 };
+		}
+		int[] ans = new int[n];
+		int half = n >> 1;
+		int leftsize = half, rightsize = half;
+		if ((n & 1) == 1) {
+			leftsize += 1;
+		}
+		int[] left = this.beautifulArray(leftsize);
+		int[] right = this.beautifulArray(rightsize);
+		int p = 0;
+		for (int i = 0; i < left.length; i++) {
+			ans[p++] = (left[i] << 1) - 1;
+		}
+		for (int i = 0; i < right.length; i++) {
+			ans[p++] = right[i] << 1;
+		}
+		return ans;
+	}
+
+}
+```
+
