@@ -1,0 +1,31 @@
+### 代码
+
+* javascript
+
+```javascript
+/**
+ * @param {string} big
+ * @param {string[]} smalls
+ * @return {number[][]}
+ */
+var multiSearch = function(big, smalls) {
+    let res = [];
+
+    for (let i = 0; i < smalls.length; i++) {
+        res[i] = [];
+
+        const cur = smalls[i];
+        if (!cur) continue;
+        const l = cur.length;
+
+        for (j = 0; j <= big.length-l; j++) {
+            const cs = big.slice(j, j + l);
+            if (cs === cur) {
+                res[i].push(j);
+            }
+        }
+    }
+    return res;
+};
+```
+

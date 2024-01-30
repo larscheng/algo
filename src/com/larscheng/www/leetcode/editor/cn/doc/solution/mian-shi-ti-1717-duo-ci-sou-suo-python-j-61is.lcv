@@ -1,0 +1,143 @@
+# [面试题 17.17. 多次搜索](https://leetcode-cn.com/problems/multi-search-lcci/)
+
+***
+
+### 思路
+
+1. trie中记录smalls中的字符串，末尾记录字符串，方便后面遍历。
+2. trie中的search用于搜索字符串，将搜索到的字符串存入返回值中。
+3. 遍历big长字符串，将其与trie匹配。
+4. 按smalls顺序输出最终结果。
+
+### 代码
+
+* []
+
+```Python
+class Trie:
+    def __init__(self, words):
+        self.d = {}
+        for word in words:
+            t = self.d
+            for w in word:
+                if w not in t:
+                    t[w] = {}
+                t = t[w]
+            t['end'] = word
+    
+    def search(self, s):
+        t = self.d
+        res = []
+        for w in s:
+            if w not in t:
+                break
+            t = t[w]
+            if 'end' in t:
+                res.append(t['end'])
+        return res
+
+class Solution:
+    def multiSearch(self, big: str, smalls: List[str]) -> List[List[int]]:
+        trie = Trie(smalls)
+        hit = collections.defaultdict(list)
+
+        for i in range(len(big)):
+            matchs = trie.search(big[i:])
+            for word in matchs:
+                hit[word].append(i)
+        
+        res = []
+        for word in smalls:
+            res.append(hit[word])
+        return res
+```
+
+* []
+
+```Java
+class Solution {
+
+    class Trie{
+        TrieNode root;
+        public Trie(String[] words){
+            root = new TrieNode();
+            for(String word : words){
+                TrieNode node = root;
+                for(char w : word.toCharArray()){
+                    int i = w - 'a';
+                    if(node.next[i] == null){
+                        node.next[i] = new TrieNode();
+                    }
+                    node = node.next[i];
+                }
+                node.end = word;
+            }
+        }
+
+        public List<String> search(String str){
+            TrieNode node = root;
+            List<String> res = new ArrayList<>();
+            for(char c : str.toCharArray()){
+                int i = c - 'a';
+                if(node.next[i] == null){
+                    break;
+                }
+                node = node.next[i];
+                if(node.end != null){
+                    res.add(node.end);
+                }
+            }
+            return res;
+        }  
+    }
+
+    class TrieNode{
+        String end;
+        TrieNode[] next = new TrieNode[26];
+    }
+
+
+    public int[][] multiSearch(String big, String[] smalls) {
+        Trie trie = new Trie(smalls);
+        Map<String, List<Integer>> hit = new HashMap<>();
+        for(int i = 0; i < big.length(); i++){
+            List<String> matchs = trie.search(big.substring(i));
+            for(String word: matchs){
+                if(!hit.containsKey(word)){
+                    hit.put(word, new ArrayList<>());
+                }
+                hit.get(word).add(i);
+            }
+        }
+        
+        int[][] res = new int[smalls.length][];
+        for(int i = 0; i < smalls.length; i++){
+            List<Integer> list = hit.get(smalls[i]);
+            if(list == null){
+                res[i] = new int[0];
+                continue;
+            }
+            int size = list.size();
+            res[i] = new int[size];
+            for(int j = 0; j < size; j++){
+                res[i][j] = list.get(j);
+            }
+        }
+        return res;
+    }
+}
+```
+
+**复杂度分析**
+- 时间复杂度：$O(n * m)，n = len(big)， m = len(smalls)$
+- 空间复杂度：$O(m * k)，k = max(len(smalls[i]))，$即k是smalls中最长字符串的长度
+
+***
+
+### 前缀树专题
+
+|  题目   | 我的题解  |
+|  ----  | ----  |
+| [208. 实现 Trie (前缀树)](https://leetcode-cn.com/problems/implement-trie-prefix-tree/)  | [题解 Java + Python实现](https://leetcode-cn.com/problems/implement-trie-prefix-tree/solution/208-shi-xian-trie-qian-zhui-shu-zi-dian-j6rpu/) |
+| [677. 键值映射](https://leetcode-cn.com/problems/map-sum-pairs/)  | [题解 Java + Python实现](https://leetcode-cn.com/problems/map-sum-pairs/solution/677-jian-zhi-ying-she-python-java-by-ede-r5ak/) |
+| [面试题 17.17. 多次搜索](https://leetcode-cn.com/problems/multi-search-lcci/)  | [题解 Java + Python实现](https://leetcode-cn.com/problems/multi-search-lcci/solution/mian-shi-ti-1717-duo-ci-sou-suo-python-j-61is/) |

@@ -1,0 +1,95 @@
+### 方法一：前缀哈希映射
+
+* c++
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> multiSearch(string big, vector<string>& smalls) {
+        //给定一个字符串数组，查找这些字符串在原串上出现的位置
+        unordered_map<string,vector<int>>map;
+        int n=big.size();
+        for(int i=0;i<n;i++){
+            string t=big.substr(i);
+            for(int j=1;j<=t.size();j++){
+                //substr函数是左开右闭，所以一直循环到=t.size()
+
+                //说明t.substr(0,j)出现在以big[i]开头的字符串的前缀上
+                map[t.substr(0,j)].emplace_back(i);
+            }
+        }
+        vector<vector<int>> res;
+
+        for(string word:smalls){
+            res.emplace_back(map[word]);
+        }
+
+        return res;
+    }
+};
+```
+
+![image.png](https://pic.leetcode.cn/1668340820-JdwNKy-image.png)
+
+### 方法二：后缀树
+
+就是一个序列的所有后缀都添加到前缀树中
+
+* c++
+
+```c++
+class Solution {
+public:
+    struct TrieNode{
+        vector<int> src; //不同之处
+        TrieNode* next[26];
+        TrieNode(){
+          for(int i=0;i<=25;i++)
+           this->next[i]=NULL;
+        }
+    };
+
+    TrieNode* root=new TrieNode();
+    void add(string word,int idx){
+        TrieNode* node=root;
+        for(auto c:word){
+            int v=c-'a';
+            if(node->next[v]==NULL){
+                node->next[v]=new TrieNode();
+            }
+            node=node->next[v];
+
+            //记录该路径的每个字符都是来自big从idx开始的后缀
+            node->src.emplace_back(idx); 
+        }
+    }
+    vector<int> find(string word){
+        TrieNode* node=root;
+        for(auto c:word){
+            int v=c-'a';
+            node=node->next[v];
+            if(node==NULL) //根本找不到
+               return vector<int>{};
+        }
+        //一直迭代到末尾
+        return node->src;
+    }
+    //后缀树
+    vector<vector<int>> multiSearch(string big, vector<string>& smalls) {
+        for(int i=0;i<big.size();i++){
+            add(big.substr(i),i);
+        }
+
+        vector<vector<int>>res;
+        for(string word:smalls){
+            res.emplace_back(find(word));
+        }
+
+        return res;
+    }
+};
+```
+
+![image.png](https://pic.leetcode.cn/1668340869-FXqGWy-image.png)
+
+两种方法都挺慢的，想要追求快可以看看大佬们写的kmp，本蒟蒻不会

@@ -1,0 +1,47 @@
+> Problem: [面试题 17.17. 多次搜索](https://leetcode.cn/problems/multi-search-lcci/description/)
+
+[TOC]
+
+# 思路
+
+> 利用indexOf(str,index)求每一个smalls[i]出现在主串中的所有位置
+
+# Code
+
+* []
+
+```Java
+
+class Solution {
+    public int[][] multiSearch(String big, String[] smalls) {
+        if(smalls==null || smalls.length==0) return new int[][]{};
+        int N = smalls.length;
+        int[][] res = new int[N][];
+        <!-- 遍历所有子串 -->
+        for(int i = 0 ; i < N ; ++i){
+            int index = 0, j=0;
+            <!-- 特殊情况：字串是"",此时用indexOf的化会直接匹配到首个元素的位置，
+                 所以拿出来特殊处理一下 -->
+            if("".equals(smalls[i])){
+                res[i] = new int[]{};
+                continue;
+            }
+            <!-- list存放当前子串出现的所有位置 -->
+            ArrayList<Integer> list = new ArrayList<>();
+            while(big.indexOf(smalls[i],index)!=-1){
+                list.add(big.indexOf(smalls[i],index));
+                <!-- 从当前匹配到的位置的下一个位置开始匹配 -->
+                index = big.indexOf(smalls[i],index) + 1;
+            }
+            <!-- 根据子串出现次数，为当前数组初始化 -->
+            res[i] = new int[list.size()];
+            <!-- 赋值 -->
+            for(int k : list){
+                res[i][j++] = k;
+            }
+        }
+        return res;
+    }
+}
+```
+
