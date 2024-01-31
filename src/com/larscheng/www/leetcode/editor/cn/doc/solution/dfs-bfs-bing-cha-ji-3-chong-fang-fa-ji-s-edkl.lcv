@@ -1,0 +1,151 @@
+🙋 今日打卡～
+
+## 一、题目分析
+
+**题意：** n 个城市，有直接/间接相连关系的城市属于同一个省份，求省份的数量。
+
+**分析：** 即 **求无向图中的连通域的个数**，入参 `int[][] isConnected` 即为该无向图的邻接矩阵。常规做法可以对图进行深度优先搜索计数或使用广度优先搜索计数或者使用并查集。
+
+## 二、解决方案
+
+### 1、深度优先搜索 / 广度优先搜索
+
+我们使用图搜索算法从各个连通域的任一顶点开始遍历整个连通域，遍历的过程中对 `boolean[] visited` 数组进行标记，遍历完当前连通域之后，若仍有顶点未被访问，说明又是一个新的连通域，使用 `cnt` 累计当前遍历过的连通域的数量。
+
+#### 解法一：深度优先搜索
+
+* []
+
+```Java
+class Solution {
+    public int findCircleNum(int[][] isConnected) {
+        // int[][] isConnected 是无向图的邻接矩阵，n 为无向图的顶点数量
+        int n = isConnected.length;
+        // 定义 boolean 数组标识顶点是否被访问
+        boolean[] visited = new boolean[n];
+        // 定义 cnt 来累计遍历过的连通域的数量
+        int cnt = 0;
+        for (int i = 0; i < n; i++) {
+            // 若当前顶点 i 未被访问，说明又是一个新的连通域，则遍历新的连通域且cnt+=1.
+            if (!visited[i]) { 
+                cnt++;
+                dfs(i, isConnected, visited);
+            }
+        }
+        return cnt;
+    }
+
+    private void dfs(int i, int[][] isConnected, boolean[] visited) {
+        // 对当前顶点 i 进行访问标记
+        visited[i] = true;
+        
+        // 继续遍历与顶点 i 相邻的顶点（使用 visited 数组防止重复访问）
+        for (int j = 0; j < isConnected.length; j++) {
+            if (isConnected[i][j] == 1 && !visited[j]) {
+                dfs(j, isConnected, visited);
+            }
+        }
+    }
+}
+```
+
+#### 解法二：广度优先搜索
+
+* []
+
+```Java
+class Solution {
+    public int findCircleNum(int[][] isConnected) {
+        // int[][] isConnected 是无向图的邻接矩阵，n 为无向图的顶点数量
+        int n = isConnected.length;
+        // 定义 boolean 数组标识顶点是否被访问
+        boolean[] visited = new boolean[n];
+        
+        // 定义 cnt 来累计遍历过的连通域的数量
+        int cnt = 0;  
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < n; i++) {
+            // 若当前顶点 i 未被访问，说明又是一个新的连通域，则bfs新的连通域且cnt+=1.
+            if (!visited[i]) {
+                cnt++;
+                queue.offer(i);
+                visited[i] = true;
+                while (!queue.isEmpty()) {
+                    int v = queue.poll();
+                    for (int w = 0; w < n; w++) {
+                        if (isConnected[v][w] == 1 && !visited[w]) {
+                            visited[w] = true;
+                            queue.offer(w);
+                        }
+                    }
+                }
+            }
+        }
+        return cnt;
+    }
+} 
+```
+
+### 2、并查集
+
+图的顶点数为 n，则初始化 n 个单顶点集合，每个集合指向自身。然后遍历图中的每个顶点，将当前顶点与其邻接点进行合并。最终结果返回合并后的集合的数量即可。
+
+#### 解法三：并查集
+
+* []
+
+```Java
+class Solution {
+    public int findCircleNum(int[][] isConnected) {
+        int n = isConnected.length;
+        // 初始化并查集
+        UnionFind uf = new UnionFind(n);
+        // 遍历每个顶点，将当前顶点与其邻接点进行合并
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (isConnected[i][j] == 1) {
+                    uf.union(i, j);
+                }
+            }
+        }
+        // 返回最终合并后的集合的数量
+        return uf.size;
+    }
+}
+
+// 并查集
+class UnionFind {
+    int[] roots;
+    int size; // 集合数量
+    
+    public UnionFind(int n) {
+        roots = new int[n];
+        for (int i = 0; i < n; i++) {
+            roots[i] = i;
+        }
+        size = n;
+    }
+
+    public int find(int i) {
+       if (i == roots[i]) {
+           return i;
+       }
+       return roots[i] = find(roots[i]);
+    }
+
+    public void union(int p, int q) {
+        int pRoot = find(p);
+        int qRoot = find(q);
+        if (pRoot != qRoot) {
+            roots[pRoot] = qRoot;
+            size--;
+        }
+    }
+}
+```
+
+### 时间复杂度
+
+BFS / DFS 的时间复杂度是 $O(n^2)$，$n$ 为城市的数量，需要遍历 $n^2$ 的邻接矩阵；
+并查集的时间复杂度是 $O(n^2α(n))$，具体看零神的科普贴 《[零神科普：并查集各种情况下的时间复杂度](https://leetcode-cn.com/problems/number-of-provinces/solution/jie-zhe-ge-wen-ti-ke-pu-yi-xia-bing-cha-0unne/)》。
+

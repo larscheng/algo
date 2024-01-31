@@ -1,0 +1,51 @@
+> Problem: [547. 省份数量](https://leetcode.cn/problems/number-of-provinces/description/)
+
+[TOC]
+
+# 复杂度
+
+- 时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n^2logn)$
+
+- 空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```C++
+
+class Solution {
+public:
+    int Findroot(vector<int>&parent,int idx){
+        if(parent[idx]!=idx)
+        parent[idx]=Findroot(parent,parent[idx]);
+        return parent[idx];
+    }
+    void Union(vector<int>&parent,int idx1,int idx2){
+        parent[Findroot(parent,idx1)]=Findroot(parent,idx2);
+    }
+    int findCircleNum(vector<vector<int>>& isConnected) {
+       int n=isConnected.size();
+       int cnt=0;
+       vector<int>parent(n);
+       for(int i=0;i<n;i++)
+       parent[i]=i;
+       for(int i=0;i<n;i++){
+           for(int j=i+1;j<n;j++){
+               if(isConnected[i][j]==1){
+                  Union(parent,i,j);
+               }
+           }
+       } 
+       for(int i=0;i<n;i++)
+        if(parent[i]==i)
+            cnt++;
+        return cnt;
+    }
+};
+```
+
