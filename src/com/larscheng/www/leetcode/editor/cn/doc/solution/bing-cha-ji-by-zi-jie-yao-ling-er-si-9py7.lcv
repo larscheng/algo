@@ -1,0 +1,140 @@
+### 924. 尽量减少恶意软件的传播
+
+> 关键词：并查集、深度优先
+
+题目来源：[924. 尽量减少恶意软件的传播 - 力扣（Leetcode）](https://leetcode.cn/problems/minimize-malware-spread/)
+
+#### 题目描述
+
+* TAG
+
+```TAG
+T并查集
+T深度优先
+```
+
+给出了一个由 `n` 个节点组成的网络，用 `n × n` 个邻接矩阵图 `graph` 表示。在节点网络中，当 `graph[i][j] = 1` 时，表示节点 `i` 能够直接连接到另一个节点 `j`。
+
+一些节点 `initial` 最初被恶意软件感染。只要两个节点直接连接，且其中至少一个节点受到恶意软件的感染，那么两个节点都将被恶意软件感染。这种恶意软件的传播将继续，直到没有更多的节点可以被这种方式感染。
+
+假设 `M(initial)` 是在恶意软件停止传播之后，整个网络中感染恶意软件的最终节点数。
+
+如果从 `initial` 中**移除某一节点**能够最小化 `M(initial)`， 返回该节点。如果有多个节点满足条件，就返回**编号最小**的节点。
+
+请注意，如果某个节点已从受感染节点的列表 `initial` 中删除，它以后仍有可能因恶意软件传播而受到感染。
+
+* 
+
+```
+输入：graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]
+输出：0
+```
+
+* 
+
+```
+输入：graph = [[1,0,0],[0,1,0],[0,0,1]], initial = [0,2]
+输出：0
+```
+
+* 
+
+```
+输入：graph = [[1,1,1],[1,1,1],[1,1,1]], initial = [1,2]
+输出：1
+```
+
+* 
+
+```
+数据描述
+n == graph.length
+n == graph[i].length
+2 <= n <= 300
+graph[i][j] == 0 或 1
+graph[i][j] == graph[j][i]
+graph[i][i] == 1
+1 <= initial.length <= n
+0 <= initial[i] <= n - 1
+initial` 中所有整数均不重复
+```
+
+#### 问题分析
+
+初步印象：图、连通块、并查集/深度优先
+
+对于一个连通块，只要连通块内有结点被感染，整个连通块便会被感染。
+
+根据题意，只能移除一个结点，当连通块内有2个及以上结点被感染时，不管移除哪个结点，被移除的结点仍会被在同一连通块内的其它被感染结点感染，从而整体被感染结点数并不会减少。
+
+对于那些只有1个被感染结点的连通块，移除唯一被感染结点后，整体被感染的结点减少的数量就是该连通块中的结点数，于是，要想整体被感染的结点数最少，只需要找到“只有1个被感染结点的连通块”中含结点数最多的连通块即可。
+
+经过上述分析，问题就转变为：找到只有1个被感染结点的连通块中含结点数最多的连通块。
+
+当没有只有1个被感染结点的连通块时，整体被感染结点数并不会减少，依题意，返回被感染结点中编号最小的结点即可。
+
+维护连通块可以使用并查集，也可以使用深搜给每个点打上标记。
+
+时间复杂度：O(n^2)
+
+空间复杂度：O(n)
+
+#### 代码实现
+
+* c++
+
+```c++
+int minMalwareSpread(vector<vector<int>> &graph, vector<int> &initial) {
+
+    int n = graph.size();
+
+    // 构建并查集
+    // 1.并查数组
+    int p[n], size[n];
+    // 2.模板函数
+    function<int(int)> find = [&](int x) {
+        if (p[x] != x)p[x] = find(p[x]);
+        return p[x];
+    };
+    function<void(int, int)> unite = [&](int a, int b) {
+        a = find(a), b = find(b);
+        if (a == b)return;
+        if (size[a] < size[b])swap(a, b);
+        p[b] = a, size[a] += size[b];
+    };
+    // 3.初始化
+    for (int i = 0; i < n; i++) {
+        p[i] = i, size[i] = 1;
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j <= i; j++) {
+            if (graph[i][j])unite(i, j);
+        }
+    }
+
+    // initial数组去重
+    int cnt[n];
+    memset(cnt, 0, sizeof cnt);
+    for (int e: initial)cnt[find(e)]++;   // 被感染且唯一的点的对应的cnt值为1
+
+    // 找到所在连通块点数最大的点（唯一点）
+    int curSize = 0, idx = -1;
+    for (int e: initial) {
+        int rt = find(e);
+        if (cnt[rt] == 1) {         // 被感染且唯一的点
+            if (curSize < size[rt])curSize = size[rt], idx = e;
+            else if (curSize == size[rt] && e < idx)idx = e;
+        }
+    }
+
+    // 没有唯一点
+    if (idx == -1) {
+        idx = INT_MAX;
+        for (int e: initial)
+            if (e < idx)idx = e;
+    }
+
+    return idx;
+}
+```
+
