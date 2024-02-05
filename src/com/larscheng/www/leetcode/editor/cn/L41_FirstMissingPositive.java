@@ -41,7 +41,6 @@ package com.larscheng.www.leetcode.editor.cn;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 public class L41_FirstMissingPositive{
       
@@ -82,7 +81,7 @@ class Solution {
                 map.put(nums[i],i);
             }
             int temp = 1;
-            List<Integer> list = map.keySet().stream().sorted().toList();
+            List<Integer> list = (List<Integer>) map.keySet().stream().sorted();
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i) > 0 && temp == list.get(i)) {
                     temp++;
