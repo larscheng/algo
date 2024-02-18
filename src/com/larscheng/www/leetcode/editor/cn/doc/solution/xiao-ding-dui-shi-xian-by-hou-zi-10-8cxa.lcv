@@ -1,0 +1,25 @@
+### 解题思路
+
+2021/05/15 一刷
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        //用小顶堆,并且堆中指存在k个值,如果超过就弹出,最后在堆顶的就是倒数第k个值
+        if (nums.size() == 0 || k > nums.size()) return 0;
+        priority_queue<int, vector<int>, greater<int>> small_heap;
+
+        for(int i = 0; i < nums.size(); i++){
+            small_heap.push(nums[i]);
+            if (small_heap.size() > k) small_heap.pop();
+        }
+        return small_heap.top();
+    }
+};
+```
+

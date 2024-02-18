@@ -1,0 +1,62 @@
+### 解题思路
+
+heapify()+sift down 自建堆
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        int n = nums.length;
+        heap h = new heap(nums);
+        for(int i = 0;i<k;i++){
+            int tmp = h.nums[0];
+            h.nums[0] = h.nums[--h.size];
+            h.nums[h.size] = tmp;
+            h.siftDown(0);
+        }
+
+        return h.nums[h.size];
+
+    }
+
+    public class heap{
+        int[] nums;
+        int size;
+
+        public heap(int[] nums){
+            this.nums = nums;
+            this.size = nums.length;
+            heapify();
+        }
+
+        public void heapify(){
+            for(int i = size/2-1;i>=0;i--)
+                siftDown(i);
+        }
+
+        public void siftDown(int index){
+            int tmp = nums[index];
+
+            while(index < size/2){
+                int childIdx = index*2+1;
+                int r = childIdx +1;
+
+                if(r < size && nums[r] > nums[childIdx])
+                    childIdx = r;
+
+                if(nums[childIdx] < tmp)    break;
+                else{
+                    nums[index] = nums[childIdx];
+                    index = childIdx;
+                }
+
+            }
+            nums[index] = tmp;
+        }
+    }
+}
+```
+

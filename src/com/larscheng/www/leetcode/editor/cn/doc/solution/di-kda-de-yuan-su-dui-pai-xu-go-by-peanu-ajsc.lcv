@@ -1,0 +1,57 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* golang
+
+```golang
+func findKthLargest(heap []int, k int) int {
+    	//使用堆排序来构建大顶推
+
+	//构建大顶堆
+	var buildMaxHeap func(data []int)
+
+	var maxHeapCreate func(data []int,i int,heapSize int)
+
+	maxHeapCreate = func(data []int, i int, heapSize int) {
+		//左子下标
+		left := 2*i + 1
+		//右子下标
+		right := 2*i + 2
+		//记录左，右 i中的最大值
+		largest := i
+		//与左节点比较
+		if left < heapSize && data[largest] < data[left] {
+			largest = left
+		}
+		//与右节点比较
+		if right < heapSize && data[largest] < data[right] {
+			largest = right
+		}
+		if largest != i {
+			//交换元素
+			data[i],data[largest] = data[largest],data[i]
+			//此时最大值所在索引的位置被替换了，但是他不一定比原来的大，所以需要再递归替换
+			maxHeapCreate(data,largest,heapSize)
+		}
+	}
+
+	buildMaxHeap = func(data []int) {
+		// 从最后一个非叶子节点开始调整，使其和其左右节点构成大顶堆
+		// 最后一个非叶子节点是 n/2 - 1
+		for i:= len(data)/2 -1 ;i>=0;i-- {
+			maxHeapCreate(data,i,len(heap))
+		}
+	}
+	buildMaxHeap(heap)
+
+	for i := len(heap)-1; i > len(heap)-k; i-- {
+		heap[0],heap[i] = heap[i],heap[0]
+		maxHeapCreate(heap,0,i)
+	}
+    return heap[0]
+}   
+```
+

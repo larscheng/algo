@@ -1,0 +1,52 @@
+### 解题思路
+
+用大根堆做堆排序，取k次堆顶元素
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        initMaxHeap(nums);
+        for(int i = 0; i < k-1; i++){
+            swap(nums, 0, nums.length - i - 1);
+            maxHeapify(nums, 0, nums.length - i - 1);
+        }
+        return nums[0];
+    }
+
+    private void initMaxHeap(int[] nums){
+        for(int i = nums.length / 2 - 1; i >= 0; i--){
+            maxHeapify(nums, i, nums.length);
+        }
+    }
+
+
+    private void maxHeapify(int[] nums, int i, int heapSize){
+        int left = 2 * i + 1;
+        int right = left + 1;
+        int mid = i;
+
+        if(left < heapSize && nums[mid] < nums[left]){
+            mid = left;
+        }
+        if(right < heapSize && nums[mid] < nums[right]){
+            mid = right;
+        }
+
+        if(mid != i){
+            swap(nums, i, mid);
+            maxHeapify(nums, mid, heapSize);
+        }
+    }
+
+    private void swap(int[] arr, int i, int j){
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+```
+

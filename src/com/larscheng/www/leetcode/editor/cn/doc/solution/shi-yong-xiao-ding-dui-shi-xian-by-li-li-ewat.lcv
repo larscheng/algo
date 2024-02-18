@@ -1,0 +1,64 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* javascript
+
+```javascript
+class Heap {
+    constructor() {
+        this.data = []
+        this.cnt = 0
+    }
+    swap(a, b) {
+        const tmp = this.data[a]
+        this.data[a] = this.data[b]
+        this.data[b] = tmp
+    }
+    push(i) {
+        let ind = this.cnt
+        this.data[this.cnt++] = i
+        while (ind && this.data[ind] < this.data[(ind - 1) / 2 | 0]) {
+            this.swap(ind, (ind - 1) / 2 | 0)
+            ind = (ind - 1) / 2 | 0
+        }
+    }
+    size() {
+        return this.data.length
+    }
+    pop() {
+        if (!this.size()) return
+        const first = this.data[0]
+        this.data[0] = this.data[--this.cnt]
+        this.data.length = this.cnt
+        let ind = 0, n = this.cnt - 1, tmp = ind
+        while (ind * 2 + 1 <= n) {
+            if (this.data[ind] > this.data[ind * 2 + 1]) tmp = ind * 2 + 1
+            if (ind * 2 + 2 <= n && this.data[tmp] > this.data[ind * 2 + 2]) tmp = ind * 2 + 2
+            if (tmp == ind) break
+            this.swap(ind, tmp)
+            ind = tmp
+        }
+        return first
+    }
+    top() {
+        return this.data[0]
+    }
+}
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var findKthLargest = function (nums, k) {
+    const h = new Heap()
+    for (const v of nums) {
+        h.push(v)
+        if (h.size() > k) h.pop()
+    }
+    return h.top()
+};
+```
+
