@@ -1,0 +1,29 @@
+* []
+
+```C
+
+bool buddyStrings(char * s, char * goal){
+    int len1 = strlen(s),len2 = strlen(goal),count=0;
+    if(len1!=len2||len1==1) return false;
+    char s1,s2,j1,j2;
+    int map[26]={0};
+    for(int i=0;i<len1;i++){
+        map[s[i]-'a']++;
+        if(s[i]!=goal[i]&&count==0) s1=s[i],j1=goal[i],count++;
+        else if(s[i]!=goal[i]&&count==1) s2=s[i],j2=goal[i],count++;
+        else if(s[i]!=goal[i]) count++;
+    }
+    if(!count){
+        for(int i=0;i<26;i++){
+            if(map[i]>1) return true;
+        }
+        return false;
+    }
+    if(count>2||count==1) return false;
+    else{
+        if(s1==j2&&s2==j1) return true;
+        else return false;
+    }
+}
+```
+
