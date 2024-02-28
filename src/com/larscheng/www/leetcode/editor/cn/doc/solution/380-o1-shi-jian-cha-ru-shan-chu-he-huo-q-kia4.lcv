@@ -1,0 +1,64 @@
+本题的难点在于两点：
+
+1. **插入，删除，获取随机元素这三个操作的时间复杂度必须都是 O(1)**。
+
+2. **`getRandom` 方法返回的元素必须等概率返回随机元素**
+
+对于插入，删除，查找这几个操作，`HashSet`时间复杂度是 O(1)，但是它却无法在O(1)的时间内实现`getRandom` 函数
+
+对于 `getRandom` 方法，如果想**等概率且在 O(1) 的时间**取出元素，一定要满足：**底层用数组实现，且数组必须是紧凑的**。这样就可以直接生成随机数作为索引，从数组中取出该随机索引对应的元素，作为随机元素。
+
+同时**对数组尾部进行插入和删除操作不会涉及数据搬移，时间复杂度是 O(1)**。所以，如果想在 O(1) 的时间删除数组中的某一个元素 `val`，可以**先把这个元素交换到数组的尾部，然后再删除最后一个**。
+
+交换两个元素必须通过索引进行交换，那么**需要一个哈希表来记录每个元素值对应的索引**。
+
+* java
+
+```java
+class RandomizedSet {
+    ArrayList<Integer> list;
+    // <val, index>
+    HashMap<Integer, Integer> map; 
+
+    public RandomizedSet() {
+        list = new ArrayList<>();
+        map = new HashMap<>();
+    }
+    
+    public boolean insert(int val) {
+        if(map.containsKey(val)){
+            return false;
+        }
+
+        list.add(val);
+        map.put(val, list.size() - 1);
+        return true;
+    }
+    
+    public boolean remove(int val) {
+        if(!map.containsKey(val)){
+            return false;
+        }
+
+        // 通过map可以直接获得要删除的元素的索引
+        int index = map.get(val);
+        
+        // 将要删除的元素和最后一个元素互换位置，然后再删除最后一个元素
+        // 记得map中也要更新原来最后一个元素的新index，删除要删除的元素
+        int last = list.get(list.size() - 1);
+        list.set(index, last);
+        list.remove(list.size() - 1);
+        map.put(last, index);
+        // 删除操作要放到最后，否则如果只有一个元素的情况，map.put(last, index)又把这一个元素放进去了
+        map.remove(val);
+        return true;
+    }
+    
+    public int getRandom() {
+        // Math.random()返回的是[0, 1)之间的随机数，不包括1
+        int randomIndex =(int) (Math.random() * (double)list.size());
+        return list.get(randomIndex);
+    }
+}
+```
+
