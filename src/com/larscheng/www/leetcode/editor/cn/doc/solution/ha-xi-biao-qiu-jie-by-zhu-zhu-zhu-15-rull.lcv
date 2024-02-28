@@ -1,0 +1,35 @@
+### 解题思路
+
+对于一段连续的序列，可以通过先找到左端起始元素，然后逐次加1来判断当前元素是否在数组中，直到不存在，记录此时的序列长度，更新最长序列。
+设置一个哈希表存放所有元素，然后遍历数组，对于当前遍历元素num，为了找到一段连续序列的左端起始元素，可以通过哈希表中是否存在num-1来判断，如果不存在，说明num可能是一段连续序列的起点，然后循环判断num++是否在哈希表中，更新最大长度。
+因为只有当当前元素为连续序列的起始点时，再会进入后面的循环判断，否则直接跳过，所以时间复杂度为O(n).
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        int n=nums.length;
+        Set<Integer> set=new HashSet<>();
+        for(int num:nums){
+            set.add(num);
+        }
+        int res=0;
+        for(int num: nums){
+            if(!set.contains(num-1)){
+                int length=1;
+                int cnum=num+1;
+                while(set.contains(cnum)){
+                    length+=1;
+                    cnum+=1;
+                }
+                res=Math.max(res,length);
+            }
+        }
+        return res;
+    }
+}
+```
+

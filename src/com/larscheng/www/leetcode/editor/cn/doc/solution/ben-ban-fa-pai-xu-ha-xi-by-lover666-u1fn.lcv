@@ -1,0 +1,41 @@
+### 解题思路
+
+哈希去重，排序到新数组，维护最长连续序列
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        HashSet<Integer> table = new HashSet<>();
+        for(int i=0;i<nums.length;i++)
+        {
+                table.add(nums[i]);
+        }
+        int[] num = new int[table.size()];
+        int j=0;
+        for( int i : table)
+        {
+            num[j] = i;
+            j++;
+        }
+        Arrays.sort(num);
+        int n= 0,res=0;
+        for(int i=0;i<num.length;i++)
+        {
+            if(i==0||num[i]==num[i-1]+1)
+            {
+                n+=1;
+            }
+            else{
+                n=1;
+            }
+            res= Math.max(n, res);
+        }
+        return res;
+    }
+}
+```
+

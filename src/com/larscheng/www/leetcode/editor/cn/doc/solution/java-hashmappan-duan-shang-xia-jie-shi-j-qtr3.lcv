@@ -1,0 +1,91 @@
+> Problem: [128. 最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/description/)
+
+[TOC]
+
+# 思路
+
+> 使用一个HashMap存储当前遍历过的数字，如果hashMap中已经存在这个数字，说明之前已经处理过这个数字，不做任何处理【是为了防止出现重复数字再次计算造成错误】
+> 每次遍历到新数字时，去hashMap中寻找比它小1的数字和比它大1的数字对应的长度，记为min和max。
+> 如果min、max均为0，说明此时不存在上下界，直接记为1.
+> 当出现min、max不为0时，说明与当前数字有新的上下界，计算出上下界所对应的数字，并在map中修改对应的上下界大小。
+
+# 解题方法
+
+- 若不存在上下界：直接更新为1；
+- 若存在上界不存在下界：更新上界数字长度+1，即max + 1；
+- 若存在下界不存在上界：更新下界数字长度+1，即min + 1；
+- 若上下界均存在：同时更新上下界长度为下界长度+上界长度+1，即min + max + 1
+
+因此最开始的代码是：
+
+* java
+
+```java
+class Solution {
+public int longestConsecutive(int[] nums) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int res = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (map.get(nums[i]) != null) {
+                continue;
+            }
+            Integer min = map.getOrDefault(nums[i] - 1, 0);
+            Integer max = map.getOrDefault(nums[i] + 1, 0);
+            int now = max + min + 1;
+            if (min == 0 && max == 0) {
+                map.put(nums[i], 1);
+            }else if (min == 0) {
+                map.put(nums[i] + max, now);
+                map.put(nums[i], now);
+            } else if (max == 0) {
+                map.put(nums[i], now);
+                map.put(nums[i] - min, now);
+            } else {
+                map.put(nums[i] + max, now);
+                map.put(nums[i] - min, now);
+                map.put(nums[i], now);
+            }
+            res = Math.max(res, now);
+        }
+        return res;
+    }
+}
+```
+
+可以发现中间的判断并没有必要，可以直接合并。
+
+# 复杂度
+
+- 时间复杂度: O(n)
+
+- 空间复杂度: O(n)
+
+# Code
+
+* []
+
+```Java
+
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int res = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (map.get(nums[i]) != null) {
+                continue;
+            }
+            Integer min = map.getOrDefault(nums[i] - 1, 0);
+            Integer max = map.getOrDefault(nums[i] + 1, 0);
+
+            int now = max + min + 1;
+            map.put(nums[i] + max, now);
+            map.put(nums[i] - min, now);
+            map.put(nums[i], now);
+
+            res = Math.max(res, now);
+        }
+        return res;
+    }
+}
+```
+

@@ -1,0 +1,50 @@
+hashmap中的key存储各个数值，value存储数值后面连续数字的个数，初始的value都为0
+
+* 
+
+```
+public int longestConsecutive(int[] nums) {
+    HashMap<Integer,Integer> hashMap=new HashMap<>();
+    for(int i=0;i<nums.length;i++){
+        hashMap.put(nums[i],0);
+    }
+    //最大长度，作为返回结果
+    int maxL=0;
+    for(int i=0;i<nums.length;i++){
+                int t=nums[i];
+        int len=0;
+        while(true){
+            //如果包含则说明连续
+            if(hashMap.containsKey(t)){
+                Integer integer = hashMap.get(t);
+                //说明该值连续数字的个数已有记录
+                if(integer!=0){
+                    len+=integer;
+                    if(len>maxL){
+                        maxL=len;
+                    }
+                    for(int j=nums[i];j<=t-1;j++){
+                        hashMap.put(j,len);
+                        len--;
+                    }
+                    break;
+                }
+                len++;
+            }else{          //不包含说明不连续，需要记录遍历到的hashmap的value值
+                if(len>maxL){
+                    maxL=len;
+                }
+                for(int j=nums[i];j<=t-1;j++){
+                    hashMap.put(j,len);
+                    len--;//每后移动一位，value就减1
+                }
+                break;
+            }
+            //数值后移
+            t++;
+        }
+    }
+    return maxL;
+}
+```
+
