@@ -38,22 +38,47 @@
 package com.larscheng.www.leetcode.editor.cn;
 
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class L41_FirstMissingPositive{
       
   public static void main(String[] args) {
        Solution solution = new L41_FirstMissingPositive().new Solution();
-      System.out.println(solution.firstMissingPositive(new int[]{1,2,2,1,3,1,0,4,0}));
+//      System.out.println(solution.firstMissingPositive(new int[]{1,2,2,1,3,1,0,4,0}));
+//      System.out.println(solution.firstMissingPositive(new int[]{5,6,7,8,9,10,11}));
+      System.out.println(solution.firstMissingPositive(new int[]{3,4,-1,1}));
   }
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public int firstMissingPositive(int[] nums) {
         for (int i = 0; i < nums.length; i++) {
-            while (nums[i] >= 1 && nums[i] <= nums.length && nums[i] != nums[nums[i] - 1]) { // 因为可能不止一次操作，所以此处不用 if ，而改用while
+            //1应该放在下标0，2应该放在下标1，nums[i]应该放在下标nums[i]-1
+            while (nums[i] >= 1 &&
+                    nums[i] <= nums.length &&
+                    nums[i] != nums[nums[i] - 1]) {
+                //交换完当前位置元素仍可能位置不正确，需要继续交换
+                int temp = nums[nums[i] - 1];
+                nums[nums[i] - 1] = nums[i];
+                nums[i] = temp;
+            }
+        }
+        //首个元素应该为最小正整数1，依次递增，否则即为缺失的最小正整数
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != i + 1) return i + 1;
+        }
+        return nums.length + 1;
+    }
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+class Solution2 {
+    public int firstMissingPositive(int[] nums) {
+        for (int i = 0; i < nums.length; i++) {
+            while (nums[i] >= 1 &&
+                    nums[i] <= nums.length &&
+                    nums[i] != nums[nums[i] - 1]) {
+                // 因为可能不止一次操作，所以此处不用 if ，而改用while
                 check(nums, i, nums[i] - 1);
             }
         }
@@ -70,9 +95,6 @@ class Solution {
         nums[index2] = temp;
     }
 }
-
-//leetcode submit region end(Prohibit modification and deletion)
-
     class Solution1 {
         public int firstMissingPositive(int[] nums) {
             Arrays.sort(nums);
