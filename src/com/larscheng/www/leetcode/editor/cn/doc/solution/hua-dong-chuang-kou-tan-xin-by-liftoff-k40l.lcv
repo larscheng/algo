@@ -1,0 +1,53 @@
+> Problem: [1717. 删除子字符串的最大得分](https://leetcode.cn/problems/maximum-score-from-removing-substrings/description/)
+
+[TOC]
+
+# 思路
+
+> - **窗口内只能有`a`与`b`两种字符，遇到不是`a`与`b`更新答案,重置`a`与`b`的字符个数 ,`a`字符个数记为：`ac`,`b`字符个数记为：`bc`**
+
+> - **贪心优先构造构造价值较大的删除子串，列如：子串`bbaaabab` ,`ab`的价值为: `4`, `ba`的价值为：`5`, 优先构造`ba`子串，后再考虑构造`ab`子串，所以会得到`3`个`ba`子串和`1`个`ab`子串**
+
+> - **滑动的过程中构造价值较大的删除子串，统计子串的个数。列如构造`ba`子串，当遇到`a`字符时，需要看已经滑过的窗口内是否还有多余的`b`字符，如果有则可以构造出`ba`字符，且`b`与`a`字符个数同时减一。**
+
+> - **答案累加更新，当前字符`(ch != a && ch != b) || 最后一个字符`,此时价值较小的字符个数为`min = Math.min(bc, ac)`**
+
+# 复杂度
+
+时间复杂度:
+
+> 时间复杂度：$O(n)$
+
+空间复杂度:
+
+> 空间复杂度： $O(1)$
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public int maximumGain(String s, int x, int y) {
+        int bc = 0, ac = 0, r = 0, cnt = 0, ans = 0, n = s.length();
+        while (r < n) {
+            char ch = s.charAt(r++);
+            if (ch == 'b') bc++;
+            if (ch == 'a') ac++;
+            if ((ch == 'b' && ac > 0 && x > y) || (ch == 'a' && bc > 0 && x <= y)) {
+                cnt++;
+                bc--;
+                ac--;
+            }
+            if ((ch != 'a' && ch != 'b') || (r == n)) {
+                //价值较小的子串个数
+                int min = Math.min(bc, ac);
+                ans += y >= x ? cnt * y + min * x : cnt * x + min * y;
+                bc = ac = cnt = 0;
+            }
+        }
+        return ans;
+    }
+}
+```
+
