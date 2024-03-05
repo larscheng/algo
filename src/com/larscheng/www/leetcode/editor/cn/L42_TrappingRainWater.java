@@ -35,6 +35,7 @@ package com.larscheng.www.leetcode.editor.cn;
 
 
 import java.util.Arrays;
+import java.util.Stack;
 
 public class L42_TrappingRainWater{
       
@@ -47,26 +48,54 @@ public class L42_TrappingRainWater{
 //leetcode submit region begin(Prohibit modification and deletion)
 
 class Solution {
-    // 双指针，找两个指针对应的左右最小max
-    // O(n)/O(1)
     public int trap(int[] height) {
         int res = 0;
-        int maxLeft = 0, maxRight = 0;
-        int leftPoint = 0, rightPoint = height.length - 1;
-        while (leftPoint < rightPoint) {
-            maxLeft = Math.max(maxLeft, height[leftPoint]);
-            maxRight = Math.max(maxRight, height[rightPoint]);
-            if (maxLeft < maxRight) {
-                res += maxLeft - height[leftPoint++];
-            } else {
-                res += maxRight - height[rightPoint--];
+        Stack<Integer> stack = new Stack<>();
+        //当前高度小于栈顶高度，说明此处可接水，先入栈，继续遍历
+        //当前高度大于栈顶高度，说明积水到这里结束，出栈计算积水量，当前高度入栈重新开始
+        //单调栈内存储下标，从底到顶 下标对应的数组值从大到小
+        for (int i = 0; i < height.length; i++) {
+            while (!stack.isEmpty() && height[i] > height[stack.peek()]) {
+                //最小的坑所属的下标
+                Integer top = stack.pop();
+                if (stack.empty()){
+                    //栈中不足两个下标
+                    break;
+                }
+                //left/top/i（栈底/栈顶/当前）构成一个接水区域
+                Integer left = stack.peek();
+                int width = i - left - 1;
+                int high = Math.min(height[left], height[i]) - height[top];
+                res += width * high;
             }
+            stack.push(i);
         }
         return res;
     }
 }
 //leetcode submit region end(Prohibit modification and deletion)
 
+
+
+    class Solution4 {
+        // 双指针，找两个指针对应的左右最小max
+        // O(n)/O(1)
+        public int trap(int[] height) {
+            int res = 0;
+            int maxLeft = 0, maxRight = 0;
+            int leftPoint = 0, rightPoint = height.length - 1;
+            while (leftPoint < rightPoint) {
+                maxLeft = Math.max(maxLeft, height[leftPoint]);
+                maxRight = Math.max(maxRight, height[rightPoint]);
+                if (maxLeft < maxRight) {
+                    res += maxLeft - height[leftPoint++];
+                } else {
+                    res += maxRight - height[rightPoint--];
+                }
+            }
+            return res;
+        }
+    }
     class Solution3 {
         // 按列计算，关注当前列左边和右边的最高值，
         // 左右min值大于当前的值，木桶效应可得，当前列可以接的水为两者差值
