@@ -1,7 +1,7 @@
 ---
 name: algo
 about: desc
-title: "【Check Num 】2024-03-dd - 1.两数之和"
+title: "【Check Num】2024-03-dd - 1.两数之和"
 labels: ''
 assignees: ''
 
