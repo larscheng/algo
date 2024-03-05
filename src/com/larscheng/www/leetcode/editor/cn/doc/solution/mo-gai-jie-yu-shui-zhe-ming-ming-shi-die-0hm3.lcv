@@ -1,0 +1,59 @@
+> Problem: [42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/description/)
+
+[TOC]
+
+# 思路
+
+> 他喵的不知道为什么我看到这道题，就会情不自禁想到水会漫出去，因为这个我一直把握不住这题的精髓。从此刻开始我要忘掉这道题，这题跟水一点关系都没有，脑海里想到的是小时候玩的推箱子小游戏，现在这道题被我从新定义：叠箱子。
+> 规则如下：
+> 1.每一列在我没有往上叠箱子之前都有一定个数的箱子。
+> 2.假如当前列左侧最高的箱子数量为leftmax，当前列右侧最高的箱子数量为rightmax，那么当前列在叠箱子后的高度不能高于他们中的任意一个。
+> 请问：每一列可以叠加的箱子数量之和是多少？？
+
+# 解题方法
+
+> 上面的规则2其实就是解题思路，相信很多人跟我一开始一样，总是想水平方向分析这道题，其实如果垂直方向看，这道题就很简单了。
+> **牢记要点：这是箱子不是水，如果忘不掉水会流动这个特点，那就牢记箱子不会流动。**
+> 具体的题解懒得写了，分享两个链接，先看第一个再看第二个，还不会来砍我。
+> [1](https://www.bilibili.com/video/BV1Ub4y1k71E/?spm_id_from=333.337.search-card.all.click&vd_source=933ddd2f26beaaa96372974f9b72164b)
+> [2](https://leetcode.cn/problems/trapping-rain-water/solutions/1502995/shuang-zhi-zhen-by-lafiteee-aay8/?envType=study-plan-v2&envId=top-100-liked)
+
+# 复杂度
+
+时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int left=0,right=height.size()-1,res=0,maxleft=0,maxright=0;
+        while(left<right)
+        {   
+            maxleft=max(height[left],maxleft);
+            maxright=max(height[right],maxright);
+            if(maxleft>=maxright)
+            {
+               res+=maxright-height[right];
+               right--;
+            }
+            else
+            {
+                res+=maxleft-height[left];
+                left++;
+            }
+        }
+        return res;
+    }
+};
+```
+
