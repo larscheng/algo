@@ -54,6 +54,7 @@ public class L3_LongestSubstringWithoutRepeatingCharacters{
      * 通过双指针构建滑动窗口，窗口内只能存放无重复的子串，移动窗口过程中，最大窗口值即为最长无重复子串
      * 右指针移动过程中记录每个元素及其下标至哈希表中，并记录最大窗口值
      * 如果出现重复元素，则移动左指针到当前元素的下一位，收缩窗口，继续遍历
+     * O(n)/O(n)
      */
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {

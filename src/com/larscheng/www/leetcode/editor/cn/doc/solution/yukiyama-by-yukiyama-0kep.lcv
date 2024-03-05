@@ -1,0 +1,101 @@
+# 946-验证栈序列
+
+[946. 验证栈序列](https://leetcode.cn/problems/validate-stack-sequences/) (中等)
+
+<br />
+
+## 解法一：栈
+
+### 算法描述
+
+利用题目给出的所有元素不相同的条件，如果入栈元素与出栈元素在合法的入出栈顺序中一一对应，则 $popped$ 是 $pushed$ 的出栈序列。因此程序应当能够同时向前考察 $pushed$ 和 $popped$ ，通过遍历考察 $pushed$ ，并利用一个指针下标 $i$ 跟踪 $popped$ 当前考察元素。具体做法如下：
+
+- 遍历 $pushed$ ，将当前元素压入 $stack$ 栈。
+- 接着在 $while$ 中循环地比较 $stack$ 栈顶元素 $top$ 是否与当前 $popped$ 元素 (即 $popped[i]$ ) 相等。
+
+  - 若相等则说明此处应当出栈，否则 $stack$ 再压入其他数字后原 $top$ 将无法出栈。出栈后 $i++$ ，继续循环地考察新的栈顶 $stack.peek()$ 与 $popped[i]$ 是否相等。
+  - 若不相等，说明此时的 $popped[i]$ 还未到出栈时机，$i$ 保持不变，等待 $pushed$ 中接下来的元素入栈后再比较。因此要跳出 $while$ 。
+- 遍历 $pushed$ 结束后，考察栈是否有 $stack.isEmpty()$，或者是否有 $i==popped.length$ 。
+  - 满足则说明通过 $pushed$ 和 $popped$ 的对应，所有元素入栈又出栈了，那么 $popped$ 是 $pushed$ 的一个合法出栈序列，返回 $true$ 。
+  - 否则不合法，返回 $false$ 。
+
+<br />
+
+### 时空复杂度
+
+时间复杂度：所有元素至多入栈一次出栈一次，$O(n)$ 。
+
+空间复杂度：栈中至多有 $n$ 个元素， $O(n)$ 。
+
+<br />
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        int i = 0;
+        for(int in : pushed){
+            stack.push(in);
+            while(!stack.isEmpty() && popped[i] == stack.peek()){
+                stack.pop();
+                i++;
+            }
+        }
+        return i == popped.length;
+    }
+}
+```
+
+<br />
+
+## 解法二：数组模拟栈
+
+### 算法描述
+
+不使用 $stack$ ，而是使用 $pushed$ 来模拟 $stack$ 。设置两个指针下标 $i,j$ ，$i$ 总是指向栈顶 (即相当于解法一中 $stack$ 的栈顶) ，$j$ 指向当前考察的 $popped$ 的元素。
+
+- 遍历 $pushed$ ，使得 $pushed[i]$ 为当前遍历到的 $pushed$ 的元素，即栈顶元素。
+- 接着在 $while$ 中循环地比较 $pushed[i]$ 是否与当前 $popped$ 元素 (即 $popped[i]$ ) 相等。
+
+  - 若相等则说明此处应当出栈，否则栈再压入其他数字后原 $top$ 将无法出栈。由于使用 $pushed$ 模拟栈，因此出栈后 $i--$ ，并继续考察下一个 $popped$ 元素，$j++$。
+  - 若不相等，说明此时的 $popped[j]$ 还未到出栈时机，$j$ 保持不变，等待 $pushed$ 中接下来的元素入栈后再比较。因此要跳出 $while$ 。
+- 遍历 $pushed$ 结束后，考察栈是否有 $i==-1$，或者是否有 $j==popped.length$ 。
+  - 满足则说明通过 $pushed$ 和 $popped$ 的对应，所有元素入栈又出栈了，那么 $popped$ 是 $pushed$ 的一个合法出栈序列，返回 $true$ 。
+  - 否则不合法，返回 $false$ 。
+
+<br />
+
+### 时空复杂度
+
+时间复杂度：所有元素至多入栈一次出栈一次，$O(n)$ 。
+
+空间复杂度：$O(1)$ 。
+
+<br />
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        int i = -1, j = 0;
+        for(int in : pushed){
+            pushed[++i] = in;
+            while(i > -1 && popped[j] == pushed[i]){
+                i--;
+                j++;
+            }
+        }
+        return i == -1;
+    }
+}
+```
+
+<br />
+
