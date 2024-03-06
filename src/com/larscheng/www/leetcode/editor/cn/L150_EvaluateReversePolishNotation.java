@@ -89,37 +89,66 @@ public class L150_EvaluateReversePolishNotation{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
-      //按照逆波兰表达式运算规则，数字入栈，运算符取出栈顶2个元素计算，结果压入栈内
-      //O(n)/O(n)
+      //按照逆波兰表达式运算规则，数字入数组模拟的栈，运算符取出栈顶2个元素计算，结果压入栈内
+      //O(n)/O(n/2)
     public int evalRPN(String[] tokens) {
-        Stack<Integer> stack = new Stack<>();
-        for (int i = 0; i < tokens.length; i++) {
-            String token = tokens[i];
-            if ("+-*/".contains(token)){
-                Integer right = stack.pop();
-                Integer left = stack.pop();
-                switch (token) {
-                    case "+":
-                        stack.push(left + right);
-                        break;
-                    case "-":
-                        stack.push(left - right);
-                        break;
-                    case "*":
-                        stack.push(left * right);
-                        break;
-                    default:
-                        stack.push(left / right);
-                        break;
-                }
+        //数组模拟栈
+        int[] stack = new int[tokens.length/2 +1];
+        //栈顶下标
+        int top = 0;
+        for (String token : tokens) {
+            if ("+".equals(token)){
+                stack[top - 2] += stack[top - 1];
+                //两个数计算后变1个数字，栈顶下标左移1
+                top--;
+            }else if ("-".equals(token)){
+                stack[top - 2] -= stack[top - 1];
+                top--;
+            }else if ("*".equals(token)){
+                stack[top - 2]  *= stack[top - 1];
+                top--;
+            }else if ("/".equals(token)){
+                stack[top - 2]  /= stack[top - 1];
+                top--;
             }else {
-                stack.push(Integer.parseInt(token));
+                stack[top]=Integer.parseInt(token);
+                top++;
             }
         }
-        return stack.pop();
+        return stack[0];
     }
 }
 //leetcode submit region end(Prohibit modification and deletion)
 
-
+    class Solution1 {
+        //按照逆波兰表达式运算规则，数字入栈，运算符取出栈顶2个元素计算，结果压入栈内
+        //O(n)/O(n)
+        public int evalRPN(String[] tokens) {
+            Stack<Integer> stack = new Stack<>();
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i];
+                if ("+-*/".contains(token)){
+                    Integer right = stack.pop();
+                    Integer left = stack.pop();
+                    switch (token) {
+                        case "+":
+                            stack.push(left + right);
+                            break;
+                        case "-":
+                            stack.push(left - right);
+                            break;
+                        case "*":
+                            stack.push(left * right);
+                            break;
+                        default:
+                            stack.push(left / right);
+                            break;
+                    }
+                }else {
+                    stack.push(Integer.parseInt(token));
+                }
+            }
+            return stack.pop();
+        }
+    }
 }
