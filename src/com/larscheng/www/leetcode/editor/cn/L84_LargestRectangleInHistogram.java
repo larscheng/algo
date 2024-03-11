@@ -75,6 +75,9 @@ class Solution {
 //leetcode submit region end(Prohibit modification and deletion)
 
 class Solution1 {
+      //暴力解法
+    //每个元素作为起点，遍历取剩余元素，计算组合成有效矩形的面积，并收集最大值
+    //O(n^2)/O(1)
     public int largestRectangleArea(int[] heights) {
         int res=0;
         for (int i = 0; i < heights.length; i++) {
