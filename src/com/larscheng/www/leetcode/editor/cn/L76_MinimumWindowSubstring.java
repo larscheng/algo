@@ -57,12 +57,15 @@ package com.larscheng.www.leetcode.editor.cn;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class L76_MinimumWindowSubstring{
       
   public static void main(String[] args) {
        Solution solution = new L76_MinimumWindowSubstring().new Solution();
-       
+//      System.out.println(solution.minWindow("ADOBECODEBANC", "ABC"));
+//      System.out.println(solution.minWindow("a", "a"));
+      System.out.println(solution.minWindow("cabwefgewcwaefgcf", "cae"));
   }
 
 //leetcode submit region begin(Prohibit modification and deletion)
@@ -73,44 +76,43 @@ class Solution {
         for (int i = 0; i < t.length(); i++) {
             need.put(t.charAt(i), need.getOrDefault(t.charAt(i), 0) + 1);
         }
-        int right = 0, left = 0;
-        int valid = 0;
-        int start = 0, minLen = Integer.MAX_VALUE;
-        while (right < s.length()) {
-            char cur = s.charAt(right);
-            right++;
-            // 进行窗口数据一系列更新
-            if (need.containsKey(cur)) {
-                Integer total = window.getOrDefault(cur, 0);
-                window.put(cur, total + 1);
-                if (window.get(cur).equals(need.get(cur))) {
-                    valid++;
+
+        int left = 0; int right = 0;
+        int resLeft = -1; int minLen = Integer.MAX_VALUE;
+        //记录窗口内覆盖数量
+        int flag = 0;
+
+        while (right < s.length()){
+            char curRight = s.charAt(right++);
+            if (need.containsKey(curRight)){
+                //窗口向右移动
+                window.put(curRight, window.getOrDefault(curRight, 0) + 1);
+                if (Objects.equals(window.get(curRight), need.get(curRight))){
+                    flag++;
                 }
             }
-            while (need.size() == valid) {
+
+            //如果窗口内已包含覆盖子串，收缩左窗口
+            while (need.size()==flag){
                 if (right - left < minLen) {
-                    start = left;
                     minLen = right - left;
+                    resLeft = left;
                 }
-                // d 是将移除窗口的字符串
-                char d = s.charAt(left);
-                // 左边移动窗口
-                left++;
-                // 进行窗口内数据当一系列更新
-                if (window.containsKey(d)) {
-                    if (window.get(d).equals(need.get(d))) {
-                        valid--;
+                //左窗口收缩，删除window和flag
+                char curLeft = s.charAt(left++);
+
+                if (window.containsKey(curLeft)) {
+                    if (window.get(curLeft).equals(need.get(curLeft))){
+                        flag--;
                     }
-                    window.put(d, window.get(d) - 1);
+                    window.put(curLeft,window.get(curLeft)-1);
                 }
             }
+
         }
-
-
-        return minLen == Integer.MAX_VALUE ? "" : s.substring(start, start + minLen);
+        return resLeft == -1 ? "" : s.substring(resLeft, resLeft+minLen);
     }
 }
 //leetcode submit region end(Prohibit modification and deletion)
-
 
 }
