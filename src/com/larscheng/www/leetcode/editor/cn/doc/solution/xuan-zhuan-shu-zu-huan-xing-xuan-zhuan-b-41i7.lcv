@@ -1,0 +1,46 @@
+### 解题思路
+
+容易忽视的点：1、k的值可能大于nums数组长度导致无意义的旋转，故可以 k%nums.length
+2、k的值可能为0；nums.length%k 运行时错误
+算法
+①定义一个判断nums数组元素是否访问过的数组 数组元素未初始化时为0 ：未访问过 ，1 ：访问过
+②定义一个临时存储变量用于存储当前即将要被换位置的的元素
+③把第一个元素的值放入temp中
+由当前位置的元素的位置计算要替换的位置的元素的位置： x = (x + k) % nums.length；判断nums[x]是否被访问过1）没有访问过 就替换temp 与 nums[x] 的值，把当前位置设置为已访问访问 visited[x] = 1;
+2）访问过的话 就把当前的temp 的值改为 已访问过的元素的后一个元素的值，此次操作不计入替换次数
+
+④总共要替换nums.length次，循环执行③，且循环次数为nums.length；
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public void rotate(int[] nums, int k) {
+        k = k % nums.length;
+        int temp = 0;//临时存储变量
+        if (k == 0)
+        return ;  
+        int j = 0;
+        temp = nums[0];
+        int[] visited = new int[nums.length];  
+        for(int i = 0;i < nums.length;i++){
+            j =(j+k)%nums.length;
+            if(visited[j] == 0){
+                int x = temp;
+                temp = nums[j];
+                nums[j] = x;
+                visited[j] = 1;
+            }else{
+                temp = nums[++j]; 
+                i--;
+            }
+            
+        }
+        
+        
+    }
+}
+```
+

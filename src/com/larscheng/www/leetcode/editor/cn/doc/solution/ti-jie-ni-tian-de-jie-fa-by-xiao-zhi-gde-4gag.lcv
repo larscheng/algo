@@ -1,0 +1,37 @@
+> Problem: [189. 轮转数组](https://leetcode.cn/problems/rotate-array/description/)
+
+[TOC]
+
+# 思路
+
+不得不说，想出这种方法真的是太牛了！！！
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public void rotate(int[] nums, int k) {
+        
+        k = k % nums.length;
+        reverse(nums, 0, nums.length - 1);
+        reverse(nums, 0, k - 1);
+        
+        reverse(nums, k, nums.length - 1);
+        
+    }
+    
+    private void reverse(int[] nums, int a, int b) {
+        while (a < b) {
+            int tmp = nums[a];
+            nums[a] = nums[b];
+            nums[b] = tmp;
+            a++;
+            b--;
+        }
+        
+    }
+}
+```
+

@@ -1,0 +1,118 @@
+> Problem: [189. 轮转数组](https://leetcode.cn/problems/rotate-array/description/)
+
+[TOC]
+
+# 法一：先存在中介中
+
+> 先找出每个元素最后的位置。然后依次存入中介数组中。存完后，中介数组里存的就是轮转后的答案。然后让 nums等于中介数组即可
+
+# 复杂度
+
+时间复杂度:
+
+> $O(n)$
+
+空间复杂度:
+
+> $O(n)$
+
+# Code
+
+* []
+
+```C++
+class Solution 
+{
+public:
+    void rotate(vector<int>& nums, int k) 
+    {
+        int n = nums.size();
+        vector<int> ans(n);
+        k = k%n;
+        for(int i = k, j = 0; i < n; i++,j++)
+        {
+            ans[i] = nums[j];
+        }
+        for(int i = 0, j = n - k; i < k; i++,j++)
+        {
+            ans[i] = nums[j];
+        }
+        nums = ans;
+        return;
+    }
+};
+```
+
+# 法二：连续替换
+
+> 求出最少轮转次数用k=k%n。 然后我们只需要重复 把第一个元素放到最后面  这个操作 n - k 次，就可以得出答案
+
+# 复杂度
+
+时间复杂度:
+
+> $O(n-k)$ 按理只需 (n-k)次 赋值，删除，替换 就ok了。但是跑出来超时了。
+> 个人不知道原因，这里$O(n-k)$只是我认为的答案，不一定是真正的答案，希望不要误导到大家。(有佬看到了，帮忙解答一下，谢谢)
+
+空间复杂度:
+
+> $O(1)$
+
+# Code
+
+* []
+
+```C++
+class Solution 
+{
+public:
+    void rotate(vector<int>& nums, int k) 
+    {
+        int n = nums.size();
+        k = k%n;
+        k = n - k;
+        for(int i = 0; i < k; i++)
+        {
+            int n = nums[0];
+            nums.erase(nums.begin());
+            nums.push_back(n);
+        }
+        return;
+    }
+};
+```
+
+# 法三：反转数组
+
+> 先把所以的反转。 然后把前k个反转，把k个后反转，就能得到答案
+
+# 复杂度
+
+时间复杂度:
+
+> $O(n)$
+
+空间复杂度:
+
+> $O(1)$
+
+# Code
+
+* []
+
+```C++
+class Solution 
+{
+public:
+    void rotate(vector<int>& nums, int k) 
+    {
+        int n = nums.size();
+        k = k % n;
+        std::reverse(nums.begin(),nums.end());
+        std::reverse(nums.begin(),nums.begin()+k);
+        std::reverse(nums.begin()+k,nums.end());
+        return;
+    }
+};
+```
+
