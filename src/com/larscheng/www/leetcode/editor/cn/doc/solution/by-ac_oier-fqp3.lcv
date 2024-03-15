@@ -1,0 +1,171 @@
+## 前缀和
+
+根据题意，对于每个 $ans[i]$ 均由两部分组成：
+
+$$
+(nums[0] \times nums[1] \times ... \times nums[i - 1]) \times (nums[i + 1] \times nums[i + 2] \times ... \times nums[n - 1])
+$$
+
+因此我们可以运用「前缀和」思想，使用数组 `s1` 和 `s2` 分别计算范围 $[1, x]$ 的前缀乘 和 范围 $[x, n]$ 的后缀乘法（前缀和数组下标默认从 $1$ 开始），即 $s1[i]$ 代表范围 $[1,i]$ 的前缀乘值，$s2[i]$ 代表范围 $[i, n]$ 的后缀乘值。
+
+预处理完 `s1` 和 `s2` 之后，即可计算每个 $ans[i - 1] = s1[i - 1] \times s2[i + 1]$（`ans` 数组下标从 $0$ 开始）。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] s1 = new int[n + 10], s2 = new int[n + 10];
+        s1[0] = s2[n + 1] = 1;
+        for (int i = 1; i <= n; i++) s1[i] = s1[i - 1] * nums[i - 1];
+        for (int i = n; i >= 1; i--) s2[i] = s2[i + 1] * nums[i - 1];
+        int[] ans = new int[n];
+        for (int i = 1; i <= n; i++) ans[i - 1] = s1[i - 1] * s2[i + 1];
+        return ans;
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> s1(n + 2, 1), s2(n + 2, 1);
+        for (int i = 1; i <= n; i++) s1[i] = s1[i - 1] * nums[i - 1];
+        for (int i = n; i >= 1; i--) s2[i] = s2[i + 1] * nums[i - 1];        
+        vector<int> ans(n);
+        for (int i = 1; i <= n; i++) ans[i - 1] = s1[i - 1] * s2[i + 1];
+        return ans;
+    }
+};
+```
+
+* []
+
+```Python
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        s1, s2 = [1] * (n + 2), [1] * (n + 2)
+        for i in range(1, n + 1):
+            s1[i] = s1[i - 1] * nums[i - 1]
+        for i in range(n, 0, -1):
+            s2[i] = s2[i + 1] * nums[i - 1]
+        ans = [s1[i - 1] * s2[i + 1] for i in range(1, n + 1)]
+        return ans
+```
+
+* []
+
+```TypeScript
+function productExceptSelf(nums: number[]): number[] {
+    const n = nums.length;
+    const s1 = new Array(n + 2).fill(1), s2 = new Array(n + 2).fill(1);
+    for (let i = 1; i <= n; i++) s1[i] = s1[i - 1] * nums[i - 1];
+    for (let i = n; i >= 1; i--) s2[i] = s2[i + 1] * nums[i - 1];
+    const ans = new Array(n);
+    for (let i = 1; i <= n; i++) ans[i - 1] = s1[i - 1] * s2[i + 1];
+    return ans;
+};
+```
+
+* 时间复杂度：$O(n)$
+* 空间复杂度：$O(n)$
+
+---
+
+## 前缀和（空间优化）
+
+题目的进阶部分要求我们使用 $O(1)$ 空间来做（不算 `ans` 数组）。
+
+这样很好处理，按照我们解法一的思路，将两部分分开算即可：建立 `ans` 数组，先从前往后遍历 `nums`，计算每个 $ans[i]$ 前缀乘值部分，再从后往前遍历 `nums`，计算每个 $ans[i]$ 后缀乘值的部分，两部分相乘即是最终的 $ans[i]$。
+
+代码：
+
+* []
+
+```Java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] ans = new int[n];
+        for (int i = 1, j = 1; i <= n; i++) {
+            ans[i - 1] = j; j *= nums[i - 1];
+        }
+        for (int i = n, j = 1; i >= 1; i--) {
+            ans[i - 1] *= j; j *= nums[i - 1];
+        }
+        return ans;
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n, 1);
+        for (int i = 1, j = 1; i <= n; i++) {
+            ans[i - 1] = j; j *= nums[i - 1];
+        }
+        for (int i = n, j = 1; i >= 1; i--) {
+            ans[i - 1] *= j; j *= nums[i - 1];
+        }
+        return ans;
+    }
+};
+```
+
+* []
+
+```Python
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        ans = [1] * n
+        j = 1
+        for i in range(1, n + 1):
+            ans[i - 1] *= j
+            j *= nums[i - 1]
+        j = 1
+        for i in range(n, 0, -1):
+            ans[i - 1] *= j
+            j *= nums[i - 1]
+        return ans
+```
+
+* []
+
+```TypeScript
+function productExceptSelf(nums: number[]): number[] {
+    const n = nums.length;
+    const ans = new Array(n).fill(1);
+    for (let i = 1, j = 1; i <= n; i++) {
+        ans[i - 1] *= j; j *= nums[i - 1];
+    }
+    for (let i = n, j = 1; i >= 1; i--) {
+        ans[i - 1] *= j; j *= nums[i - 1];
+    }
+    return ans;
+};
+```
+
+* 时间复杂度：$O(n)$
+* 空间复杂度：$O(1)$
+
+---
+
+## 最后
+
+**如果有帮助到你，请给题解点个赞和收藏，让更多的人看到 ~ ("▔□▔)/**
+
+所有题解已经加入 [刷题指南](https://github.com/SharingSource/LogicStack-LeetCode/wiki)，欢迎 star 哦 ~
