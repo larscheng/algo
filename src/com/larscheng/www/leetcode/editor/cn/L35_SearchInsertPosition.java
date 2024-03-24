@@ -51,7 +51,7 @@ public class L35_SearchInsertPosition{
     /**
      * 原始2分查找，可以通过指针遍历元素，查找目标元素
      * 本题稍作变化，当找不到目标元素时，返回第一个大于他的元素下标
-     *
+     * O(logn)/O(1)
      */
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
