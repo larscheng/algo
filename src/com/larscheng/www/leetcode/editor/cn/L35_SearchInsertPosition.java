@@ -45,7 +45,8 @@ public class L35_SearchInsertPosition{
       
   public static void main(String[] args) {
        Solution solution = new L35_SearchInsertPosition().new Solution();
-      System.out.println(solution.searchInsert(new int[]{1, 2, 3, 5, 6}, 4));
+//      System.out.println(solution.searchInsert(new int[]{1, 2, 3, 5, 6}, 4));
+      System.out.println(solution.searchInsert(new int[]{1, 3, 5, 6}, 2));
   }
 
     /**
@@ -56,9 +57,26 @@ public class L35_SearchInsertPosition{
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
     public int searchInsert(int[] nums, int target) {
-        int mid, left = 0, result = 0;
+        int mid, left = 0;
         int right = nums.length - 1;
-        while (left < right) {
+        while (left <= right) {
+            mid = left + (right - left) / 2;
+            //数组可能元素重复，所以要一直搜索
+            if (nums[mid] >= target){
+                right = mid - 1;
+            }else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+class Solution1 {
+    public int searchInsert(int[] nums, int target) {
+        int mid, left = 0, result = nums.length;
+        int right = nums.length - 1;
+        while (left <= right) {
             mid = left + (right - left) / 2;
             if (nums[mid] == target) {
                 //存在直接返回
@@ -74,7 +92,5 @@ class Solution {
         return result;
     }
 }
-//leetcode submit region end(Prohibit modification and deletion)
-
 
 }
