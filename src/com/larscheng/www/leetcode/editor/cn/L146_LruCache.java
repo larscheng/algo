@@ -61,8 +61,7 @@
 package com.larscheng.www.leetcode.editor.cn;
 
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class L146_LruCache{
       
@@ -85,86 +84,64 @@ public class L146_LruCache{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class LRUCache {
+      //带过期时间的lru
     class ListNode{
 
         int key;
         int val;
-        ListNode pre;
-        ListNode next;
-        public ListNode(int key, int val) {
+
+        long expire;
+        public ListNode(int key, int val,long expire ) {
+            this.key = key;
+            this.val = val;
+            this.expire = expire;
+        }
+        public ListNode(int key, int val ) {
             this.key = key;
             this.val = val;
         }
         public ListNode() {}
     }
-    HashMap<Integer,ListNode> map = new HashMap<>();
-    ListNode head;
-    ListNode tail;
-    int size;
+    LinkedHashMap<Integer,ListNode> cache = new LinkedHashMap<>();
     int capacity;
     public LRUCache(int capacity) {
-        this.size = 0;
         this.capacity = capacity;
-        this.head = new ListNode();
-        this.tail = new ListNode();
-        //dummyhead ⇄ ..... ⇄ dummytail
-        //虚拟头
-        this.head.next = this.tail;
-        //虚拟尾
-        this.tail.pre = this.head;
     }
-    
+
     public int get(int key) {
-        ListNode node = map.get(key);
-        if (node != null) {
-            del(node);
-            addHead(node);
-            return node.val;
-        } else {
+        if (!cache.containsKey(key)) {
             return -1;
         }
+        ListNode node = cache.remove(key);
+        if (node.expire<System.currentTimeMillis()){
+            //lazy expire
+            return -1;
+        }
+        cache.put(key, node);
+        return node.val;
     }
 
 
     public void put(int key, int value) {
-        ListNode node = map.get(key);
-        if (node != null) {
-            node.val = value;
-            map.put(key, node);
-
-            del(node);
-            addHead(node);
-        } else {
-            ListNode newNode = new ListNode(key,value);
-            if (size >= capacity) {
-                //del tail
-                map.remove(this.tail.pre.key);
-                del(this.tail.pre);
-                this.size--;
-            }
-            map.put(key, newNode);
-            addHead(newNode);
-            this.size++;
+        if (cache.remove(key) != null) {
+            //head
+            cache.put(key, new ListNode(key, value, System.currentTimeMillis() + 10000));
+            return;
         }
+
+        if (cache.size() == capacity) {
+            for (ListNode node : cache.values()) {
+                if (node.expire < System.currentTimeMillis()) {
+                    cache.remove(node.key);
+                }
+            }
+            Integer oldKey = cache.keySet().iterator().next();
+            cache.remove(oldKey);
+        }
+        cache.put(key, new ListNode(key, value, System.currentTimeMillis() + 10000));
     }
 
 
-    private void del(ListNode listNode) {
-        //del
-        ListNode pre = listNode.pre;
-        ListNode next = listNode.next;
-        pre.next = next;
-        next.pre = pre;
-    }
-
-    private void addHead(ListNode listNode) {
-        //dummyhead     ⇄   otherNode   ⇄   dummytail
-        //dummyhead ⇄ listNode ⇄ otherNode ⇄ dummytail
-        listNode.pre = this.head;
-        listNode.next = this.head.next;
-        this.head.next.pre = listNode;
-        this.head.next = listNode;
-    }
 }
 
 /**
@@ -175,5 +152,132 @@ class LRUCache {
  */
 //leetcode submit region end(Prohibit modification and deletion)
 
+//class LRUCache2 {
+//    class ListNode{
+//
+//        int key;
+//        int val;
+//        public ListNode(int key, int val) {
+//            this.key = key;
+//            this.val = val;
+//        }
+//        public ListNode() {}
+//    }
+//    LinkedHashMap<Integer,Integer> cache = new LinkedHashMap<>();
+//    int capacity;
+//    public LRUCache(int capacity) {
+//        this.capacity = capacity;
+//    }
+//
+//    public int get(int key) {
+//        if (!cache.containsKey(key)) {
+//            return -1;
+//        }
+//        Integer val = cache.remove(key);
+//        cache.put(key, val);
+//        return val;
+//    }
+//
+//
+//    public void put(int key, int value) {
+//        if (cache.remove(key) != null) {
+//            //head
+//            cache.put(key, value);
+//            return;
+//        }
+//        if (cache.size() == capacity) {
+//            Integer oldKey = cache.keySet().iterator().next();
+//            cache.remove(oldKey);
+//        }
+//        cache.put(key, value);
+//    }
+//
+//
+//}
+//class LRUCache1 {
+//    class ListNode{
+//
+//        int key;
+//        int val;
+//        ListNode pre;
+//        ListNode next;
+//        public ListNode(int key, int val) {
+//            this.key = key;
+//            this.val = val;
+//        }
+//        public ListNode() {}
+//    }
+//    HashMap<Integer,ListNode> map = new HashMap<>();
+//    ListNode head;
+//    ListNode tail;
+//    int size;
+//    int capacity;
+//    public LRUCache(int capacity) {
+//        this.size = 0;
+//        this.capacity = capacity;
+//        this.head = new ListNode();
+//        this.tail = new ListNode();
+//        //dummyhead ⇄ ..... ⇄ dummytail
+//        //虚拟头
+//        this.head.next = this.tail;
+//        //虚拟尾
+//        this.tail.pre = this.head;
+//    }
+//
+//    public int get(int key) {
+//        ListNode node = map.get(key);
+//        if (node != null) {
+//            //最近使用移动到头
+//            del(node);
+//            addHead(node);
+//            return node.val;
+//        } else {
+//            return -1;
+//        }
+//    }
+//
+//
+//    public void put(int key, int value) {
+//        ListNode node = map.get(key);
+//        if (node != null) {
+//            node.val = value;
+//            map.put(key, node);
+//            //最近使用，移动到头部
+//            del(node);
+//            addHead(node);
+//        } else {
+//            ListNode newNode = new ListNode(key,value);
+//            if (size >= capacity) {
+//                //删除双向链表尾部的节点，最近最少使用
+//                map.remove(this.tail.pre.key);
+//                del(this.tail.pre);
+//                this.size--;
+//            }
+//            map.put(key, newNode);
+//            addHead(newNode);
+//            this.size++;
+//        }
+//    }
+//
+//
+//    private void del(ListNode listNode) {
+//        //del
+//        ListNode pre = listNode.pre;
+//        ListNode next = listNode.next;
+//        pre.next = next;
+//        next.pre = pre;
+//    }
+//
+//    private void addHead(ListNode listNode) {
+//        //dummyhead     ⇄   otherNode   ⇄   dummytail
+//        //dummyhead ⇄ listNode ⇄ otherNode ⇄ dummytail
+//        listNode.pre = this.head;
+//        listNode.next = this.head.next;
+//        //otherNode.pre
+//        this.head.next.pre = listNode;
+//        //dummyhead.next
+//        this.head.next = listNode;
+//    }
+//}
 
 }
