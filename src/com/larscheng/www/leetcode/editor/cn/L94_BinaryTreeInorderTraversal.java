@@ -50,11 +50,11 @@ public class L94_BinaryTreeInorderTraversal{
       
   public static void main(String[] args) {
        Solution solution = new L94_BinaryTreeInorderTraversal().new Solution();
-      L94_BinaryTreeInorderTraversal.TreeNode node = new L94_BinaryTreeInorderTraversal.TreeNode(3,
-                       new L94_BinaryTreeInorderTraversal.TreeNode(9,null,null),
-                       new L94_BinaryTreeInorderTraversal.TreeNode(20,
-                               new L94_BinaryTreeInorderTraversal.TreeNode(15,null,null),
-                               new L94_BinaryTreeInorderTraversal.TreeNode(7,null,null)
+      TreeNode node = new TreeNode(3,
+                       new TreeNode(9,null,null),
+                       new TreeNode(20,
+                               new TreeNode(15,null,null),
+                               new TreeNode(7,null,null)
                        )
                );
       System.out.println(solution.inorderTraversal(node));
