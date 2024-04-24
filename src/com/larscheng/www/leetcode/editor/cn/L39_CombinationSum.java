@@ -52,7 +52,7 @@ public class L39_CombinationSum{
       
   public static void main(String[] args) {
        Solution solution = new L39_CombinationSum().new Solution();
-       
+      System.out.println(solution.combinationSum(new int[]{2, 3, 6, 7}, 7));
   }
 
 //leetcode submit region begin(Prohibit modification and deletion)
@@ -91,6 +91,8 @@ class Solution {
             }
             queue.addLast(candidates[i]);
 
+            //数字可重复使用，但是在递归中已经走过的位置就不用再拿来用了，防止结果重复
+            //[2,2,3]和[2,3,2]重复
             dfs(candidates, i, length, target-candidates[i], queue, res);
             //回溯，状态恢复
             queue.removeLast();
