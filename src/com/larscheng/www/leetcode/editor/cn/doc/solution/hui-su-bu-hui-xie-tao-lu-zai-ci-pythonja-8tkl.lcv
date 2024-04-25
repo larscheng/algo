@@ -1,0 +1,213 @@
+视频讲解：[【基础算法精讲 14】](https://www.bilibili.com/video/BV1mG4y1A7Gu/)，制作不易，欢迎点赞~
+
+# 方法一：输入的视角（选或不选）
+
+* [sol1-Python3]
+
+```py
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        ans = []
+        path = []
+        n = len(nums)
+        def dfs(i: int) -> None:
+            if i == n:
+                ans.append(path.copy())  # 固定答案
+                return
+            # 不选 nums[i]
+            dfs(i + 1)
+            # 选 nums[i]
+            path.append(nums[i])
+            dfs(i + 1)
+            path.pop()  # 恢复现场
+        dfs(0)
+        return ans
+```
+
+* [sol1-Java]
+
+```java
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+    private int[] nums;
+
+    public List<List<Integer>> subsets(int[] nums) {
+        this.nums = nums;
+        dfs(0);
+        return ans;
+    }
+
+    private void dfs(int i) {
+        if (i == nums.length) {
+            ans.add(new ArrayList<>(path)); // 固定答案
+            return;
+        }
+        // 不选 nums[i]
+        dfs(i + 1);
+        // 选 nums[i]
+        path.add(nums[i]);
+        dfs(i + 1);
+        path.remove(path.size() - 1); // 恢复现场
+    }
+}
+```
+
+* [sol1-C++]
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int> &nums) {
+        vector<vector<int>> ans;
+        vector<int> path;
+        int n = nums.size();
+        function<void(int)> dfs = [&](int i) {
+            if (i == n) {
+                ans.emplace_back(path);
+                return;
+            }
+            // 不选 nums[i]
+            dfs(i + 1);
+            // 选 nums[i]
+            path.push_back(nums[i]);
+            dfs(i + 1);
+            path.pop_back(); // 恢复现场
+        };
+        dfs(0);
+        return ans;
+    }
+};
+```
+
+* [sol1-Go]
+
+```go
+func subsets(nums []int) [][]int {
+    n := len(nums)
+    ans := make([][]int, 0, 1<<n)
+    path := make([]int, 0, n)
+    var dfs func(int)
+    dfs = func(i int) {
+        if i == n {
+            ans = append(ans, append([]int(nil), path...)) // 固定答案
+            return
+        }
+        // 不选 nums[i]
+        dfs(i + 1)
+        // 选 nums[i]
+        path = append(path, nums[i])
+        dfs(i + 1)
+        path = path[:len(path)-1] // 恢复现场
+    }
+    dfs(0)
+    return ans
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：$O(n2^n)$，其中 $n$ 为 $\textit{nums}$ 的长度。每次都是选或不选，递归次数为一个满二叉树的节点个数，那么一共会递归 $O(2^n)$ 次（等比数列和），再算上加入答案时需要 $O(n)$ 的时间，所以时间复杂度为 $O(n2^n)$。
+- 空间复杂度：$O(n)$。返回值的空间不计。
+
+# 方法二：答案的视角（选哪个数）
+
+* [sol2-Python3]
+
+```py
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        ans = []
+        path = []
+        n = len(nums)
+        def dfs(i: int) -> None:
+            ans.append(path.copy())  # 固定答案
+            if i == n:
+                return
+            for j in range(i, n):  # 枚举选择的数字
+                path.append(nums[j])
+                dfs(j + 1)
+                path.pop()  # 恢复现场
+        dfs(0)
+        return ans
+```
+
+* [sol2-Java]
+
+```java
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+    private int[] nums;
+
+    public List<List<Integer>> subsets(int[] nums) {
+        this.nums = nums;
+        dfs(0);
+        return ans;
+    }
+
+    private void dfs(int i) {
+        ans.add(new ArrayList<>(path)); // 固定答案
+        if (i == nums.length) return;
+        for (int j = i; j < nums.length; ++j) { // 枚举选择的数字
+            path.add(nums[j]);
+            dfs(j + 1);
+            path.remove(path.size() - 1); // 恢复现场
+        }
+    }
+}
+```
+
+* [sol2-C++]
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int> &nums) {
+        vector<vector<int>> ans;
+        vector<int> path;
+        int n = nums.size();
+        function<void(int)> dfs = [&](int i) {
+            ans.emplace_back(path);
+            if (i == n) return;
+            for (int j = i; j < n; ++j) { // 枚举选择的数字
+                path.push_back(nums[j]);
+                dfs(j + 1);
+                path.pop_back(); // 恢复现场
+            }
+        };
+        dfs(0);
+        return ans;
+    }
+};
+```
+
+* [sol2-Go]
+
+```go
+func subsets(nums []int) [][]int {
+    n := len(nums)
+    ans := make([][]int, 0, 1<<n)
+    path := make([]int, 0, n)
+    var dfs func(int)
+    dfs = func(i int) {
+        ans = append(ans, append([]int(nil), path...)) // 固定答案
+        if i == n {
+            return
+        }
+        for j := i; j < n; j++ { // 枚举选择的数字
+            path = append(path, nums[j])
+            dfs(j + 1)
+            path = path[:len(path)-1] // 恢复现场
+        }
+    }
+    dfs(0)
+    return ans
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：$O(n2^n)$，其中 $n$ 为 $\textit{nums}$ 的长度。答案的长度为子集的个数，即 $2^n$，同时每次递归都把一个数组放入答案，因此会递归 $2^n$ 次，再算上加入答案时需要 $O(n)$ 的时间，所以时间复杂度为 $O(n2^n)$。
+- 空间复杂度：$O(n)$。返回值的空间不计。
+
