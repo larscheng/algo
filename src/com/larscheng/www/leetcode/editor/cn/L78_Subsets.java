@@ -47,6 +47,8 @@ public class L78_Subsets{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
+      //回溯
+    //数组中的元素不可重复使用，从第1个元素为起点，递归收集子集，回溯重置状态后更换起点，继续收集
     public List<List<Integer>> subsets(int[] nums) {
         List<List<Integer>> res = new ArrayList<>();
         Deque<Integer> deque = new ArrayDeque<>();
