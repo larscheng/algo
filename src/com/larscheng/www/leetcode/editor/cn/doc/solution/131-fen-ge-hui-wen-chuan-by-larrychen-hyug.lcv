@@ -1,0 +1,140 @@
+# 1. 题目
+
+[131. 分割回文串](https://leetcode.cn/problems/palindrome-partitioning/description/)
+
+# 2. 思路
+
+## 2.1. 方法一：动态规划 + 回溯
+
+我们可以使用动态规划的思路，找到所有的回文子串，然后，再通过回溯枚举将回文子串加入结果集中。
+
+### 2.1.1. 动态规划
+
+回文子串的性质：如果子串 $s[i] \cdots s[j]$ 是回文子串，子串 $s[i+1] \cdots s[j-1]$ 一定是回文子串，即**去掉首尾的字符后的子串也是回文子串**。
+
+例如，$abccba$ 是回文子串，那么，去掉首尾的字符串之后，$bccb$ 也是回文子串。
+
+假设字符串 $s$ 的长度为 $n$，设 $dp[i][j]$ 表示子串 $s[i] \cdots s[j]$ 是否是回文子串。
+
+#### 2.1.1.1. 初始条件
+
+满足如下条件的子串都是回文子串：
+
+- 空字符串是回文子串；
+
+- 所有长度为 $1$ 的子串都是回文子串；
+
+$$
+\begin{cases}
+dp[i][i - 1] &= true, 1 \le i \lt n\\
+dp[i][i] &=true,  0 \le i \lt n
+\end{cases}
+$$
+
+这里，解释一下，初始条件里面的空字符为什么是 $dp[i][i - 1]$，假设子串 $s[2:3] = bb$，那么，它的前一个状态就是 $s[3:2]$，即空字符就是 $dp[i][i - 1]$。
+
+#### 2.1.1.2. 状态转移
+
+依次枚举所有子串的长度，并枚举子串的左侧边界：
+
+- 如果边界两侧的字符**不相等**，那么该子串一定**不是**回文子串；
+
+- 如果边界两侧的字符**相等**，则当前子串的状态，与去掉首尾字符后的子串的状态相同。
+
+因此，状态转移方程为：
+
+$$
+dp[i][j] =
+\begin{cases}
+false, &s[i] \ne s[j], 0 \le i \lt j \lt n, \\
+dp[i + 1][j - 1],  &s[i] = s[j], 0 \le i \lt j \lt n, \\
+\end{cases}
+$$
+
+### 2.1.2. 回溯
+
+> 求组合（子集）问题，比较常用的思路是使用回溯的方式求解。
+
+通过 $dp[i][j]$ 就可以在 $O(1)$ 的时间复杂度内，判断子串 $s[i] \cdots s[j]$ 是否为回文子串，因此，我们就可以通过回溯的方式，枚举所有的子串，并将满足条件的路径，加入结果集中。
+
+# 复杂度
+
+- 时间复杂度: $O(n ^ 2 + n \times 2^n)$；
+
+- 空间复杂度: $O(n^2)$。
+
+  回溯时需要一个长度为 $n$ 的数组，来保存递归路径 $path$，同时，递归的最大深度为 $n$，因此，回溯消耗的空间为 $O(n^2)$。
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public List<List<String>> partition(String s) {
+        int n = s.length();
+        boolean[][] dp = new boolean[n][n];
+        for (int i = 0; i < n; i++) {
+            dp[i][i] = true;
+            if (i >= 1) {
+                dp[i][i - 1] = true;
+            }
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i + 1; j < n; j++) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = dp[i + 1][j - 1];
+                } else {
+                    dp[i][j] = false;
+                }
+            }
+        }
+
+        List<List<String>> result = new ArrayList<>();
+        dfs(dp, s, n, new ArrayList<>(), result, 0);
+        return result;
+    }
+
+    private void dfs(boolean[][] dp, String s, int n, List<String> path, List<List<String>> result, int start) {
+        if (start == n) {
+            result.add(new ArrayList<>(path));
+        }
+        for (int i = start; i < n; i++) {
+            if (dp[start][i]) {
+                path.add(s.substring(start, i + 1));
+                dfs(dp, s, n, path, result, i + 1);
+                path.remove(path.size() - 1);
+            }
+        }
+    }
+}
+```
+
+* []
+
+```Python
+class Solution:
+    def partition(self, s: str) -> List[List[str]]:
+        n = len(s)
+        dp = [[True] * n for _ in range(n)]
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i + 1, n):
+                dp[i][j] = s[i] == s[j] and dp[i + 1][j - 1]
+
+        result = list()
+        self.dfs(dp, s, n, list(), result, 0)
+        return result
+
+    def dfs(self, dp, s, n, path, result, i):
+        if i == n:
+            result.append(path[:])
+        for j in range(i, n):
+            if dp[i][j]:
+                path.append(s[i:j + 1])
+                self.dfs(dp, s, n, path, result, j + 1)
+                path.pop()
+        return
+```
+

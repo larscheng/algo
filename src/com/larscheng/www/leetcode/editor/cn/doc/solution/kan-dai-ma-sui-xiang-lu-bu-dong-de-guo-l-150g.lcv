@@ -1,0 +1,84 @@
+> Problem: [131. 分割回文串](https://leetcode.cn/problems/palindrome-partitioning/description/)
+
+[TOC]
+
+# 思路
+
+# 解题方法
+
+> 把startindex看做剩余字符串的头部  i作为每次切割的尾部 估计就很清晰了
+> 不要看carl哥的那种思路，是因为c++和java对于substring的应用不一样
+> 在脑海中，用startindex和i去模拟切割字符串即可。
+
+> 为什么想到回溯中的组合问题，carl说的也并不算清楚 用12345举例子
+> 1.因为组合第一步是取1/2/3/4/5 而切割是从1后切，2后切，3后切。。。本质也是取1/2/3.。。
+> 2.组合中，取1后，下一次从2345中取一个元素。切割中，切1后，子串是2345，也是从中找一个位置切  所以切割与组合（不重复）完全相同
+
+# 复杂度
+
+时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    List <String> path=new ArrayList<>();
+    List<List<String>> result=new ArrayList<>();
+    public List<List<String>> partition(String s) {
+        backtracking(s,0);
+        return result;
+    }
+    //s是传来的字符串aabbc，startindex模拟字符串头部位置，初始值为0；
+    //注意：我们在代码中，切割操作仅为模拟，并没有改变字符串s，而是我们改变startindex 改变s的有效区间。
+    void backtracking (String s,int startindex){
+        //递归终止条件 当头部到最后时 说明切完了
+        if (startindex==s.length()) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+      //用i模拟切割区域的下界，startindex为上界。 //一个for对应遍历一层
+        for (int i = startindex+1; i <=s.length(); i++) {
+            //一次for对应一个节点
+            String substring = s.substring(startindex, i);//截取出来得到的子串
+            boolean flag = ishuiwen(substring);
+            if (!flag){//如果不是回文，那直接这条树枝全废了，也不用递归了，去同层的下一个节点了。
+                // 比如第一刀切出来个aab 已经不是回文了，那后面的bc 再怎么切也没用了。
+                // 所以直接continue，到切aabb去了
+                continue;
+            }
+            //如果是回文串
+            //处理
+            path.add(substring);
+            //递归 下次切割的起点应该是本次的i位置 下层中的startindex=i
+            backtracking(s,i);
+            //回溯 与处理逻辑相反（不用修改startindex，被递归绕进去了 遍历第一层时，startindex始终为0 没有变过）
+            path.remove(path.size()-1);
+        }
+
+
+    }
+
+
+    boolean ishuiwen(String s){
+        int i=0;
+        int j=s.length()-1;
+        while(i<j){
+            if (s.charAt(i)!=s.charAt(j)){
+                return false;
+            }
+            i++;
+            j--;
+        }
+        return true;
+    }
+}
+```
+
