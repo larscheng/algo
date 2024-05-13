@@ -1,0 +1,451 @@
+**《代码随想录》算法视频公开课：[你的背包如何装满？| LeetCode：139.单词拆分](https://www.bilibili.com/video/BV1pd4y147Rh/)，相信结合视频再看本篇题解，更有助于大家对本题的理解**。
+
+## 思路
+
+看到这道题目的时候，大家应该回想起我们之前讲解回溯法专题的时候，讲过的一道题目[回溯算法：分割回文串](https://programmercarl.com/0131.分割回文串.html)，就是枚举字符串的所有分割情况。
+
+[回溯算法：分割回文串](https://programmercarl.com/0131.分割回文串.html)：是枚举分割后的所有子串，判断是否回文。
+
+本道是枚举分割所有字符串，判断是否在字典里出现过。
+
+那么这里我也给出回溯法C++代码：
+
+* CPP
+
+```CPP
+class Solution {
+private:
+    bool backtracking (const string& s, const unordered_set<string>& wordSet, int startIndex) {
+        if (startIndex >= s.size()) {
+            return true;
+        }
+        for (int i = startIndex; i < s.size(); i++) {
+            string word = s.substr(startIndex, i - startIndex + 1);
+            if (wordSet.find(word) != wordSet.end() && backtracking(s, wordSet, i + 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+        return backtracking(s, wordSet, 0);
+    }
+};
+```
+
+* 时间复杂度：O(2^n)，因为每一个单词都有两个状态，切割和不切割
+* 空间复杂度：O(n)，算法递归系统调用栈的空间
+
+那么以上代码很明显要超时了，超时的数据如下：
+
+* 
+
+```
+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"
+["a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa"]
+```
+
+递归的过程中有很多重复计算，可以使用数组保存一下递归过程中计算的结果。
+
+这个叫做记忆化递归，这种方法我们之前已经提过很多次了。
+
+使用memory数组保存每次计算的以startIndex起始的计算结果，如果memory[startIndex]里已经被赋值了，直接用memory[startIndex]的结果。
+
+C++代码如下：
+
+* CPP
+
+```CPP
+class Solution {
+private:
+    bool backtracking (const string& s,
+            const unordered_set<string>& wordSet,
+            vector<bool>& memory,
+            int startIndex) {
+        if (startIndex >= s.size()) {
+            return true;
+        }
+        // 如果memory[startIndex]不是初始值了，直接使用memory[startIndex]的结果
+        if (!memory[startIndex]) return memory[startIndex];
+        for (int i = startIndex; i < s.size(); i++) {
+            string word = s.substr(startIndex, i - startIndex + 1);
+            if (wordSet.find(word) != wordSet.end() && backtracking(s, wordSet, memory, i + 1)) {
+                return true;
+            }
+        }
+        memory[startIndex] = false; // 记录以startIndex开始的子串是不可以被拆分的
+        return false;
+    }
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+        vector<bool> memory(s.size(), 1); // -1 表示初始化状态
+        return backtracking(s, wordSet, memory, 0);
+    }
+};
+```
+
+这个时间复杂度其实也是：O(2^n)。只不过对于上面那个超时测试用例优化效果特别明显。
+
+**这个代码就可以AC了，当然回溯算法不是本题的主菜，背包才是！**
+
+## 背包问题
+
+单词就是物品，字符串s就是背包，单词能否组成字符串s，就是问物品能不能把背包装满。
+
+拆分时可以重复使用字典中的单词，说明就是一个完全背包！
+
+动规五部曲分析如下：
+
+1. 确定dp数组以及下标的含义
+
+**dp[i] : 字符串长度为i的话，dp[i]为true，表示可以拆分为一个或多个在字典中出现的单词**。
+
+2. 确定递推公式
+
+如果确定dp[j] 是true，且 [j, i] 这个区间的子串出现在字典里，那么dp[i]一定是true。（j < i ）。
+
+所以递推公式是 if([j, i] 这个区间的子串出现在字典里 && dp[j]是true) 那么 dp[i] = true。
+
+3. dp数组如何初始化
+
+从递推公式中可以看出，dp[i] 的状态依靠 dp[j]是否为true，那么dp[0]就是递推的根基，dp[0]一定要为true，否则递推下去后面都都是false了。
+
+那么dp[0]有没有意义呢？
+
+dp[0]表示如果字符串为空的话，说明出现在字典里。
+
+但题目中说了“给定一个非空字符串 s” 所以测试数据中不会出现i为0的情况，那么dp[0]初始为true完全就是为了推导公式。
+
+下标非0的dp[i]初始化为false，只要没有被覆盖说明都是不可拆分为一个或多个在字典中出现的单词。
+
+4. 确定遍历顺序
+
+题目中说是拆分为一个或多个在字典中出现的单词，所以这是完全背包。
+
+还要讨论两层for循环的前后顺序。
+
+**如果求组合数就是外层for循环遍历物品，内层for遍历背包**。
+
+**如果求排列数就是外层for遍历背包，内层for循环遍历物品**。
+
+我在这里做一个总结：
+
+求组合数：[动态规划：518.零钱兑换II](https://programmercarl.com/0518.零钱兑换II.html)
+求排列数：[动态规划：377. 组合总和 Ⅳ](https://programmercarl.com/0377.组合总和.html)、[动态规划：70. 爬楼梯进阶版（完全背包）](https://programmercarl.com/0070.爬楼梯完全背包版本.html)
+求最小数：[动态规划：322. 零钱兑换](https://programmercarl.com/0322.零钱兑换.html)、[动态规划：279.完全平方数](https://programmercarl.com/0279.完全平方数.html)
+
+而本题其实我们求的是排列数，为什么呢。 拿 s = "applepenapple", wordDict = ["apple", "pen"] 举例。
+
+"apple", "pen" 是物品，那么我们要求 物品的组合一定是 "apple" + "pen" + "apple" 才能组成 "applepenapple"。
+
+"apple" + "apple" + "pen" 或者 "pen" + "apple" + "apple" 是不可以的，那么我们就是强调物品之间顺序。
+
+所以说，本题一定是 先遍历 背包，再遍历物品。
+
+5. 举例推导dp[i]
+
+以输入: s = "leetcode", wordDict = ["leet", "code"]为例，dp状态如图：
+
+![image.png](https://pic.leetcode.cn/1675398470-NBbSmd-image.png)
+
+dp[s.size()]就是最终结果。
+
+动规五部曲分析完毕，C++代码如下：
+
+* CPP
+
+```CPP
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+        vector<bool> dp(s.size() + 1, false);
+        dp[0] = true;
+        for (int i = 1; i <= s.size(); i++) {   // 遍历背包
+            for (int j = 0; j < i; j++) {       // 遍历物品
+                string word = s.substr(j, i - j); //substr(起始位置，截取的个数)
+                if (wordSet.find(word) != wordSet.end() && dp[j]) {
+                    dp[i] = true;
+                }
+            }
+        }
+        return dp[s.size()];
+    }
+};
+```
+
+* 时间复杂度：O(n^3)，因为substr返回子串的副本是O(n)的复杂度（这里的n是substring的长度）
+* 空间复杂度：O(n)
+
+## 拓展
+
+关于遍历顺序，再给大家讲一下为什么 先遍历物品再遍历背包不行。
+
+这里可以给出先遍历物品再遍历背包的代码：
+
+* CPP
+
+```CPP
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+        vector<bool> dp(s.size() + 1, false);
+        dp[0] = true;
+        for (int j = 0; j < wordDict.size(); j++) { // 物品
+            for (int i = wordDict[j].size(); i <= s.size(); i++) { // 背包
+                string word = s.substr(i - wordDict[j].size(), wordDict[j].size());
+                // cout << word << endl;
+                if ( word == wordDict[j] && dp[i - wordDict[j].size()]) {
+                    dp[i] = true;
+                }
+                // for (int k = 0; k <= s.size(); k++) cout << dp[k] << " "; //这里打印 dp数组的情况 
+                // cout << endl;
+            }
+        }
+        return dp[s.size()];
+
+    }
+};
+```
+
+使用用例：s = "applepenapple", wordDict = ["apple", "pen"]，对应的dp数组状态如下：
+
+![image.png](https://pic.leetcode.cn/1675398548-zlXzQR-image.png)
+
+最后dp[s.size()] = 0 即 dp[13] = 0 ，而不是1，因为先用 "apple" 去遍历的时候，dp[8]并没有被赋值为1 （还没用"pen"），所以 dp[13]也不能变成1。
+
+除非是先用 "apple" 遍历一遍，再用  "pen" 遍历，此时 dp[8]已经是1，最后再用  "apple" 去遍历，dp[13]才能是1。
+
+如果大家对这里不理解，建议可以把我上面给的代码，拿去力扣上跑一跑，把dp数组打印出来，对着递推公式一步一步去看，思路就清晰了。
+
+## 总结
+
+本题和我们之前讲解回溯专题的[回溯算法：分割回文串](https://programmercarl.com/0131.分割回文串.html)非常像，所以我也给出了对应的回溯解法。
+
+稍加分析，便可知道本题是完全背包，是求能否组成背包，而且这里要求物品是要有顺序的。
+
+## 其他语言版本
+
+* []
+
+```java
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        HashSet<String> set = new HashSet<>(wordDict);
+        boolean[] valid = new boolean[s.length() + 1];
+        valid[0] = true;
+
+        for (int i = 1; i <= s.length(); i++) {
+            for (int j = 0; j < i && !valid[i]; j++) {
+                if (set.contains(s.substring(j, i)) && valid[j]) {
+                    valid[i] = true;
+                }
+            }
+        }
+
+        return valid[s.length()];
+    }
+}
+
+// 另一种思路的背包算法
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        boolean[] dp = new boolean[s.length() + 1];
+        dp[0] = true;
+
+        for (int i = 1; i <= s.length(); i++) {
+            for (String word : wordDict) {
+                int len = word.length();
+                if (i >= len && dp[i - len] && word.equals(s.substring(i - len, i))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return dp[s.length()];
+    }
+}
+
+// 回溯法+记忆化
+class Solution {
+    private Set<String> set;
+    private int[] memo;
+    public boolean wordBreak(String s, List<String> wordDict) {
+        memo = new int[s.length()];
+        set = new HashSet<>(wordDict);
+        return backtracking(s, 0);
+    }
+
+    public boolean backtracking(String s, int startIndex) {
+        // System.out.println(startIndex);
+        if (startIndex == s.length()) {
+            return true;
+        }
+        if (memo[startIndex] == -1) {
+            return false;
+        }
+
+        for (int i = startIndex; i < s.length(); i++) {
+            String sub = s.substring(startIndex, i + 1);
+	    // 拆分出来的单词无法匹配
+            if (!set.contains(sub)) {
+                continue;                
+            }
+            boolean res = backtracking(s, i + 1);
+            if (res) return true;
+        }
+        // 这里是关键，找遍了startIndex~s.length()也没能完全匹配，标记从startIndex开始不能找到
+        memo[startIndex] = -1;
+        return false;
+    }
+}
+```
+
+* []
+
+```python
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        '''排列'''
+        dp = [False]*(len(s) + 1)
+        dp[0] = True
+        # 遍历背包
+        for j in range(1, len(s) + 1):
+            # 遍历单词
+            for word in wordDict:
+                if j >= len(word):
+                    dp[j] = dp[j] or (dp[j - len(word)] and word == s[j - len(word):j])
+        return dp[len(s)]
+```
+
+* []
+
+```Go
+func wordBreak(s string,wordDict []string) bool  {
+	wordDictSet := make(map[string]bool)
+	for _, w := range wordDict {
+		wordDictSet[w] = true
+	}
+	dp := make([]bool, len(s)+1)
+	dp[0] = true
+	for i := 1; i <= len(s); i++ {
+		for j := 0; j < i; j++ {
+			if dp[j] && wordDictSet[s[j:i]] { 
+				dp[i] = true
+				break
+			}
+		}
+	}
+	return dp[len(s)]
+}
+// 转化为 求装满背包s的前几位字符的方式有几种
+func wordBreak(s string, wordDict []string) bool {
+	// 装满背包s的前几位字符的方式有几种
+	dp := make([]int, len(s)+1)
+	dp[0] = 1
+	for i := 0; i <= len(s); i++ { // 背包
+		for j := 0; j < len(wordDict); j++ { // 物品
+			if i >= len(wordDict[j]) && wordDict[j] == s[i-len(wordDict[j]):i] {
+				dp[i] += dp[i-len(wordDict[j])]
+			}
+		}
+	}
+
+	return dp[len(s)] > 0
+}
+```
+
+* []
+
+```javascript
+const wordBreak = (s, wordDict) => {
+
+    let dp = Array(s.length + 1).fill(false);
+    dp[0] = true;
+
+    for(let i = 0; i <= s.length; i++){
+        for(let j = 0; j < wordDict.length; j++) {
+            if(i >= wordDict[j].length) {
+                if(s.slice(i - wordDict[j].length, i) === wordDict[j] && dp[i - wordDict[j].length]) {
+                    dp[i] = true
+                }
+            }
+        }
+    }
+
+    return dp[s.length];
+}
+```
+
+* []
+
+```typescript
+// > 动态规划
+function wordBreak(s: string, wordDict: string[]): boolean {
+    const dp: boolean[] = new Array(s.length + 1).fill(false);
+    dp[0] = true;
+    for (let i = 1; i <= s.length; i++) {
+        for (let j = 0; j < i; j++) {
+            const tempStr: string = s.slice(j, i);
+            if (wordDict.includes(tempStr) && dp[j] === true) {
+                dp[i] = true;
+                break;
+            }
+        }
+    }
+    return dp[s.length];
+};
+
+// > 记忆化回溯
+function wordBreak(s: string, wordDict: string[]): boolean {
+    // 只需要记忆结果为false的情况
+    const memory: boolean[] = [];
+    return backTracking(s, wordDict, 0, memory);
+    function backTracking(s: string, wordDict: string[], startIndex: number, memory: boolean[]): boolean {
+        if (startIndex >= s.length) return true;
+        if (memory[startIndex] === false) return false;
+        for (let i = startIndex + 1, length = s.length; i <= length; i++) {
+            const str: string = s.slice(startIndex, i);
+            if (wordDict.includes(str) && backTracking(s, wordDict, i, memory))
+                return true;
+        }
+        memory[startIndex] = false;
+        return false;
+    }
+};
+```
+
+# 背包问题力扣完整攻略
+
+只要按如下顺序刷题，相信会帮你在学习背包问题的路上少走很多弯路！
+
+* 0-1背包
+  * [01背包问题理论基础二维dp数组](https://programmercarl.com/背包理论基础01背包-1.html)
+  * [01背包问题理论基础一维dp数组（滚动数组）](https://programmercarl.com/背包理论基础01背包-2.html)
+  * [416.分割等和子集](https://programmercarl.com/0416.分割等和子集.html)
+  * [1049.最后一块石头的重量 II](https://programmercarl.com/1049.最后一块石头的重量II.html)
+  * [494.目标和](https://programmercarl.com/0494.目标和.html)
+  * [474.一和零](https://programmercarl.com/0474.一和零.html)
+* 完全背包
+  * [动态规划：关于完全背包，你该了解这些！](https://programmercarl.com/背包问题理论基础完全背包.html)
+  * [518. 零钱兑换 II](https://programmercarl.com/0518.零钱兑换II.html)
+  * [377.组合总和Ⅳ.](https://programmercarl.com/0377.组合总和Ⅳ.html)
+  * [70.爬楼梯进阶版](https://programmercarl.com/0070.爬楼梯完全背包版本.html)
+  * [322. 零钱兑换](https://programmercarl.com/0322.零钱兑换.html)
+  * [279.完全平方数](https://programmercarl.com/0279.完全平方数.html)
+  * [139.单词拆分](https://programmercarl.com/0139.单词拆分.html)
+* 多重背包
+  * [动态规划：关于多重背包，你该了解这些！](https://programmercarl.com/背包问题理论基础多重背包.html)
+* [背包问题总结篇](https://programmercarl.com/背包总结篇.html)
+
+-----------
+
+大家好，我是程序员Carl，如果你还在没有章法的刷题，**建议按照[代码随想录刷题路线](https://programmercarl.com/)来刷**，并提供[PDF下载](https://programmercarl.com/other/algo_pdf.html)，刷题路线同时也开源在[Github](https://github.com/youngyangyang04/leetcode-master)上，你会发现详见很晚！
+
+**如果感觉题解对你有帮助，不要吝啬给一个👍吧！**
+

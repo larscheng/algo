@@ -1,0 +1,147 @@
+> [139. 单词拆分](https://leetcode.cn/problems/word-break/)
+
+[TOC]
+
+# 题目
+
+给你一个字符串 `s` 和一个字符串列表 `wordDict` 作为字典。如果可以利用字典中出现的一个或多个单词拼接出 `s` 则返回 `true`。
+
+**注意：**不要求字典中出现的单词全部都使用，并且字典中的单词可以重复使用。
+
+# 题目分析
+
+## 思路分析
+
+这道题要判断给定字符串 `s` 是否能够有字典中的单词组成，即能否拆分成若干个字典中的单词。如下图所示：
+
+![image-20240317001554833.png](https://pic.leetcode.cn/1710606442-ObaZzM-image-20240317001554833.png)
+
+也就是说，我们从最后一个位置往前找子串，如果找到一个子串是字典中的单词，那么能够拆分就取决于子串之前的部分。而子串之前的部分就是一个同等的子问题。记 `isBreak[i]` 表示`[0, i)`这部分字符串是否能够拆分，那么状态转移方程即为：
+
+* 
+
+```
+isBreak[i] = (str[i - l: i) in wordDict && isBreak[is - l])  0 < l <= i (所有的l的结果位或起来)
+即是否能够拆分取决于两部分：
+1. 后半部分子串[i - l, i)是否存在于字典中
+2. 前半部分子串[0, i -l ) 是否能够拆分
+l 为不同长度
+```
+
+初始时，`isBreak[0]` 为 `true`，因为`[0,0)`不表示任何子串，可认为是可拆分的。同时为了快速判断每次枚举得到的子串是否是字典中的单词，我们使用一个哈希表来存储所有单词。
+
+## 优化
+
+我们在枚举以 `i` 结尾的不同长度的子串时，我们不需要从头到尾的进行枚举，**只需要枚举单词字典中有出现过的长度即可**。根据题目给出的数据范围，单词最大长度为 `20`，因此我们使用一个长度为 `21` 的数组 `hasLen[l]` 标记长度 `l` 是否出现，并统计字典中的单词最大长度和最小长度，作为长度 `l` 的枚举范围。
+
+![image-20240317002651180.png](https://pic.leetcode.cn/1710606442-MxcyRP-image-20240317002651180.png)
+
+由于我们只要判断是否能够拆分，因此 **一旦找到一个满足条件的长度l，即可停止搜索**。
+
+# 代码
+
+* []
+
+```Java
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        int n = s.length();               // 字符串长度
+        boolean[] isBreak = new boolean[n + 1];    // isBreak[i]表示[0, i)这部分字符串是否能够拆分
+        isBreak[0] = true;      // isBreak[0]为true，因为[0,0)不表示任何子串，可认为是可拆分的
+        int maxWordLen = 0;     // 字典中单词的最大长度，初始为一个极小值
+        int minWordLen = 21;    // 字典中单词的最小长度，初始为一个极大值   
+        Set<String> words = new HashSet<>();    // 存储wordDict中的单词
+        boolean[] hasLen = new boolean[21];        // hasLen[l]表示字典中是否存在长度为l的单词
+        for(String word: wordDict){
+            words.add(word);    // 单词加入哈希表
+            int wl = word.length();       
+            hasLen[wl] = true;      // 标记存在wl长度的字符串
+            maxWordLen = Math.max(maxWordLen, wl);   // 更新最大长度
+            minWordLen = Math.min(minWordLen, wl);   // 更新最小长度
+        }
+        // DP
+        for(int i = minWordLen; i <= n; i++){
+            // 枚举所有的单词长度，上线为当前子串[0,i)的长度i和最大长度的较小值
+            for(int l = minWordLen; l <= Math.min(i, maxWordLen); l++){
+                if(!hasLen[l])continue;     // 跳过不存在的单词长度
+                if(words.contains(s.substring(i - l, i)) && isBreak[i - l]){
+                    // 如果[i-l, i)的子串是字典中单词，且[0, i-l)部分子串可拆分，则[0, i)部分的子串是可拆分的
+                    isBreak[i] = true;
+                    break;
+                }
+            }
+        }
+        return isBreak[n];
+    }
+}
+```
+
+* []
+
+```Python
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        n = len(s)               # 字符串长度
+        is_break = [False] * (n+1)    # is_break[i]表示[0, i)这部分字符串是否能够拆分
+        is_break[0] = True      # is_break[0]为true，因为[0,0)不表示任何子串，可认为是可拆分的
+        max_word_len = 0     # 字典中单词的最大长度，初始为一个极小值
+        min_word_len = 21    # 字典中单词的最小长度，初始为一个极大值   
+        words = set()        # 存储wordDict中的单词
+        hasLen = [False] * 21        # hasLen[l]表示字典中是否存在长度为l的单词
+        
+        for word in wordDict:
+            words.add(word)    # 单词加入哈希表
+            wl = len(word)       
+            hasLen[wl] = True      # 标记存在wl长度的字符串
+            max_word_len = max(max_word_len, wl)   # 更新最大长度
+            min_word_len = min(min_word_len, wl)   # 更新最小长度
+
+        # DP
+        for i in range(min_word_len, n + 1):
+            # 枚举所有的单词长度，上线为当前子串[0,i)的长度i和最大长度的较小值
+            for l in range(min_word_len, min(i, max_word_len) + 1):
+                if not hasLen[l]: continue     # 跳过不存在的单词长度
+                if s[i-l: i] in words and is_break[i - l]:
+                    # 如果[i-l, i)的子串是字典中单词，且[0, i-l)部分子串可拆分，则[0, i)部分的子串是可拆分的
+                    is_break[i] = True
+                    break
+        return is_break[n]
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        int n = s.size();               // 字符串长度
+        vector<bool> isBreak(n + 1);    // isBreak[i]表示[0, i)这部分字符串是否能够拆分
+        isBreak[0] = true;      // isBreak[0]为true，因为[0,0)不表示任何子串，可认为是可拆分的
+        int maxWordLen = 0;     // 字典中单词的最大长度，初始为一个极小值
+        int minWordLen = 21;    // 字典中单词的最小长度，初始为一个极大值   
+        unordered_set<string> words;    // 存储wordDict中的单词
+        vector<bool> hasLen(21);        // hasLen[l]表示字典中是否存在长度为l的单词
+        for(auto& word: wordDict){
+            words.emplace(word);    // 单词加入哈希表
+            int wl = word.size();       
+            hasLen[wl] = true;      // 标记存在wl长度的字符串
+            maxWordLen = max(maxWordLen, wl);   // 更新最大长度
+            minWordLen = min(minWordLen, wl);   // 更新最小长度
+        }
+        // DP
+        for(int i = minWordLen; i <= n; i++){
+            // 枚举所有的单词长度，上线为当前子串[0,i)的长度i和最大长度的较小值
+            for(int l = minWordLen; l <= min(i, maxWordLen); l++){
+                if(!hasLen[l])continue;     // 跳过不存在的单词长度
+                if(words.find(s.substr(i - l, l)) != words.end() && isBreak[i - l]){
+                    // 如果[i-l, i)的子串是字典中单词，且[0, i-l)部分子串可拆分，则[0, i)部分的子串是可拆分的
+                    isBreak[i] = true;
+                    break;
+                }
+            }
+        }
+        return isBreak[n];
+    }
+};
+```
+
