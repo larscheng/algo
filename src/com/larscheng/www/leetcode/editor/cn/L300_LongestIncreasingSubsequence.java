@@ -56,10 +56,23 @@ public class L300_LongestIncreasingSubsequence{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
+    /**
+     *
+     * 从第一个元素开始，dp[i]表示子数组num[0:i]中的最长递增子序列长度
+     * 比如数组[10,9,2,5,3,7,101,18]
+     * dp[0]：子数组[10]中，因为只有1个元素num[0]=10，所以最长递增子序列长度为1，dp[0]=1
+     * dp[1]：子数组[10,9]中，num[i]=9,小于num[0]=10,递减状态，所以最长递增子序列长度为1，dp[1]=1
+     * dp[2]：子数组[10,9,2]中，num[i]=2,小于num[0]=10,num[1]=9,递减状态，所以最长递增子序列长度为1，dp[2]=1
+     * dp[3]：子数组[10,9,2,5]中，num[i]=5,小于num[0]=10,num[1]=9,大于num[2]=2，所以最长递增子序列长度+1，dp[3]=dp[2]+1
+     * dp[4]：子数组[10,9,2,5,3]中，num[i]=3,小于num[0]=10,num[1]=9,num[3]=5,大于num[2]=2，所以最长递增子序列长度+1，dp[4]=dp[2]+1
+     *
+     * 可以看出，逐步扩大子数组，然后比对新元素与之前元素的大小，只关注小于最新元素的值，进行dp[j]+1操作，最终取dp[j]+1的最大值
+     * dp[i] = max(dp[i],dp[j]+1) num[j]<num[i]
+     * O(n*n)/O(n)
+     *
+     *
+     */
     public int lengthOfLIS(int[] nums) {
-        if (nums.length == 0) {
-            return 0;
-        }
         int[] dp = new int[nums.length];
         dp[0] = 1;
         int maxans = 1;
