@@ -1,0 +1,59 @@
+> Problem: [32. 最长有效括号](https://leetcode.cn/problems/longest-valid-parentheses/description/)
+
+[TOC]
+
+# 思路
+
+> 题目为找到括号匹配成功的最长连续字符，我们可以进行问题转化。这里有两个关键点。
+> 1.匹配成功
+> 2.最长连续
+> 因此，分别模拟以上两个过程即可
+
+# 解题方法
+
+> 首先是“匹配成功”，这个用栈来实现。为了给第2步做准备，我们要在匹配成功时做个记号，这里开辟一个数组，匹配成功时，在'('和")'的索引位置处记为1。
+> 然后统计数组里面连续1的个数，最长的那个就是结果
+
+# 复杂度
+
+时间复杂度:
+
+> 每个字符最多入栈，出栈各一次。再加上统计1的个数，最多为 $O(3n)$
+
+空间复杂度:
+
+> $O(n)$
+
+# Code
+
+* []
+
+```Python
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        stack=[]
+        maxL=0
+        n=len(s)
+        tmp=[0]*n         #标记数组
+        cur=0
+
+        for i in range(n):
+            if s[i]=='(':
+                stack.append(i)
+            else:
+                if stack:
+                    j=stack.pop()
+                    if s[j]=='(':
+                        tmp[i],tmp[j]=1,1      #匹配成功时标记    
+            
+        for num in tmp:    #计算连续1出现的最大次数
+            if num:
+                cur+=num
+            else:          #遇到0时中断，进行对比，并重置
+                maxL=max(cur,maxL)  
+                cur=0
+        maxL=max(cur,maxL) #最后一次统计可能未终断，多做一次对比
+        
+        return maxL
+```
+
