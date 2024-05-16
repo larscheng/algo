@@ -34,8 +34,27 @@ package com.larscheng.www.leetcode.editor.cn;
 import java.util.Arrays;
 
 public class L416_PartitionEqualSubsetSum{
-      
-  public static void main(String[] args) {
+    /**
+     * 数量小于2、总和不能平分、最大值大于平均数 都不可拆分
+     *
+     * dp[i][target] dp[i][j]表示从数组nums[0:i]内选取若干数的和为是否为j（每个数只能用1次：0-1背包问题）
+     * 选取的和为0的情况必定存在，dp[i][0]=true
+     * 待选取的数组只有nums[0]1个元素时，dp[0][nums[0]]=true
+     *
+     * nums[i]选不选的问题
+     * 不选择：如果在nums[0:i-1]中已有一部分元素和为j，则dp[i][j]=dp[i-1][j]
+     * 若选择：那就要看nums[0:i-1]中和为j-nums[i]的状态，即dp[i-1][j-nums[i]]，所以需要j>=nums[i]
+     *
+     * 例如[1,2,3,6] target=6
+     *       0     1      2      3      4       5     6
+     * 1    true  true  false  false  false  false  false
+     * 2    true  true  true   true   false  false  false
+     * 3    true  true  true   true   true   true   true
+     * 6    true  true  true   true   true   true   true
+     *
+     *
+     */
+    public static void main(String[] args) {
        Solution solution = new L416_PartitionEqualSubsetSum().new Solution();
        
   }
