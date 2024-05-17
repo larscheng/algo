@@ -1,0 +1,35 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int p_buf=prices[0];
+        int max=0;
+        int this_in=0;
+        if(prices.size()==1) return 0;
+
+        for(int i=1;i<=prices.size()-1;++i)
+        {
+            if(prices[i]>p_buf)
+            {
+                this_in=prices[i]-p_buf;
+                if(this_in>max)
+                    max=this_in;
+            }
+            else
+            {
+                p_buf=prices[i];
+            }
+        }
+        return max;
+    }
+};
+```
+

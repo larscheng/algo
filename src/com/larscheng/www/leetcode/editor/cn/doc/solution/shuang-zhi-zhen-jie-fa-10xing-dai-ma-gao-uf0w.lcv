@@ -1,0 +1,47 @@
+> Problem: [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/description/)
+
+[TOC]
+
+# 思路
+
+> 双指针
+
+# 解题方法
+
+> 看了下排名靠前的解法，说的太复杂了，绕半天，不就两个指针从前往后遍历的，直接看代码；
+
+# 复杂度
+
+时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```Java
+class Solution {
+	public int lengthOfLongestSubstring(String s) {
+		int start = 0;
+		HashSet<Character> hs = new HashSet<>();
+		int max = 0;
+		for (int i = 0; i < s.length(); i++) {
+			while (hs.contains(s.charAt(i))) {
+				hs.remove(s.charAt(start));
+				start++;
+			}
+			hs.add(s.charAt(i));
+			if(hs.size() > max) {
+				max = hs.size();
+			}
+		}
+		return max;
+	}
+}
+```
+

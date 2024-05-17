@@ -42,6 +42,7 @@ package com.larscheng.www.leetcode.editor.cn;
 
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class L3_LongestSubstringWithoutRepeatingCharacters{
       
@@ -62,25 +63,45 @@ class Solution {
         if (s.isEmpty()) {
             return 0;
         }
-        int result = 0;
-        //字符-下标位置
-        HashMap<Character, Integer> map = new HashMap<>();
-        //左指针
-        int left = 0;
-        for (int right = 0; right < s.length(); right++) {
-            if (map.containsKey(s.charAt(right))) {
-                //收缩窗口，左指针为重复元素的下一位置
-                left = Math.max(left, map.get(s.charAt(right)) + 1);
+        int res = 0;
+        Map<Character,Integer> map = new HashMap<>();
+        int left=0;
+        for (int i = 0; i < s.length(); i++) {
+            if (map.containsKey(s.charAt(i))){
+                // 重复元素，重置窗口左边界为重复元素的下一位
+                // 可能和窗口外的老元素重复，所以需要取最大值
+                left = Math.max(left,map.get(s.charAt(i))+1);
             }
-            map.put(s.charAt(right), right);
-            //取最大窗口
-            result = Math.max(result, right - left + 1);
+            map.put(s.charAt(i),i);
+            res = Math.max(res,i-left+1);
         }
-        return result;
+
+        return res;
     }
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
 
-
+    class Solution1 {
+        public int lengthOfLongestSubstring(String s) {
+            if (s.isEmpty()) {
+                return 0;
+            }
+            int result = 0;
+            //字符-下标位置
+            HashMap<Character, Integer> map = new HashMap<>();
+            //左指针
+            int left = 0;
+            for (int right = 0; right < s.length(); right++) {
+                if (map.containsKey(s.charAt(right))) {
+                    //收缩窗口，左指针为重复元素的下一位置
+                    left = Math.max(left, map.get(s.charAt(right)) + 1);
+                }
+                map.put(s.charAt(right), right);
+                //取最大窗口
+                result = Math.max(result, right - left + 1);
+            }
+            return result;
+        }
+    }
 }
