@@ -1,0 +1,29 @@
+> Problem: [763. 划分字母区间](https://leetcode.cn/problems/partition-labels/description/)
+
+[TOC]
+
+# 思路
+
+> 快慢指针，用双指针解
+
+# Code
+
+* []
+
+```JavaScript
+/**
+ * @param {string} s
+ * @return {number[]}
+ */
+var partitionLabels = function(s) {
+    let res = [];
+    let fast = 0;
+    for(let i = 0; i < s.length; i++){
+        while(s.slice(fast).includes(s[i])) fast++;
+        if(i == fast - 1) res.push(fast);
+    }
+    for(let i = res.length - 1; i > 0; i--) res[i] = res[i] - res[i - 1];
+    return res;
+};
+```
+

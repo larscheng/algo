@@ -1,0 +1,32 @@
+> Problem: [763. 划分字母区间](https://leetcode.cn/problems/partition-labels/description/)
+
+[TOC]
+
+# Code
+
+* []
+
+```C++
+class Solution {
+public:
+    vector<int> partitionLabels(string s) {
+        vector<int>tong(27,0);
+        vector<int>ans;
+        int temp=0;
+        for(char c:s) tong[c-'a']++;
+        for(int i=0;i<s.size();i++){
+            tong[s[i]-'a']--;
+            int flag=0;
+            for(int j=0;j<=i;j++){
+                if(tong[s[j]-'a']!=0) flag=1; 
+            }
+            if(!flag) {
+                ans.push_back(i-temp+1);
+                temp=i+1;
+            }
+        }
+        return ans;
+    }
+};
+```
+
