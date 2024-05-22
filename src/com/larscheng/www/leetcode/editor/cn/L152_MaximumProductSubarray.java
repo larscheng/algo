@@ -47,7 +47,7 @@ class Solution {
      * [2,3,-2,4]
      * 假设dp[i]表示子数组num[0:i]中连续元素的最大乘积
      * dp[0]=num[0]
-     * dp[1]=max(dp[0],dp[0]*num[1])
+     * dp[1]=max(num[1],dp[0]*num[1])
      * dp[i] = max(num[i],dp[i-1]*num[i])
      *
      * 但num[i]存在负数，如果num[i]为负数，肯定期望dp[i-1]是一个负数，或者是一个足够小的数
