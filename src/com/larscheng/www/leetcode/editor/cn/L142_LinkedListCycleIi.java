@@ -94,6 +94,13 @@ public class Solution {
      * - 假设链表共有a+b个节点（a个环外节点，b个环内节点）
      * - 第一次遍历：fast每次2步，slow每次1步，双指针相遇时，此时slow与环入口节点的距离为a（再走a步就能到达入口节点）
      * - 第二次遍历：fast、slow每次都1步，fast从头节点开始，slow从当前节点开始，双指针相遇时，即为环的入口节点
+     *
+     * https://leetcode.cn/problems/linked-list-cycle-ii/solutions/181070/xiang-xi-tu-jie-ken-ding-kan-de-ming-bai-by-xixili/
+     *
+     * 2(a+b)=a+b+c+b => a=c
+     *
+     *
+     *
      * @param head
      * @return
      */
