@@ -66,12 +66,97 @@ public class L15_ThreeSum{
   }
 
 //leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    /**
+     * n数之和最终都可以简化成2数之和
+     * a+b+c=target
+     * 可以转换为a+b=target-c
+     * 通过双指针在有序数组两端寻找和为target-c的两个指针位置
+     * 如果左右指针元素和 > target-c ,说明右指针过大，需要左移，左移同时跳过重复值
+     * 如果左右指针元素和 < target-c ,说明左指针过小，需要右移，右移同时跳过重复值
+     *
+     * 如果是 a+b+c+d=target,可以转换为 a+b=target-c-d
+     * 此操作的前提：必须为有序数组
+     */
+    public List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums);
+
+        return nNumSum(nums,3,0,0);
+    }
+
+    /**
+     *
+     * @param nums 有序数组
+     * @param count 几个数
+     * @param start 左指针起始位
+     * @param target 几数之和
+     * @return
+     */
+    private List<List<Integer>> nNumSum(int[] nums, int count, int start, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        int size = nums.length;
+        if (size<count) {
+            return result;
+        }
+
+        if (count>2) {
+            //n数之和为target  a+b+c+...=target a+b=target-c-...
+            for (int i = 0; i < size; i++) {
+                //递归计算n-1数之和为target-nums[i]
+                List<List<Integer>> temp = nNumSum(nums, count-1, i+1, target-nums[i]);
+                for (List<Integer> list : temp) {
+                    list.add(nums[i]);
+                    result.add(list);
+                }
+
+                //如果i后面有相邻重复值，则直接跳过，避免重复结果
+                while (i<size-1&&nums[i]==nums[i+1]) {
+                    i++;
+                }
+            }
+
+        }else{
+            //2数之和为target
+            int left = start;
+            int right = size-1;
+            while (left<right) {
+                int leftNum = nums[left];
+                int rightNum = nums[right];
+                int sum = leftNum+rightNum;
+                if (sum>target) {
+                    //右指针元素太大，左移右指针 right--，左移去重
+                    while (left<right&&rightNum==nums[right]) {
+                        right--;
+                    }
+                }else if (sum<target) {
+                    while (left<right&&leftNum==nums[left]) {
+                        left++;
+                    }
+                }else{
+                    //符合条件收集数据
+                    result.add(new ArrayList<>(Arrays.asList(leftNum,rightNum)));
+                    //移动左右指针后继续找
+                    while (left<right&&rightNum==nums[right]) {
+                        right--;
+                    }
+                    while (left<right&&leftNum==nums[left]) {
+                        left++;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+
 
     /**
      * 时间复杂度：O(n^2)
      * 空间复杂度：O(1)
      */
-    class Solution {
+    class Solution1 {
         public List<List<Integer>> threeSum(int[] nums) {
             //数组排序后，重复数字在一起，遍历过程中可以直接跳过重复数字
             Arrays.sort(nums);
@@ -117,7 +202,4 @@ public class L15_ThreeSum{
             return lists;
         }
     }
-//leetcode submit region end(Prohibit modification and deletion)
-
-
 }
