@@ -34,12 +34,13 @@ package com.larscheng.www.leetcode.editor.cn;
 
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class L912_SortAnArray{
       
   public static void main(String[] args) {
        Solution solution = new L912_SortAnArray().new Solution();
-      System.out.println(Arrays.toString(solution.sortArray(new int[]{-1,2,-8,-10})));
+      System.out.println(Arrays.toString(solution.sortArray(new int[]{5,1,1,2,0,0})));
   }
 
 //leetcode submit region begin(Prohibit modification and deletion)
@@ -49,16 +50,98 @@ class Solution {
         return nums;
     }
 
-    private void quickSort(int[] nums, int left, int right) {
+    private void quickSortThreeSpilt(int[] nums, int left, int right) {
         if (left>=right){
             return;
         }
+
         int index  = partition(nums,left,right);
         quickSort(nums, left, index - 1);
         quickSort(nums, index + 1, right);
     }
 
+    /**
+     * 三路快排
+     * @param nums
+     * @param left
+     * @param right
+     */
+    private void quickSort(int[] nums, int left, int right) {
+        //递归退出条件
+        if (left >= right) {
+            return;
+        }
+        //随机选取法
+        int RandomIndex = left + new Random().nextInt(right - left + 1);
+        swap(nums, left, RandomIndex);
+
+        int pivot = nums[left];
+        //重新定义边界，left/right不可变更
+        int less = left;
+        int more = right + 1;
+        // 循环不变量：这里是左闭右闭区间
+        // 小于nums[pivot]区间：[left + 1, less]
+        // 等于nums[pivot]区间：[less + 1, i]
+        // 大于nums[pivot]区间：[more, right]
+        int cur = left + 1;
+        while (cur < more) {
+            if (nums[cur] < pivot) {
+                less++;
+                swap(nums, cur, less);
+                cur++;
+            } else if (nums[cur] == pivot) {
+                cur++;
+            } else {
+                //这里不i++很重要！因为我们无法确定从尾部换来的元素是否小于nums[pivot]
+                more--;
+                swap(nums, cur, more);
+            }
+        }
+        //less最后指向的一定是小于nums[pivot]的元素
+        swap(nums, left, less);
+        //同理more指向大于nums[pivot]的元素
+        quickSort(nums, left, less - 1);
+        quickSort(nums, more, right);
+    }
+
+    /**
+     * 快慢指针
+     * 随机取key，可以解决有序数组的排序复杂度恶化问题，无法解决大量重复的数组排序
+     */
     private int partition(int[] nums, int left, int right) {
+        //随机定key，将其交换到首位begin
+        Random random = new Random();
+        int key = random.nextInt(right - left + 1) + left;
+        swap(nums, left, key);
+        //随机定key，将其交换到首位end
+
+        key = left;
+        int prev = left;
+        int cur = left+1;
+        // cur遇到比key小的此时，prev++，即prev出发一步，之后交换prev与cur的位置的值，cur继续前进。
+        while (cur<=right){
+            //pre左边永远放的是小于key的值，所以每找到一个小于key的值，就向右一步并进行交换
+            if (nums[cur] < nums[key] && ++prev != cur) {
+                swap(nums, prev, cur);
+            }
+            cur++;
+        }
+
+        swap(nums, prev, key);
+        key = prev;
+        return key;
+    }
+
+    private void swap(int[] nums, int a, int b) {
+        int temp = nums[a];
+        nums[a] = nums[b];
+        nums[b] = temp;
+    }
+
+    /**
+     * 挖坑法
+     */
+    private int partition1(int[] nums, int left, int right) {
         int temp = nums[left];
         while (left<right){
             //从右往左找小于temp的数
