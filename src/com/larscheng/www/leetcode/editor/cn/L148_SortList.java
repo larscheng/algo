@@ -47,6 +47,7 @@ package com.larscheng.www.leetcode.editor.cn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
 public class L148_SortList{
@@ -73,6 +74,7 @@ public class L148_SortList{
  *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
  * }
  */
+
 class Solution {
     //归并排序-递归实现，空间复杂度O(logn)，不符合要求
     //归并排序-迭代实现，空间复杂度O(1)
@@ -140,7 +142,7 @@ class Solution {
             }
         }
         if (temp == null) {
-           return null;
+            return null;
         }
         ListNode next = temp.next;
         temp.next = null;
@@ -157,8 +159,28 @@ class Solution {
         return length;
     }
 }
-//leetcode submit region end(Prohibit modification and deletion)
 
+//leetcode submit region end(Prohibit modification and deletion)
+class Solution123 {
+    public ListNode sortList(ListNode head) {
+        if (head==null){
+            return null;
+        }
+        PriorityQueue<Integer> queue = new PriorityQueue<>();
+        while (head!=null) {
+            queue.offer(head.val);
+            head = head.next;
+        }
+        ListNode dummy = new ListNode(-1);
+        ListNode cur = new ListNode(queue.poll());
+        dummy.next = cur;
+        while (!queue.isEmpty()) {
+            cur.next = new ListNode(queue.poll());
+            cur = cur.next;
+        }
+        return  dummy.next;
+    }
+}
     class Solution1 {
         //节点收集、排序、构建升序链表
         //O(nlogn)/O(n)
