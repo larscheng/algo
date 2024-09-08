@@ -44,7 +44,6 @@ package com.larscheng.www.leetcode.editor.cn;
 
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class L40_CombinationSumIi{
       
@@ -63,35 +62,35 @@ class Solution {
      *
      * 画出树形图，可以观察到同一层中的元素不可以重复，同一个元素仅一次有效
      */
-    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
-        int length = candidates.length;
-        List<List<Integer>> res = new ArrayList<>();
 
+    List<List<Integer>> res = new ArrayList<>();
+    LinkedList<Integer> track = new LinkedList<>();
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
         Arrays.sort(candidates);
-        Deque<Integer> queue = new ArrayDeque<>();
-        dfs(candidates,0,target,length,queue,res);
+        backtrack(candidates,0,target);
         return res;
     }
 
-    private void dfs(int[] candidates, int begin, int target, int length, Deque<Integer> queue, List<List<Integer>> res) {
+    private void backtrack(int[] candidates, int begin, int target) {
         if (target==0){
-            res.add(new ArrayList<>(queue));
+            res.add(new ArrayList<>(track));
             System.out.println();
             return;
         }
 
-        for (int i = begin; i < length; i++) {
+        for (int i = begin; i < candidates.length; i++) {
             if (target - candidates[i] < 0) {
                 break;
             }
+            //元素有重复，需要剪枝
             if (i > begin && candidates[i] == candidates[i - 1]) {
                 continue;
             }
-            queue.addLast(candidates[i]);
+            track.addLast(candidates[i]);
 
-            dfs(candidates, i + 1, target - candidates[i], length, queue, res);
+            backtrack(candidates, i + 1, target - candidates[i]);
 
-            queue.removeLast();
+            track.removeLast();
         }
     }
 }

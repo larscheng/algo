@@ -52,7 +52,7 @@ public class L1143_LongestCommonSubsequence{
       
   public static void main(String[] args) {
        Solution solution = new L1143_LongestCommonSubsequence().new Solution();
-      System.out.println(solution.longestCommonSubsequence("abcde", "ace"));
+      System.out.println(solution.longestCommonSubsequence("abc", "aea"));
   }
 
     /**

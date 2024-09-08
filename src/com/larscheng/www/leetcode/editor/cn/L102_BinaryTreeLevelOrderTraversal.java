@@ -43,7 +43,7 @@ public class L102_BinaryTreeLevelOrderTraversal{
       
   public static void main(String[] args) {
        Solution solution = new L102_BinaryTreeLevelOrderTraversal().new Solution();
-       
+       String aaa = "123#123";
   }
   public class TreeNode {
       int val;

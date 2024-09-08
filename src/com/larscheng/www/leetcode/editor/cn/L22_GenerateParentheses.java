@@ -36,6 +36,7 @@ public class L22_GenerateParentheses{
       
   public static void main(String[] args) {
        Solution solution = new L22_GenerateParentheses().new Solution();
+       Solution1 solution1 = new L22_GenerateParentheses().new Solution1();
       System.out.println(solution.generateParenthesis(3));
   }
 
@@ -57,12 +58,12 @@ class Solution {
             return;
         }
         if (left < max) {
-            cur.append('(');
+            cur.append("(");
             backtrack(res, cur, left + 1, right, max);
             cur.deleteCharAt(cur.length() - 1);
         }
         if (right < left) {
-            cur.append(')');
+            cur.append(")");
             backtrack(res, cur, left, right + 1, max);
             cur.deleteCharAt(cur.length() - 1);
         }

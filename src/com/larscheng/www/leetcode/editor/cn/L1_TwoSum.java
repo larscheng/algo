@@ -53,10 +53,10 @@ import java.util.*;
 public class L1_TwoSum{
       
   public static void main(String[] args) {
-      //Solution solution = new L1_TwoSum().new Solution();
+      Solution solution = new L1_TwoSum().new Solution();
       //Solution1 solution = new L1_TwoSum().new Solution1();
       //Solution2 solution = new L1_TwoSum().new Solution2();
-       Solution3 solution = new L1_TwoSum().new Solution3();
+//       Solution3 solution = new L1_TwoSum().new Solution3();
       int[] ints = solution.twoSum(new int[]{3, 2, 4}, 6);
       for (int i = 0; i < ints.length; i++) {
           System.out.println(ints[i]);
@@ -65,6 +65,20 @@ public class L1_TwoSum{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        HashMap<Integer,Integer> map = new HashMap();
+        for (int i = 0; i < nums.length; i++) {
+            int temp = target-nums[i];
+            if (map.containsKey(temp)) {
+                return new int[]{i,map.get(temp)};
+            }else{
+                map.put(nums[i], i);
+            }
+        }
+        return null;
+    }
+}
+}class Solution11 {
     public int[] twoSum(int[] nums, int target) {
         //3,2,4:2结束
         for (int i = 0; i < nums.length-1; i++) {
@@ -144,4 +158,3 @@ class Solution3 {
 //leetcode submit region end(Prohibit modification and deletion)
 
 
-}

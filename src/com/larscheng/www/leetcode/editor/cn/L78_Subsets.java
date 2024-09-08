@@ -33,10 +33,7 @@
 package com.larscheng.www.leetcode.editor.cn;
 
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 public class L78_Subsets{
       
@@ -49,20 +46,20 @@ public class L78_Subsets{
 class Solution {
       //回溯
     //数组中的元素不可重复使用，从第1个元素为起点，递归收集子集，回溯重置状态后更换起点，继续收集
+    List<List<Integer>> res = new ArrayList<>();
+    LinkedList<Integer> track = new LinkedList<>();
     public List<List<Integer>> subsets(int[] nums) {
-        List<List<Integer>> res = new ArrayList<>();
-        Deque<Integer> deque = new ArrayDeque<>();
-        dfs(nums,0,nums.length,res,deque);
+        dfs(nums,0,nums.length);
         return res;
     }
 
-    private void dfs(int[] nums, int index, int length, List<List<Integer>> res, Deque<Integer> deque) {
-        res.add(new ArrayList<>(deque));
+    private void dfs(int[] nums, int index, int length) {
+        res.add(new ArrayList<>(track));
 
         for (int i = index; i < length; i++) {
-            deque.addLast(nums[i]);
-            dfs(nums,i+1,length,res,deque);
-            deque.removeLast();
+            track.addLast(nums[i]);
+            dfs(nums,i+1,length);
+            track.removeLast();
         }
 
     }

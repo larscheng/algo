@@ -66,36 +66,33 @@ class Solution {
      *
      *
      */
+
+    List<List<Integer>> res = new ArrayList<>();
+    LinkedList<Integer> track = new LinkedList<>();
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
-        int length = candidates.length;
-        List<List<Integer>> res = new ArrayList<>();
-        if (length == 0) {
-            return res;
-        }
         Arrays.sort(candidates);
-        Deque<Integer> queue = new ArrayDeque<>();
-        dfs(candidates, 0, length, target, queue, res);
+        dfs(candidates, 0, target);
         return res;
     }
 
-    private void dfs(int[] candidates, int begin, int length, int target, Deque<Integer> queue, List<List<Integer>> res) {
+    private void dfs(int[] candidates, int begin,int target) {
         if (target == 0) {
-            res.add(new ArrayList<>(queue));
+            res.add(new ArrayList<>(track));
             return;
         }
 
-        for (int i = begin; i < length; i++) {
+        for (int i = begin; i < candidates.length; i++) {
             //剪枝
             if (target-candidates[i] < 0) {
                 break;
             }
-            queue.addLast(candidates[i]);
+            track.addLast(candidates[i]);
 
             //数字可重复使用，但是在递归中已经走过的位置就不用再拿来用了，防止结果重复
             //[2,2,3]和[2,3,2]重复
-            dfs(candidates, i, length, target-candidates[i], queue, res);
+            dfs(candidates, i, target-candidates[i]);
             //回溯，状态恢复
-            queue.removeLast();
+            track.removeLast();
         }
     }
 }
