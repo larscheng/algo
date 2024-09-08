@@ -57,6 +57,37 @@ public class L39_CombinationSum{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
+
+    List<List<Integer>> res = new ArrayList<>();
+    LinkedList<Integer> track = new LinkedList<>();
+    int targetSum = 0;
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        backtrack(candidates, 0, target);
+        return res;
+    }
+
+    private void backtrack(int[] candidates, int begin,int target) {
+        if (target == targetSum) {
+            res.add(new ArrayList<>(track));
+            return;
+        }
+        if (target<targetSum){
+            return;
+        }
+        for (int i = begin; i < candidates.length; i++) {
+            targetSum+=candidates[i];
+            track.addLast(candidates[i]);
+            //数字可重复使用，但是在递归中已经走过的位置就不用再拿来用了，防止结果重复
+            //[2,2,3]和[2,3,2]重复
+            backtrack(candidates, i, target);
+            //回溯，状态恢复
+            targetSum-=candidates[i];
+            track.removeLast();
+        }
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+class Solution1 {
     /**
      * 以[2,3,6,7],target=7为例
      * 7-2-2-3=0，则[2,2,3]符合
@@ -96,7 +127,5 @@ class Solution {
         }
     }
 }
-//leetcode submit region end(Prohibit modification and deletion)
-
 
 }
