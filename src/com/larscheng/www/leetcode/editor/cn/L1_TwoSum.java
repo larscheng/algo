@@ -50,111 +50,116 @@ package com.larscheng.www.leetcode.editor.cn;
 
 import java.util.*;
 
-public class L1_TwoSum{
-      
-  public static void main(String[] args) {
-      Solution solution = new L1_TwoSum().new Solution();
-      //Solution1 solution = new L1_TwoSum().new Solution1();
-      //Solution2 solution = new L1_TwoSum().new Solution2();
-//       Solution3 solution = new L1_TwoSum().new Solution3();
-      int[] ints = solution.twoSum(new int[]{3, 2, 4}, 6);
-      for (int i = 0; i < ints.length; i++) {
-          System.out.println(ints[i]);
-      }
-  }
+public class L1_TwoSum {
 
-//leetcode submit region begin(Prohibit modification and deletion)
-class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        HashMap<Integer,Integer> map = new HashMap();
-        for (int i = 0; i < nums.length; i++) {
-            int temp = target-nums[i];
-            if (map.containsKey(temp)) {
-                return new int[]{i,map.get(temp)};
-            }else{
-                map.put(nums[i], i);
-            }
+    public static void main(String[] args) {
+        Solution solution = new L1_TwoSum().new Solution();
+        //Solution1 solution = new L1_TwoSum().new Solution1();
+        //Solution2 solution = new L1_TwoSum().new Solution2();
+//       Solution3 solution = new L1_TwoSum().new Solution3();
+        int[] ints = solution.twoSum(new int[]{3, 2, 4}, 6);
+        for (int i = 0; i < ints.length; i++) {
+            System.out.println(ints[i]);
         }
-        return null;
     }
-}
-}class Solution11 {
-    public int[] twoSum(int[] nums, int target) {
-        //3,2,4:2结束
-        for (int i = 0; i < nums.length-1; i++) {
-            //3,2,4:4结束
-            for (int j = i+1; j < nums.length; j++) {
-                if (nums[i]+nums[j]==target){
-                    return new int[]{i,j};
+
+    //leetcode submit region begin(Prohibit modification and deletion)
+    class Solution {
+        public int[] twoSum(int[] nums, int target) {
+            HashMap<Integer, Integer> map = new HashMap();
+            for (int i = 0; i < nums.length; i++) {
+                int temp = target - nums[i];
+                if (map.containsKey(temp)) {
+                    return new int[]{i, map.get(temp)};
+                } else {
+                    map.put(nums[i], i);
                 }
             }
+            return null;
         }
-        return null;
     }
-}
-class Solution1 {
-    public int[] twoSum(int[] nums, int target) {
-        Map<Integer,Integer> map = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            map.put(nums[i],i);
-        }
-        for (int i = 0; i < nums.length; i++) {
-            int num = target - nums[i];
 
-            if (map.containsKey(num) && map.get(target - nums[i]) != i) {
-                return new int[]{i, map.get(target - nums[i])};
+    //leetcode submit region end(Prohibit modification and deletion)
+    class Solution11 {
+        public int[] twoSum(int[] nums, int target) {
+            //3,2,4:2结束
+            for (int i = 0; i < nums.length - 1; i++) {
+                //3,2,4:4结束
+                for (int j = i + 1; j < nums.length; j++) {
+                    if (nums[i] + nums[j] == target) {
+                        return new int[]{i, j};
+                    }
+                }
             }
+            return null;
         }
-        return null;
     }
-}
-class Solution2 {
-    /**
-     * O(N)/O(N)
-     * @param nums
-     * @param target
-     * @return
-     */
-    public int[] twoSum(int[] nums, int target) {
-        Map<Integer,Integer> map = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int num = target-nums[i];
-            if (map.containsKey(num)) {
-                return new int[]{i, map.get(num)};
-            } else {
+
+    class Solution1 {
+        public int[] twoSum(int[] nums, int target) {
+            Map<Integer, Integer> map = new HashMap<>();
+            for (int i = 0; i < nums.length; i++) {
                 map.put(nums[i], i);
             }
+            for (int i = 0; i < nums.length; i++) {
+                int num = target - nums[i];
+
+                if (map.containsKey(num) && map.get(target - nums[i]) != i) {
+                    return new int[]{i, map.get(target - nums[i])};
+                }
+            }
+            return null;
         }
-        return null;
+    }
+
+    class Solution2 {
+        /**
+         * O(N)/O(N)
+         *
+         * @param nums
+         * @param target
+         * @return
+         */
+        public int[] twoSum(int[] nums, int target) {
+            Map<Integer, Integer> map = new HashMap<>();
+            for (int i = 0; i < nums.length; i++) {
+                int num = target - nums[i];
+                if (map.containsKey(num)) {
+                    return new int[]{i, map.get(num)};
+                } else {
+                    map.put(nums[i], i);
+                }
+            }
+            return null;
+        }
+    }
+
+    class Solution3 {
+        public int[] twoSum(int[] nums, int target) {
+            Map<Integer, Integer> map = new HashMap<>();
+            int left = 0;
+            int right = nums.length - 1;
+            while (left <= right) {
+                int left1 = nums[left];
+                int right1 = target - left1;
+
+                int right2 = nums[right];
+                int left2 = target - right2;
+                if (map.containsKey(right1)) {
+                    return new int[]{left, map.get(right1)};
+                } else {
+                    map.put(left1, left);
+                    left++;
+                }
+                if (map.containsKey(left2)) {
+                    return new int[]{right, map.get(left2)};
+                } else {
+                    map.put(right2, right);
+                    right--;
+                }
+            }
+            return null;
+        }
     }
 }
-class Solution3 {
-    public int[] twoSum(int[] nums, int target) {
-        Map<Integer,Integer> map = new HashMap<>();
-        int left = 0;
-        int right = nums.length-1;
-        while (left<=right){
-            int left1 = nums[left];
-            int right1 = target-left1;
-
-            int right2 = nums[right];
-            int left2 = target-right2;
-            if (map.containsKey(right1)){
-                return new int[]{left,map.get(right1)};
-            }else {
-                map.put(left1,left);
-                left++;
-            }
-            if (map.containsKey(left2)){
-                return new int[]{right,map.get(left2)};
-            }else {
-                map.put(right2,right);
-                right--;
-            }
-        }
-        return null;
-    }
-}
-//leetcode submit region end(Prohibit modification and deletion)
-
 
