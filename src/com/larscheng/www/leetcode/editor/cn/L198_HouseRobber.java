@@ -36,11 +36,15 @@
 package com.larscheng.www.leetcode.editor.cn;
 
 
+import java.util.*;
+
 public class L198_HouseRobber{
       
   public static void main(String[] args) {
        Solution solution = new L198_HouseRobber().new Solution();
+       Solution2 solution2 = new L198_HouseRobber().new Solution2();
       System.out.println(solution.rob(new int[]{0}));
+      solution2.rob(new int[]{2,7,9,3,1});
   }
 
     /**
@@ -88,5 +92,33 @@ class Solution1 {
         return cur;
     }
 }
+class Solution2 {
+    /**
+     * 输出路径
+     */
+        public int[] rob(int[] nums) {
+            int[][] dp = new int[nums.length][2];
+            dp[0][0]=0;
+            dp[0][1]=nums[0];
+            dp[1][0]=nums[0];
+            dp[1][1]=nums[1];
+            int maxMoney=0;
+            for (int i = 2; i < nums.length ; i++) {
+                dp[i][0]=dp[i-1][1];//这家不偷，上家必偷
+                dp[i][1]=Math.max(dp[i-2][1],dp[i-2][0])+nums[i];
+                maxMoney = Math.max(dp[i][0],dp[i][1]);
+            }
+            List<Integer> path = new ArrayList<>();
+            int flag = dp[nums.length - 1][0] == maxMoney ? 0 : 1;
+            for (int i = nums.length - 1; i >= 0; i--) {
+                if (dp[i][flag] == maxMoney) {
+                    path.add(nums[i]);
+                    maxMoney -= nums[i];
+                }
+            }
+            Collections.reverse(path);
+            return path.stream().mapToInt(Integer::intValue).toArray();
+        }
+    }
 
 }

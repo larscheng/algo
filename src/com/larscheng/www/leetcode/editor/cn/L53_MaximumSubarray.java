@@ -44,12 +44,14 @@
 package com.larscheng.www.leetcode.editor.cn;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class L53_MaximumSubarray{
       
   public static void main(String[] args) {
-       Solution solution = new L53_MaximumSubarray().new Solution();
+       Solution2 solution = new L53_MaximumSubarray().new Solution2();
       System.out.println(solution.maxSubArray(new int[]{-2, 1, -3, 4, -1, 2, 1, -5, 4}));
 //      System.out.println(solution.maxSubArray(new int[]{-1}));
 //      System.out.println(solution.maxSubArray(new int[]{-2,1}));
@@ -79,6 +81,9 @@ class Solution {
 }
 //leetcode submit region end(Prohibit modification and deletion)
 class Solution2 {
+    /**
+     * 输出路径
+     */
     public int maxSubArray(int[] nums) {
         //动态规划 定义状态(子问题)->状态转移方程
         //子问题：
@@ -91,15 +96,24 @@ class Solution2 {
         // 最终取dp[]中的最大值
         // O(n)/O(n)
         int[] dp = new int[nums.length];
+        List<Integer> path = new ArrayList<>();
+        List<Integer> maxPath = new ArrayList<>();
         dp[0] = nums[0];
         int res = dp[0];
+        path.add(nums[0]);
         for (int i = 1; i < nums.length; i++) {
             if (dp[i - 1] > 0) {
                 dp[i] = dp[i - 1] + nums[i];
             } else {
+                path.clear();
                 dp[i] = nums[i];
             }
-            res = Math.max(dp[i], res);
+            path.add(nums[i]);
+
+            if (dp[i]>res){
+                res = dp[i];
+                maxPath = new ArrayList<>(path);
+            }
         }
         return res;
     }
