@@ -101,7 +101,7 @@ class Solution {
 
         if (count>2) {
             //n数之和为target  a+b+c+...=target a+b=target-c-...
-            for (int i = 0; i < size; i++) {
+            for (int i = start; i < size; i++) {
                 //递归计算n-1数之和为target-nums[i]
                 List<List<Integer>> temp = nNumSum(nums, count-1, i+1, target-nums[i]);
                 for (List<Integer> list : temp) {

@@ -40,44 +40,74 @@ public class L5_LongestPalindromicSubstring{
 
 //leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
-    /**
-     * 动态规划
-     * 串aba是回文串，cabac也一定是回文串
-     * dp[i][j]表示字符串s[i:j]是否是回文串
-     * 字符串s[i:j]的长度为len=j-i+1
-     * 如果len<=2,dp[i][j] = (s[i]==s[j])
-     * 如果len >2,dp[i][j] = (s[i]==s[j]) && dp[i+1][j-1]
-     * O(n*n)/O(n*n)
+    /***
+     *
+     * 回文串中心点向外发散，aba、abca，中心点有两种情况奇数和偶数
+     *
+     * 遍历每一个元素，作为中心点，向两边扩散，找回文串，记录最长的回文串
+     *
+     *
      */
     public String longestPalindrome(String s) {
-        if (s == null || s.isEmpty()) {
-            return null;
-        }
-        if (s.length()==1){
-            return s;
-        }
-        int start=0;
-        int maxLen = 0;
-        boolean[][] dp = new boolean[s.length()][s.length()];
+        String res = "";
 
-        for (int i = s.length()-1; i >=0 ; i--) {
-            for (int j = i; j < s.length() ; j++) {
-                int len = j-i+1;
-                //如果len<=2,dp[i][j] = (s[i]==s[j])
-                //如果len >2,dp[i][j] = (s[i]==s[j]) && dp[i+1][j-1]
-                dp[i][j] = (s.charAt(i)==s.charAt(j)) && (len <= 2 || dp[i + 1][j - 1]);
-                if (dp[i][j] && len > maxLen) {
-                    maxLen = len;
-                    start = i;
-                }
-            }
+        for (int i = 0; i < s.length(); i++) {
+            String s1 = findStr(s,i,i);
+            String s2 = findStr(s,i,i+1);
+            res = res.length()>s1.length()?res:s1;
+            res = res.length()>s2.length()?res:s2;
         }
-        return s.substring(start, start + maxLen);
+        return res;
+    }
+
+    private String findStr(String s, int left, int right) {
+        //找到回文串之后，会继续扩展，如果下一个不是回文串，结束while
+        while (left>=0&&right<=s.length()-1&&s.charAt(left)==s.charAt(right)) {
+            left--;
+            right++;
+        }
+        //结束while之前上一轮是回文串left+1，substring左闭右开，right不用-1
+        return s.substring(left+1, right);
     }
 }
 //leetcode submit region end(Prohibit modification and deletion)
 
+    class Solution3 {
+        /**
+         * 动态规划
+         * 串aba是回文串，cabac也一定是回文串
+         * dp[i][j]表示字符串s[i:j]是否是回文串
+         * 字符串s[i:j]的长度为len=j-i+1
+         * 如果len<=2,dp[i][j] = (s[i]==s[j])
+         * 如果len >2,dp[i][j] = (s[i]==s[j]) && dp[i+1][j-1]
+         * O(n*n)/O(n*n)
+         */
+        public String longestPalindrome(String s) {
+            if (s == null || s.isEmpty()) {
+                return null;
+            }
+            if (s.length()==1){
+                return s;
+            }
+            int start=0;
+            int maxLen = 0;
+            boolean[][] dp = new boolean[s.length()][s.length()];
 
+            for (int i = s.length()-1; i >=0 ; i--) {
+                for (int j = i; j < s.length() ; j++) {
+                    int len = j-i+1;
+                    //如果len<=2,dp[i][j] = (s[i]==s[j])
+                    //如果len >2,dp[i][j] = (s[i]==s[j]) && dp[i+1][j-1]
+                    dp[i][j] = (s.charAt(i)==s.charAt(j)) && (len <= 2 || dp[i + 1][j - 1]);
+                    if (dp[i][j] && len > maxLen) {
+                        maxLen = len;
+                        start = i;
+                    }
+                }
+            }
+            return s.substring(start, start + maxLen);
+        }
+    }
 
     class Solution2 {
         /**
