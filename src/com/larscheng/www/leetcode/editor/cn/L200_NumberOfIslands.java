@@ -50,7 +50,13 @@ public class L200_NumberOfIslands{
       
   public static void main(String[] args) {
        Solution solution = new L200_NumberOfIslands().new Solution();
-       
+      solution.numIslands(new char[][]{
+                      {'1', '1', '0', '0', '0'},
+                      {'1', '1', '0', '0', '0'},
+                      {'0', '0', '1', '0', '0'},
+                      {'0', '0', '0', '1', '1'}
+              }
+      );
   }
 
 //leetcode submit region begin(Prohibit modification and deletion)
@@ -70,7 +76,7 @@ class Solution {
     }
 
     private void dfs(char[][] grid, int i, int j) {
-        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length) {
+        if (i < 0 || i > grid.length-1 || j < 0 || j > grid[0].length-1) {
             return;
         }
         if (grid[i][j]!='1'){
