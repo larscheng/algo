@@ -49,7 +49,7 @@ import java.util.Stack;
 public class L94_BinaryTreeInorderTraversal{
       
   public static void main(String[] args) {
-       Solution solution = new L94_BinaryTreeInorderTraversal().new Solution();
+       Solution3 solution = new L94_BinaryTreeInorderTraversal().new Solution3();
       TreeNode node = new TreeNode(3,
                        new TreeNode(9,null,null),
                        new TreeNode(20,
