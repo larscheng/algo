@@ -84,6 +84,26 @@ class Solution {
         head.next = null;
         return newHead;
     }
+
+    ListNode temp = null;
+
+    /**
+     * 递归反转前N个节点
+     */
+    public ListNode reverseN(ListNode head,int n) {
+        if (n==1){
+            temp = head.next;
+            return head;
+        }
+        ListNode newHead = reverseN(head.next,n-1);
+        //反转指向
+        head.next.next = head;
+        //断开原本的指向
+        head.next = temp;
+        return newHead;
+    }
+
+
 }
 //leetcode submit region end(Prohibit modification and deletion)
 
@@ -117,6 +137,25 @@ class Solution1 {
         }
         return pre;
     }
+
+    public ListNode reverseN(ListNode head,int n) {
+        ListNode cur = head;
+        ListNode pre = null;
+        while (n>0){
+            //保留原始结构
+            ListNode next = cur.next;
+            //反转指向
+            cur.next = pre;
+            //继续遍历
+            pre = cur;
+            cur = next;
+            n--;
+        }
+        //head是反转后的最后一个节点，cur是第n+1个节点，两部分要连起来
+        head.next = cur;
+        return pre;
+    }
+
 }
 
 }
