@@ -66,6 +66,19 @@ public class L24_SwapNodesInPairs{
  * }
  */
 class Solution {
+
+
+    public ListNode swapPairs(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode node1 = head;
+        ListNode node2 = head.next;
+        ListNode others = head.next.next;
+        node2.next = node1;
+        node1.next = swapPairs(others);
+        return node2;
+    }
     /**
      * 递归
      * 假设others为已经交换完成的链表
@@ -80,14 +93,14 @@ class Solution {
      *
      * O(n)/O(1)
      */
-    public ListNode swapPairs(ListNode head) {
+    public ListNode swapPairs1(ListNode head) {
         if (head == null || head.next == null) {
             return head;
         }
         //[1,2,3,4]
         ListNode temp = head.next;
         //其他节点递归交换 1->[4,3]
-        head.next = swapPairs(temp.next);
+        head.next = swapPairs1(temp.next);
         //2->[1,4,3]
         temp.next = head;
         return temp;
